@@ -1,0 +1,162 @@
+version: '3.8'
+
+services:
+  # -----------------------------
+  # MongoDB Service
+  # -----------------------------
+  mongodb:
+    image: mongo:6.0
+    container_name: clearvue_mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+      - ./mongo-init:/docker-entrypoint-initdb.d  # For initialization scripts
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: clearvue123
+      MONGO_INITDB_DATABASE: clearvue_bi
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - clearvue_network
+
+  # -----------------------------
+  # Zookeeper Service
+  # -----------------------------
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.4.0
+    container_name: clearvue_zookeeper
+    restart: unless-stopped
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+      ZOOKEEPER_SYNC_LIMIT: 2
+    volumes:
+      - zookeeper_data:/var/lib/zookeeper/data
+      - zookeeper_logs:/var/lib/zookeeper/log
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "2181"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    networks:
+      - clearvue_network
+
+  # -----------------------------
+  # Kafka Service
+  # -----------------------------
+  kafka:
+    image: confluentinc/cp-kafka:7.4.0
+    container_name: clearvue_kafka
+    restart: unless-stopped
+    depends_on:
+      zookeeper:
+        condition: service_healthy
+    ports:
+      - "9092:9092"       # Internal communication
+      - "29092:29092"     # Host communication
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      
+      # Listener Configuration
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,PLAINTEXT_HOST://0.0.0.0:29092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      
+      # Topic Configuration
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      
+      # Performance Tuning
+      KAFKA_NUM_PARTITIONS: 3
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 1
+      KAFKA_LOG_RETENTION_HOURS: 168  # 7 days
+      KAFKA_LOG_SEGMENT_BYTES: 1073741824  # 1GB
+      KAFKA_LOG_RETENTION_BYTES: 1073741824  # 1GB
+      
+      # Auto-create topics for ClearVue streams
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+    healthcheck:
+      test: ["CMD", "kafka-topics", "--bootstrap-server", "localhost:9092", "--list"]
+      interval: 30s
+      timeout: 15s
+      retries: 3
+      start_period: 60s
+    networks:
+      - clearvue_network
+
+  # -----------------------------
+  # Kafka UI (for monitoring and debugging)
+  # -----------------------------
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: clearvue_kafka_ui
+    restart: unless-stopped
+    depends_on:
+      kafka:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: clearvue-cluster
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+      KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:2181
+    networks:
+      - clearvue_network
+
+  # -----------------------------
+  # MongoDB Express (for database management)
+  # -----------------------------
+  mongo-express:
+    image: mongo-express:latest
+    container_name: clearvue_mongo_express
+    restart: unless-stopped
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    ports:
+      - "8081:8081"
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: admin
+      ME_CONFIG_MONGODB_ADMINPASSWORD: clearvue123
+      ME_CONFIG_MONGODB_URL: mongodb://admin:clearvue123@mongodb:27017/
+      ME_CONFIG_BASICAUTH_USERNAME: clearvue
+      ME_CONFIG_BASICAUTH_PASSWORD: admin123
+    networks:
+      - clearvue_network
+
+# -----------------------------
+# Networks
+# -----------------------------
+networks:
+  clearvue_network:
+    driver: bridge
+    name: clearvue_streaming_network
+
+# -----------------------------
+# Volumes
+# -----------------------------
+volumes:
+  mongo_data:
+    name: clearvue_mongo_data
+  zookeeper_data:
+    name: clearvue_zookeeper_data
+  zookeeper_logs:
+    name: clearvue_zookeeper_logs
+  kafka_data:
+    name: clearvue_kafka_data
