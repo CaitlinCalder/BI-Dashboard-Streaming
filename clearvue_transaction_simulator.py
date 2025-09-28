@@ -16,7 +16,7 @@ fake = Faker()
 class ClearVueTransactionSimulator:
     def __init__(self):
         # Connect to MongoDB
-        self.client = MongoClient('mongodb://admin:clearvue123@localhost:27017/')
+        self.client = MongoClient('mongodb://localhost:27017/')
         self.db = self.client['clearvue_bi']
         
         # Cache reference data for faster simulation

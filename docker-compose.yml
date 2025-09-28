@@ -1,8 +1,6 @@
-version: '3.8'
-
 services:
   # -----------------------------
-  # MongoDB Service
+  # MongoDB Service (configured as replica set)
   # -----------------------------
   mongodb:
     image: mongo:6.0
@@ -12,17 +10,60 @@ services:
       - "27017:27017"
     volumes:
       - mongo_data:/data/db
-      - ./mongo-init:/docker-entrypoint-initdb.d  # For initialization scripts
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: admin
-      MONGO_INITDB_ROOT_PASSWORD: clearvue123
-      MONGO_INITDB_DATABASE: clearvue_bi
+      - ./mongo-init:/docker-entrypoint-initdb.d
+    
+    # Start without replica set first, then init it
+    command: mongod --replSet rs0 --bind_ip_all
     healthcheck:
       test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 40s
+    networks:
+      - clearvue_network
+
+  # -----------------------------
+  # MongoDB Replica Set Initializer
+  # -----------------------------
+  mongo-setup:
+    image: mongo:6.0
+    container_name: mongo_setup
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: clearvue123
+    command: >
+      bash -c "
+        echo 'Waiting for MongoDB to be ready...'
+        sleep 10
+        echo 'Initializing replica set...'
+        mongosh --host mongodb:27017 -u admin -p clearvue123 --authenticationDatabase admin --eval '
+          try {
+            var result = rs.initiate({
+              _id: \"rs0\",
+              members: [
+                { _id: 0, host: \"mongodb:27017\" }
+              ]
+            })
+            print(\"Replica set initialized successfully\")
+          } catch(e) {
+            if (e.code === 23) {
+              print(\"Replica set already initialized\")
+            } else {
+              print(\"Error initializing replica set: \" + e)
+              throw e
+            }
+          }
+        '
+        echo 'Now restarting MongoDB with replica set enabled...'
+        docker exec clearvue_mongodb mongod --shutdown
+        sleep 5
+        echo 'Setup complete - MongoDB will restart automatically'
+      "
+    restart: "no"
     networks:
       - clearvue_network
 
@@ -62,8 +103,8 @@ services:
       zookeeper:
         condition: service_healthy
     ports:
-      - "9092:9092"       # Internal communication
-      - "29092:29092"     # Host communication
+      - "9092:9092"
+      - "29092:29092"
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
@@ -83,9 +124,9 @@ services:
       # Performance Tuning
       KAFKA_NUM_PARTITIONS: 3
       KAFKA_DEFAULT_REPLICATION_FACTOR: 1
-      KAFKA_LOG_RETENTION_HOURS: 168  # 7 days
-      KAFKA_LOG_SEGMENT_BYTES: 1073741824  # 1GB
-      KAFKA_LOG_RETENTION_BYTES: 1073741824  # 1GB
+      KAFKA_LOG_RETENTION_HOURS: 168
+      KAFKA_LOG_SEGMENT_BYTES: 1073741824
+      KAFKA_LOG_RETENTION_BYTES: 1073741824
       
       # Auto-create topics for ClearVue streams
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
@@ -101,7 +142,7 @@ services:
       - clearvue_network
 
   # -----------------------------
-  # Kafka UI (for monitoring and debugging)
+  # Kafka UI
   # -----------------------------
   kafka-ui:
     image: provectuslabs/kafka-ui:latest
@@ -120,7 +161,7 @@ services:
       - clearvue_network
 
   # -----------------------------
-  # MongoDB Express (for database management)
+  # MongoDB Express
   # -----------------------------
   mongo-express:
     image: mongo-express:latest
@@ -146,6 +187,7 @@ services:
 networks:
   clearvue_network:
     driver: bridge
+    external: true
     name: clearvue_streaming_network
 
 # -----------------------------
@@ -153,10 +195,14 @@ networks:
 # -----------------------------
 volumes:
   mongo_data:
+    external: true
     name: clearvue_mongo_data
   zookeeper_data:
+    external: true
     name: clearvue_zookeeper_data
   zookeeper_logs:
+    external: true
     name: clearvue_zookeeper_logs
   kafka_data:
+    external: true
     name: clearvue_kafka_data
