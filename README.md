@@ -8,7 +8,18 @@ This project implements a real-time streaming pipeline for ClearVue's business i
 MongoDB (Change Streams) → Kafka Producer → Kafka Topics → Kafka Consumer → BI Dashboard
 ```
 
-## Prerequisites
+## Quick Start (TL;DR)
+
+**Essential Files Only:**
+1. Install Docker Desktop
+2. `docker-compose up -d`
+3. Wait 30 seconds, then: `docker exec -it clearvue_mongodb mongosh --eval "rs.initiate({_id: 'rs0', members: [{_id: 0, host: 'localhost:27017'}]})"`
+4. `python clearvue_dummy_data.py`
+5. `python mongodb_kafka_streaming.py`
+6. In new terminal: `python clearvue_transaction_simulator.py`
+
+**Optional (for testing/demo):**
+7. In third terminal: `python clearvue_kafka_consumer.py`
 
 ### Required Software
 1. **Docker Desktop** - Download from [docker.com](https://www.docker.com/products/docker-desktop/)
@@ -27,8 +38,8 @@ pip install pymongo kafka-python faker bson
 NoSQL BI-dashboard/
 ├── docker-compose.yml          # Docker services configuration
 ├── clearvue_dummy_data.py      # Generate test data
-├── clearvue_streaming_pipeline.py  # Main streaming pipeline
-├── clearvue_kafka_consumer.py  # Test message consumer
+├── mongodb_kafka_streaming.py  # Main streaming pipeline
+├── clearvue_kafka_consumer.py  # Test message consumer (OPTIONAL)
 ├── clearvue_transaction_simulator.py  # Generate real-time transactions
 └── README.md                   # This file
 ```
@@ -84,9 +95,11 @@ Database populated successfully!
 
 ## Running the Streaming Pipeline
 
-### Terminal 1: Start the Streaming Pipeline
+### Core Pipeline (Required)
+
+**Terminal 1: Start the Streaming Pipeline**
 ```bash
-python clearvue_streaming_pipeline.py
+python mongodb_kafka_streaming.py
 ```
 
 Expected output:
@@ -96,7 +109,16 @@ Started 4 change stream watchers
 Pipeline is running! Press Ctrl+C to stop
 ```
 
-### Terminal 2: Start the Kafka Consumer (Optional - for testing)
+**Terminal 2: Generate Real-time Transactions**
+```bash
+python clearvue_transaction_simulator.py
+```
+
+Choose option 3 for continuous simulation. This will generate transactions every few seconds.
+
+### Optional: Monitor Messages (For Testing/Demo)
+
+**Terminal 3: Start the Kafka Consumer (Optional)**
 ```bash
 python clearvue_kafka_consumer.py
 ```
@@ -107,31 +129,26 @@ ClearVue Kafka Consumer
 Waiting for messages... (Press Ctrl+C to stop)
 ```
 
-### Terminal 3: Generate Real-time Transactions
-```bash
-python clearvue_transaction_simulator.py
-```
-
-Choose option 3 for continuous simulation. This will generate transactions every few seconds.
+**Note:** The consumer is just for viewing messages - the pipeline works without it.
 
 ## Verifying Everything Works
 
 When everything is working correctly, you should see:
 
-1. **Streaming Pipeline Terminal:** Messages like:
+1. **Streaming Pipeline Terminal (`mongodb_kafka_streaming.py`):**
    ```
    Processed insert on payment_headers (Total processed: 15)
    Sent to Kafka - Topic: clearvue.payments.realtime
    ```
 
-2. **Consumer Terminal:** Real-time messages like:
-   ```
-   + Payment 123456: R15,000.00 (Gauteng) [Completed] | 2024-10-21 14:30
-   ```
-
-3. **Transaction Simulator Terminal:**
+2. **Transaction Simulator Terminal:**
    ```
    Transaction 789012: R25,500.00 (Completed) [Total: 8]
+   ```
+
+3. **Consumer Terminal (if running - optional):**
+   ```
+   + Payment 123456: R15,000.00 (Gauteng) [Completed] | 2024-10-21 14:30
    ```
 
 ## Kafka Topics Created
@@ -194,10 +211,11 @@ docker-compose restart kafka
 docker-compose logs kafka
 ```
 
-**3. No messages in consumer:**
+**3. No messages flowing through Kafka:**
 - Check that transaction simulator is running
 - Verify streaming pipeline shows "Processed insert" messages
-- Check Kafka UI at http://localhost:8080
+- Check Kafka UI at http://localhost:8080 to see topic activity
+- Make sure both terminals are running simultaneously
 
 **4. Python import errors:**
 ```bash
@@ -220,8 +238,7 @@ docker-compose restart mongodb
 ## Development Notes
 
 ### Code Structure:
-- **`clearvue_streaming_pipeline.py`** - Main pipeline with change streams
-- **`clearvue_kafka_consumer.py`** - Consumer for testing/monitoring
+- **`mongodb_kafka_streaming.py`** - Main pipeline with change streams
 - **`clearvue_transaction_simulator.py`** - Generates test transactions
 - **`clearvue_dummy_data.py`** - Data population (replace with your cleaned data)
 
