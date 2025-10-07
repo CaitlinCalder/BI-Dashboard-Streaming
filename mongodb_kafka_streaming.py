@@ -1,17 +1,22 @@
 """
-ClearVue Streaming Pipeline - Real Schema Implementation
-MongoDB Atlas Change Streams to Kafka Producer
-Watches for real-time changes in ClearVue collections and streams them to Kafka
+ClearVue Streaming Pipeline - Final Production Version
+Detects changes in MongoDB Atlas (6 collections) and streams to Kafka for Power BI
 
-Author: ClearVue Implementation Team
+Real-time Detection:
+- Monitors 6 main collections (customers, suppliers, products, sales, payments, purchases)
+- Detects INSERT/UPDATE/DELETE operations via Change Streams
+- Enriches with business context and financial period information
+- Streams to Kafka topics for Power BI real-time dashboard
+
+Author: ClearVue Streaming Team
+Database: Nova_Analytics (MongoDB Atlas)
 Date: October 2025
-Status: Production-ready for real ClearVue data
 """
 
 import json
 import logging
 from datetime import datetime, timedelta
-from typing import Dict, Any
+from typing import Dict, Any, List
 import threading
 import signal
 import sys
@@ -22,35 +27,55 @@ from kafka import KafkaProducer
 from kafka.errors import KafkaError
 import bson
 
-# Logging setup
+# Logging configuration
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler('streaming_pipeline.log'),
+        logging.StreamHandler()
+    ]
 )
 logger = logging.getLogger('ClearVueStreamingPipeline')
 
 class ClearVueStreamingPipeline:
+    """
+    Main streaming pipeline class
+    Connects MongoDB Atlas to Kafka for real-time BI
+    """
+    
     def __init__(self, 
-                 mongo_uri='mongodb+srv://Tyra:1234@novacluster.1re1a4e.mongodb.net/?authSource=admin&retryWrites=true&w=majority',
-                 kafka_servers=['localhost:29092'],
-                 database_name='Nova_Analytics'):
+                 mongo_uri=None,
+                 kafka_servers=None,
+                 database_name=None):
         """
         Initialize the streaming pipeline
         
         Args:
             mongo_uri: MongoDB Atlas connection string
-            kafka_servers: List of Kafka bootstrap servers
+            kafka_servers: Kafka bootstrap servers
             database_name: MongoDB database name
         """
+        
+        print("\n" + "="*70)
+        print("ClearVue Streaming Pipeline - Initializing")
+        print("="*70)
         
         # Connect to MongoDB Atlas
         print("🔌 Connecting to MongoDB Atlas...")
         try:
-            self.mongo_client = MongoClient(mongo_uri, serverSelectionTimeoutMS=5000)
+            self.mongo_client = MongoClient(
+                mongo_uri, 
+                serverSelectionTimeoutMS=5000,
+                connectTimeoutMS=10000
+            )
+            # Test connection
             self.mongo_client.admin.command('ping')
             print("✅ MongoDB Atlas connection successful!")
+            logger.info("Connected to MongoDB Atlas")
         except Exception as e:
             print(f"❌ MongoDB connection failed: {e}")
+            logger.error(f"MongoDB connection failed: {e}")
             raise
         
         self.db = self.mongo_client[database_name]
@@ -62,62 +87,65 @@ class ClearVueStreamingPipeline:
                 bootstrap_servers=kafka_servers,
                 value_serializer=lambda v: json.dumps(v, default=self.json_serializer).encode('utf-8'),
                 key_serializer=lambda k: str(k).encode('utf-8') if k else None,
-                acks='all',
+                acks='all',  # Wait for all replicas
                 retries=3,
                 max_in_flight_requests_per_connection=1,
-                enable_idempotence=True
+                enable_idempotence=True,
+                compression_type='gzip'  # Compress messages
             )
             print("✅ Kafka producer ready!")
+            logger.info("Kafka producer initialized")
         except Exception as e:
             print(f"❌ Kafka setup failed: {e}")
+            logger.error(f"Kafka setup failed: {e}")
             raise
         
-        # Control variables
+        # Pipeline control
         self.is_running = False
         self.change_streams = {}
         
-        # Statistics
+        # Statistics tracking
         self.stats = {
             'total_changes': 0,
             'changes_by_collection': {},
             'changes_by_operation': {},
+            'high_priority_events': 0,
             'last_processed': None,
             'start_time': None,
             'errors': 0
         }
         
-        # Topic mapping for real ClearVue collections
-        # Maps MongoDB collections to Kafka topics
+        # Topic mapping for 6 main collections
+        # These align with your Deliverable 1 conceptual design
         self.topic_mapping = {
-            # Core transaction collections (high priority)
-            'sales_headers': 'clearvue.sales.realtime',
-            'payment_headers': 'clearvue.payments.headers',
-            'payment_lines': 'clearvue.payments.lines',
-            'purchases_headers': 'clearvue.purchases.headers',
-            'purchases_lines': 'clearvue.purchases.lines',
+            # Transaction collections (HIGH PRIORITY for real-time BI)
+            'sales': 'clearvue.sales.realtime',
+            'payments': 'clearvue.payments.realtime',
+            'purchases': 'clearvue.purchases.realtime',
             
-            # Master data collections (medium priority)
+            # Master data collections (MEDIUM PRIORITY)
             'customers': 'clearvue.customers.changes',
             'products': 'clearvue.products.changes',
-            'suppliers': 'clearvue.suppliers.changes',
-            
-            # Reference data collections (low priority)
-            'product_brands': 'clearvue.products.brands',
-            'product_categories': 'clearvue.products.categories',
-            'product_ranges': 'clearvue.products.ranges',
-            'products_styles': 'clearvue.products.styles',
-            'representatives': 'clearvue.representatives.changes',
-            'customer_regions': 'clearvue.customers.regions',
-            'customer_categories': 'clearvue.customers.categories',
-            'trans_types': 'clearvue.reference.transtypes',
-            'age_analysis': 'clearvue.customers.ageanalysis'
+            'suppliers': 'clearvue.suppliers.changes'
         }
         
-        logger.info(f"ClearVue Streaming Pipeline initialized for database: {database_name}")
-        print(f"📊 Monitoring {len(self.topic_mapping)} collections")
+        # Priority levels for different collections
+        self.collection_priority = {
+            'sales': 'HIGH',
+            'payments': 'HIGH',
+            'purchases': 'MEDIUM',
+            'customers': 'MEDIUM',
+            'products': 'MEDIUM',
+            'suppliers': 'LOW'
+        }
+        
+        logger.info(f"Pipeline initialized for database: {database_name}")
+        logger.info(f"Monitoring {len(self.topic_mapping)} collections")
+        print(f"📊 Configured to monitor {len(self.topic_mapping)} collections")
+        print("="*70 + "\n")
     
     def json_serializer(self, obj):
-        """Custom JSON serializer for MongoDB objects"""
+        """Custom JSON serializer for MongoDB and datetime objects"""
         if isinstance(obj, datetime):
             return obj.isoformat()
         elif isinstance(obj, bson.ObjectId):
@@ -131,185 +159,209 @@ class ClearVueStreamingPipeline:
         try:
             from kafka.admin import KafkaAdminClient, NewTopic
             
+            print("📡 Creating/verifying Kafka topics...")
             admin_client = KafkaAdminClient(
                 bootstrap_servers=['localhost:29092'],
-                client_id='clearvue_topic_creator'
+                client_id='clearvue_admin'
             )
             
+            # Define topics with appropriate partitions based on priority
             topics_to_create = []
-            for topic_name in self.topic_mapping.values():
+            for collection, topic_name in self.topic_mapping.items():
+                priority = self.collection_priority[collection]
+                # High priority gets more partitions for parallelism
+                partitions = 5 if priority == 'HIGH' else 3
+                
                 new_topic = NewTopic(
-                    name=topic_name, 
-                    num_partitions=3,
+                    name=topic_name,
+                    num_partitions=partitions,
                     replication_factor=1
                 )
                 topics_to_create.append(new_topic)
             
-            admin_client.create_topics(new_topics=topics_to_create, validate_only=False)
-            logger.info(f"Kafka topics created/verified: {len(topics_to_create)}")
-            print("✅ Kafka topics ready")
+            try:
+                admin_client.create_topics(new_topics=topics_to_create, validate_only=False)
+                logger.info(f"Created {len(topics_to_create)} Kafka topics")
+                print(f"✅ Created/verified {len(topics_to_create)} Kafka topics")
+            except Exception as e:
+                if "already exists" in str(e).lower():
+                    print("✅ Kafka topics already exist")
+                    logger.info("Kafka topics already exist")
+                else:
+                    raise
             
         except Exception as e:
-            logger.warning(f"Topic creation warning (may already exist): {e}")
-            print("⚠️  Topics may already exist (this is fine)")
+            logger.warning(f"Topic creation warning: {e}")
+            print(f"⚠️  Topic warning (may already exist): {e}")
     
-    def get_financial_period(self, date_obj=None):
-        """Calculate ClearVue financial period (YYYYMM format)"""
+    def calculate_financial_period(self, date_obj=None):
+        """
+        Calculate ClearVue financial period
+        Returns YYYYMM format and additional context
+        """
         if date_obj is None:
             date_obj = datetime.now()
         
         fin_period = int(f"{date_obj.year}{date_obj.month:02d}")
+        quarter = ((date_obj.month - 1) // 3) + 1
         
         return {
             'fin_period': fin_period,
             'year': date_obj.year,
             'month': date_obj.month,
-            'quarter': ((date_obj.month - 1) // 3) + 1
+            'quarter': quarter,
+            'month_name': date_obj.strftime('%B'),
+            'quarter_name': f"Q{quarter}"
         }
     
     def enhance_change_event(self, change_doc: Dict[str, Any], collection_name: str) -> Dict[str, Any]:
         """
-        Add business context to change events
-        This enriches raw MongoDB changes with ClearVue business intelligence
+        Transform raw MongoDB change event into enriched message for Power BI
+        Adds business context, financial periods, and metadata
         """
+        
+        # Base event structure
         enhanced_event = {
             'event_id': str(bson.ObjectId()),
             'timestamp': datetime.now().isoformat(),
-            'source': 'clearvue_mongodb_atlas',
+            'source': 'mongodb_atlas',
             'database': self.db.name,
             'collection': collection_name,
             'operation': change_doc['operationType'],
+            'priority': self.collection_priority.get(collection_name, 'LOW'),
             'document_key': change_doc.get('documentKey', {}),
             'change_data': {},
             'business_context': {}
         }
         
-        # Extract changed data
+        # Extract the actual changed data
         if 'fullDocument' in change_doc:
             enhanced_event['change_data'] = change_doc['fullDocument']
         elif 'updateDescription' in change_doc:
-            enhanced_event['change_data'] = change_doc['updateDescription']
+            enhanced_event['change_data'] = {
+                'updated_fields': change_doc['updateDescription'].get('updatedFields', {}),
+                'removed_fields': change_doc['updateDescription'].get('removedFields', [])
+            }
         
-        # Add collection-specific business context
         doc = change_doc.get('fullDocument', {})
         
-        if collection_name == 'sales_headers' and doc:
-            trans_date = doc.get('TRANS_DATE', datetime.now())
-            fin_info = self.get_financial_period(trans_date)
+        # Add collection-specific business context
+        if collection_name == 'sales' and doc:
+            # Sales transaction enrichment
+            trans_date = doc.get('trans_date', datetime.now())
+            fin_info = self.calculate_financial_period(trans_date)
+            
+            # Calculate total from embedded lines
+            total_amount = 0
+            if 'lines' in doc and isinstance(doc['lines'], list):
+                total_amount = sum(line.get('total_line_cost', 0) for line in doc['lines'])
             
             enhanced_event['business_context'] = {
                 'transaction_type': 'sales',
-                'doc_number': doc.get('DOC_NUMBER'),
-                'customer_number': doc.get('CUSTOMER_NUMBER'),
-                'rep_code': doc.get('REP_CODE'),
-                'trans_type': doc.get('TRANSTYPE_CODE'),
-                'fin_period': doc.get('FIN_PERIOD', fin_info['fin_period']),
+                'doc_number': doc.get('_id'),
+                'customer_id': doc.get('customer_id'),
+                'rep_id': doc.get('rep', {}).get('id') if isinstance(doc.get('rep'), dict) else doc.get('rep'),
+                'trans_type': doc.get('trans_type'),
+                'fin_period': doc.get('fin_period', fin_info['fin_period']),
                 'financial_year': fin_info['year'],
-                'financial_quarter': fin_info['quarter'],
-                'priority': 'high'  # Sales are high priority
+                'financial_quarter': fin_info['quarter_name'],
+                'total_amount': total_amount,
+                'line_count': len(doc.get('lines', [])),
+                'metric_category': 'revenue'
             }
         
-        elif collection_name == 'payment_headers' and doc:
-            enhanced_event['business_context'] = {
-                'transaction_type': 'payment_header',
-                'customer_number': doc.get('CUSTOMER_NUMBER'),
-                'deposit_ref': doc.get('DEPOSIT_REF'),
-                'priority': 'high'
-            }
-        
-        elif collection_name == 'payment_lines' and doc:
-            deposit_date = doc.get('DEPOSIT_DATE', datetime.now())
-            fin_info = self.get_financial_period(deposit_date)
+        elif collection_name == 'payments' and doc:
+            # Payment transaction enrichment
+            deposit_date = None
+            total_payment = 0
+            total_discount = 0
+            
+            # Extract from embedded payment lines
+            if 'lines' in doc and isinstance(doc['lines'], list):
+                for line in doc['lines']:
+                    if not deposit_date and 'deposit_date' in line:
+                        deposit_date = line['deposit_date']
+                    total_payment += line.get('tot_payment', 0)
+                    total_discount += line.get('discount', 0)
+            
+            fin_info = self.calculate_financial_period(deposit_date or datetime.now())
             
             enhanced_event['business_context'] = {
-                'transaction_type': 'payment_line',
-                'customer_number': doc.get('CUSTOMER_NUMBER'),
-                'deposit_ref': doc.get('DEPOSIT_REF'),
-                'fin_period': doc.get('FIN_PERIOD', fin_info['fin_period']),
-                'bank_amount': doc.get('BANK_AMT'),
-                'total_payment': doc.get('TOT_PAYMENT'),
-                'discount': doc.get('DISCOUNT'),
-                'priority': 'high'
+                'transaction_type': 'payment',
+                'customer_id': doc.get('customer_id'),
+                'deposit_ref': doc.get('deposit_ref'),
+                'fin_period': fin_info['fin_period'],
+                'financial_year': fin_info['year'],
+                'financial_quarter': fin_info['quarter_name'],
+                'total_payment': round(total_payment, 2),
+                'total_discount': round(total_discount, 2),
+                'payment_count': len(doc.get('lines', [])),
+                'metric_category': 'cash_flow'
             }
         
-        elif collection_name == 'purchases_headers' and doc:
-            purch_date = doc.get('PURCH_DATE', datetime.now())
-            fin_info = self.get_financial_period(purch_date)
+        elif collection_name == 'purchases' and doc:
+            # Purchase order enrichment
+            purch_date = doc.get('purch_date', datetime.now())
+            fin_info = self.calculate_financial_period(purch_date)
+            
+            # Calculate total from lines
+            total_cost = 0
+            if 'lines' in doc and isinstance(doc['lines'], list):
+                total_cost = sum(line.get('total_line_cost', 0) for line in doc['lines'])
             
             enhanced_event['business_context'] = {
-                'transaction_type': 'purchase_header',
-                'purch_doc_no': doc.get('PURCH_DOC_NO'),
-                'supplier_code': doc.get('SUPPLIER_CODE'),
+                'transaction_type': 'purchase',
+                'purch_doc_no': doc.get('_id'),
+                'supplier_id': doc.get('supplier_id'),
+                'fin_period': fin_info['fin_period'],
                 'financial_year': fin_info['year'],
-                'financial_month': fin_info['month'],
-                'priority': 'medium'
-            }
-        
-        elif collection_name == 'purchases_lines' and doc:
-            enhanced_event['business_context'] = {
-                'transaction_type': 'purchase_line',
-                'purch_doc_no': doc.get('PURCH_DOC_NO'),
-                'inventory_code': doc.get('INVENTORY_CODE'),
-                'quantity': doc.get('QUANTITY'),
-                'unit_cost': doc.get('UNIT_COST_PRICE'),
-                'total_cost': doc.get('TOTAL_LINE_COST'),
-                'priority': 'medium'
+                'financial_quarter': fin_info['quarter_name'],
+                'total_cost': round(total_cost, 2),
+                'line_count': len(doc.get('lines', [])),
+                'metric_category': 'procurement'
             }
         
         elif collection_name == 'customers' and doc:
+            # Customer master data enrichment
             enhanced_event['business_context'] = {
-                'transaction_type': 'customer_change',
-                'customer_number': doc.get('CUSTOMER_NUMBER'),
-                'region_code': doc.get('REGION_CODE'),
-                'rep_code': doc.get('REP_CODE'),
-                'category': doc.get('CCAT_CODE'),
-                'credit_limit': doc.get('CREDIT_LIMIT'),
-                'priority': 'medium'
+                'entity_type': 'customer',
+                'customer_id': doc.get('_id'),
+                'customer_name': doc.get('name'),
+                'region': doc.get('region', {}).get('desc') if isinstance(doc.get('region'), dict) else None,
+                'category': doc.get('category', {}).get('desc') if isinstance(doc.get('category'), dict) else None,
+                'credit_limit': doc.get('credit_limit'),
+                'total_due': doc.get('age_analysis', {}).get('total_due', 0) if isinstance(doc.get('age_analysis'), dict) else 0,
+                'metric_category': 'customer_master'
             }
         
         elif collection_name == 'products' and doc:
+            # Product master data enrichment
             enhanced_event['business_context'] = {
-                'transaction_type': 'product_change',
-                'inventory_code': doc.get('INVENTORY_CODE'),
-                'category_code': doc.get('PRODCAT_CODE'),
-                'last_cost': doc.get('LAST_COST'),
-                'stock_indicator': doc.get('STOCK_IND'),
-                'priority': 'medium'
+                'entity_type': 'product',
+                'inventory_code': doc.get('inventory_code'),
+                'brand': doc.get('brand', {}).get('desc') if isinstance(doc.get('brand'), dict) else None,
+                'category': doc.get('category', {}).get('desc') if isinstance(doc.get('category'), dict) else None,
+                'last_cost': doc.get('last_cost'),
+                'in_stock': doc.get('stock_ind'),
+                'metric_category': 'product_master'
             }
         
         elif collection_name == 'suppliers' and doc:
+            # Supplier master data enrichment
             enhanced_event['business_context'] = {
-                'transaction_type': 'supplier_change',
-                'supplier_code': doc.get('SUPPLIER_CODE'),
-                'supplier_desc': doc.get('SUPPLIER_DESC'),
-                'credit_limit': doc.get('CREDIT_LIMIT'),
-                'priority': 'low'
-            }
-        
-        elif collection_name == 'age_analysis' and doc:
-            enhanced_event['business_context'] = {
-                'transaction_type': 'age_analysis',
-                'customer_number': doc.get('CUSTOMER_NUMBER'),
-                'fin_period': doc.get('FIN_PERIOD'),
-                'total_due': doc.get('TOTAL_DUE'),
-                'current': doc.get('AMT_CURRENT'),
-                'overdue_30': doc.get('AMT_30_DAYS'),
-                'overdue_60': doc.get('AMT_60_DAYS'),
-                'overdue_90': doc.get('AMT_90_DAYS'),
-                'priority': 'medium'
-            }
-        
-        else:
-            # Generic context for other collections
-            enhanced_event['business_context'] = {
-                'transaction_type': f'{collection_name}_change',
-                'priority': 'low'
+                'entity_type': 'supplier',
+                'supplier_id': doc.get('_id'),
+                'supplier_name': doc.get('description'),
+                'exclusive': doc.get('exclusive'),
+                'credit_limit': doc.get('credit_limit'),
+                'payment_terms': doc.get('normal_payterms'),
+                'metric_category': 'supplier_master'
             }
         
         return enhanced_event
     
     def send_to_kafka(self, topic: str, key: str, message: Dict[str, Any]) -> bool:
-        """Send message to Kafka with retry logic"""
+        """Send enriched message to Kafka with retry logic"""
         max_retries = 3
         retry_count = 0
         
@@ -319,8 +371,7 @@ class ClearVueStreamingPipeline:
                 record_metadata = future.get(timeout=10)
                 
                 logger.debug(
-                    f"Sent to Kafka - Topic: {topic}, "
-                    f"Partition: {record_metadata.partition}, "
+                    f"Kafka: {topic} | Partition: {record_metadata.partition} | "
                     f"Offset: {record_metadata.offset}"
                 )
                 return True
@@ -330,34 +381,33 @@ class ClearVueStreamingPipeline:
                 logger.error(f"Kafka error (attempt {retry_count}/{max_retries}): {e}")
                 if retry_count < max_retries:
                     time.sleep(1)
-                
             except Exception as e:
                 logger.error(f"Unexpected error sending to Kafka: {e}")
                 self.stats['errors'] += 1
                 return False
         
-        logger.error(f"Failed to send message after {max_retries} attempts")
+        logger.error(f"Failed to send to Kafka after {max_retries} attempts")
         self.stats['errors'] += 1
         return False
     
     def process_change_event(self, change_doc: Dict[str, Any], collection_name: str):
-        """Process a single change event"""
+        """Process a detected change event"""
         try:
-            # Enhance with business context
+            # Enrich the change event
             enhanced_event = self.enhance_change_event(change_doc, collection_name)
             
             # Get Kafka topic
             topic = self.topic_mapping.get(collection_name)
             if not topic:
-                logger.warning(f"No topic mapping for collection: {collection_name}")
+                logger.warning(f"No topic mapping for: {collection_name}")
                 return
             
-            # Create message key
+            # Create message key for partitioning
             doc_key = change_doc.get('documentKey', {})
-            message_key = doc_key.get('_id', enhanced_event['event_id'])
+            message_key = str(doc_key.get('_id', enhanced_event['event_id']))
             
             # Send to Kafka
-            success = self.send_to_kafka(topic, str(message_key), enhanced_event)
+            success = self.send_to_kafka(topic, message_key, enhanced_event)
             
             if success:
                 # Update statistics
@@ -372,26 +422,30 @@ class ClearVueStreamingPipeline:
                     self.stats['changes_by_operation'][operation] = 0
                 self.stats['changes_by_operation'][operation] += 1
                 
+                if enhanced_event['priority'] == 'HIGH':
+                    self.stats['high_priority_events'] += 1
+                
                 self.stats['last_processed'] = datetime.now().isoformat()
                 
-                # Log based on priority
-                priority = enhanced_event['business_context'].get('priority', 'low')
-                if priority == 'high':
+                # Log high priority events prominently
+                if enhanced_event['priority'] == 'HIGH':
                     logger.info(
-                        f"⚡ HIGH PRIORITY: {operation} on {collection_name} "
-                        f"(Total: {self.stats['total_changes']})"
+                        f"⚡ HIGH PRIORITY: {operation} on {collection_name} | "
+                        f"Total: {self.stats['total_changes']}"
                     )
+                    print(f"⚡ {collection_name.upper()}: {operation} detected")
                 else:
                     logger.debug(f"Processed {operation} on {collection_name}")
         
         except Exception as e:
-            logger.error(f"Error processing change event: {e}")
+            logger.error(f"Error processing change event: {e}", exc_info=True)
             self.stats['errors'] += 1
     
     def watch_collection(self, collection_name: str):
-        """Watch a collection for changes"""
+        """Watch a specific collection for changes using Change Streams"""
         collection = self.db[collection_name]
         
+        # Change stream pipeline - only watch insert, update, delete
         pipeline = [
             {
                 '$match': {
@@ -405,8 +459,8 @@ class ClearVueStreamingPipeline:
             'max_await_time_ms': 1000
         }
         
-        logger.info(f"Started watching: {collection_name}")
-        print(f"👁️  Watching {collection_name}")
+        logger.info(f"Started change stream: {collection_name}")
+        print(f"👁️  Watching: {collection_name}")
         
         try:
             with collection.watch(pipeline, **options) as stream:
@@ -418,88 +472,77 @@ class ClearVueStreamingPipeline:
                     self.process_change_event(change, collection_name)
                     
         except Exception as e:
-            logger.error(f"Error in change stream for {collection_name}: {e}")
+            logger.error(f"Change stream error for {collection_name}: {e}", exc_info=True)
             print(f"❌ Stream error for {collection_name}: {e}")
         finally:
             if collection_name in self.change_streams:
                 del self.change_streams[collection_name]
-            logger.info(f"Closed stream: {collection_name}")
+            logger.info(f"Change stream closed: {collection_name}")
     
-    def start_pipeline(self, collections=None, priority_filter=None):
+    def start_pipeline(self, collections: List[str] = None):
         """
         Start the streaming pipeline
         
         Args:
-            collections: List of collections to watch (None = all)
-            priority_filter: Filter collections by priority ('high', 'medium', 'low')
+            collections: List of collections to monitor (None = all 6)
         """
         if self.is_running:
-            print("⚠️  Pipeline already running!")
+            print("⚠️  Pipeline is already running!")
             return
         
-        # Default to all collections
+        # Default to all 6 collections
         if collections is None:
             collections = list(self.topic_mapping.keys())
         
-        # Apply priority filter if specified
-        if priority_filter:
-            priority_map = {
-                'high': ['sales_headers', 'payment_headers', 'payment_lines'],
-                'medium': ['purchases_headers', 'purchases_lines', 'customers', 
-                          'products', 'suppliers', 'age_analysis'],
-                'low': ['product_brands', 'product_categories', 'product_ranges',
-                       'products_styles', 'representatives', 'customer_regions',
-                       'customer_categories', 'trans_types']
-            }
-            if priority_filter in priority_map:
-                collections = [c for c in collections if c in priority_map[priority_filter]]
-        
-        print("\n" + "="*60)
-        print("ClearVue Streaming Pipeline - STARTING")
-        print("="*60)
+        print("\n" + "="*70)
+        print("CLEARVUE STREAMING PIPELINE - STARTING")
+        print("="*70)
         print(f"📊 Database: {self.db.name}")
-        print(f"🎯 Collections: {len(collections)}")
-        if priority_filter:
-            print(f"🔍 Priority Filter: {priority_filter}")
-        print("="*60 + "\n")
+        print(f"🎯 Collections: {', '.join(collections)}")
+        print(f"📡 Kafka Topics: {len(self.topic_mapping)}")
+        print("="*70 + "\n")
         
-        # Create topics
+        # Create Kafka topics
         self.create_kafka_topics()
         
-        # Start pipeline
+        # Mark as running
         self.is_running = True
         self.stats['start_time'] = datetime.now().isoformat()
         
-        # Start watchers
+        # Start change stream watchers
         threads = []
         for collection_name in collections:
             if collection_name in self.topic_mapping:
                 thread = threading.Thread(
                     target=self.watch_collection,
                     args=(collection_name,),
-                    name=f"ChangeStream-{collection_name}"
+                    name=f"Stream-{collection_name}",
+                    daemon=True
                 )
-                thread.daemon = True
                 thread.start()
                 threads.append(thread)
+            else:
+                print(f"⚠️  Unknown collection: {collection_name}")
         
         print(f"✅ Started {len(threads)} change stream watchers\n")
+        logger.info(f"Pipeline started with {len(threads)} watchers")
         
-        # Signal handlers
+        # Setup signal handlers for graceful shutdown
         def signal_handler(signum, frame):
             print("\n⚠️  Shutdown signal received")
+            logger.info("Shutdown signal received")
             self.stop_pipeline()
         
         signal.signal(signal.SIGINT, signal_handler)
         signal.signal(signal.SIGTERM, signal_handler)
         
-        print("🟢 Pipeline is RUNNING!")
+        print("🟢 PIPELINE IS RUNNING!")
         print("💡 Waiting for database changes...")
         print("⌨️  Press Ctrl+C to stop\n")
         
-        # Keep alive and show stats
+        # Keep main thread alive and print stats periodically
         try:
-            stats_interval = 30
+            stats_interval = 30  # Print stats every 30 seconds
             last_stats_time = datetime.now()
             
             while self.is_running and any(t.is_alive() for t in threads):
@@ -512,42 +555,48 @@ class ClearVueStreamingPipeline:
                     
         except KeyboardInterrupt:
             print("\n⚠️  Manual shutdown requested")
+            logger.info("Manual shutdown requested")
             self.stop_pipeline()
         
-        # Wait for threads
+        # Wait for threads to finish
         print("\n⏳ Waiting for threads to finish...")
         for thread in threads:
             thread.join(timeout=5)
         
         print("\n✅ Pipeline stopped successfully")
+        logger.info("Pipeline stopped")
     
     def stop_pipeline(self):
-        """Stop the pipeline cleanly"""
+        """Stop the pipeline gracefully"""
         print("\n🛑 Stopping pipeline...")
+        logger.info("Stopping pipeline...")
         self.is_running = False
         
-        # Close streams
+        # Close change streams
         for collection_name in list(self.change_streams.keys()):
             try:
                 self.change_streams[collection_name].close()
-            except:
-                pass
+                print(f"   Closed stream: {collection_name}")
+            except Exception as e:
+                logger.error(f"Error closing stream {collection_name}: {e}")
         
-        # Close Kafka
+        # Close Kafka producer
         try:
             self.kafka_producer.close()
-            print("✅ Kafka producer closed")
-        except:
-            pass
+            print("   Closed Kafka producer")
+            logger.info("Kafka producer closed")
+        except Exception as e:
+            logger.error(f"Error closing Kafka producer: {e}")
         
-        # Close MongoDB
+        # Close MongoDB connection
         try:
             self.mongo_client.close()
-            print("✅ MongoDB connection closed")
-        except:
-            pass
+            print("   Closed MongoDB connection")
+            logger.info("MongoDB connection closed")
+        except Exception as e:
+            logger.error(f"Error closing MongoDB: {e}")
         
-        # Final stats
+        # Print final statistics
         self.print_stats(final=True)
     
     def print_stats(self, final=False):
@@ -557,57 +606,73 @@ class ClearVueStreamingPipeline:
             start = datetime.fromisoformat(self.stats['start_time'])
             uptime = str(datetime.now() - start).split('.')[0]
         
-        print("\n" + "="*60)
-        print("PIPELINE STATISTICS" + (" - FINAL" if final else ""))
-        print("="*60)
+        print("\n" + "="*70)
+        print(f"PIPELINE STATISTICS{' - FINAL REPORT' if final else ''}")
+        print("="*70)
         print(f"⏱️  Uptime: {uptime}")
         print(f"📊 Total changes: {self.stats['total_changes']}")
+        print(f"⚡ High priority: {self.stats['high_priority_events']}")
         print(f"❌ Errors: {self.stats['errors']}")
         print(f"🕐 Last processed: {self.stats['last_processed']}")
         
         if self.stats['changes_by_collection']:
             print("\n📋 Changes by collection:")
-            for coll, count in sorted(self.stats['changes_by_collection'].items(), 
-                                     key=lambda x: x[1], reverse=True):
-                print(f"   {coll}: {count}")
+            for coll, count in sorted(
+                self.stats['changes_by_collection'].items(),
+                key=lambda x: x[1],
+                reverse=True
+            ):
+                priority = self.collection_priority.get(coll, 'LOW')
+                print(f"   {coll:15} : {count:5} ({priority})")
         
         if self.stats['changes_by_operation']:
             print("\n⚙️  Changes by operation:")
             for op, count in self.stats['changes_by_operation'].items():
-                print(f"   {op}: {count}")
+                print(f"   {op:10} : {count}")
         
-        print("="*60 + "\n")
+        print("="*70 + "\n")
 
 
-if __name__ == "__main__":
-    print("="*60)
-    print("ClearVue Streaming Pipeline - Real Schema")
-    print("="*60)
-    print("\nOptions:")
-    print("1. Monitor ALL collections")
-    print("2. Monitor HIGH priority only (sales, payments)")
-    print("3. Monitor MEDIUM priority (purchases, customers, products)")
-    print("4. Monitor specific collections")
+def main():
+    """Main entry point"""
+    print("\n" + "="*70)
+    print("CLEARVUE STREAMING PIPELINE")
+    print("Real-time Data Streaming for BI Dashboard")
+    print("="*70)
+    print("\nMonitoring Options:")
+    print("1. ALL collections (sales, payments, purchases, customers, products, suppliers)")
+    print("2. TRANSACTION data only (sales, payments, purchases)")
+    print("3. MASTER data only (customers, products, suppliers)")
+    print("4. CUSTOM selection")
     
-    choice = input("\nSelect option (1-4): ").strip()
+    choice = input("\nSelect option (1-4) [default: 1]: ").strip() or "1"
     
     pipeline = None
     try:
         pipeline = ClearVueStreamingPipeline()
         
         if choice == "1":
+            # Monitor all 6 collections
             pipeline.start_pipeline()
         elif choice == "2":
-            pipeline.start_pipeline(priority_filter='high')
+            # Transaction data only
+            pipeline.start_pipeline(collections=['sales', 'payments', 'purchases'])
         elif choice == "3":
-            pipeline.start_pipeline(priority_filter='medium')
+            # Master data only
+            pipeline.start_pipeline(collections=['customers', 'products', 'suppliers'])
         elif choice == "4":
+            # Custom selection
             print("\nAvailable collections:")
             for i, coll in enumerate(pipeline.topic_mapping.keys(), 1):
-                print(f"{i}. {coll}")
+                priority = pipeline.collection_priority[coll]
+                print(f"{i}. {coll} ({priority} priority)")
+            
             selected = input("\nEnter collection names (comma-separated): ").strip()
-            colls = [c.strip() for c in selected.split(',')]
-            pipeline.start_pipeline(collections=colls)
+            if selected:
+                colls = [c.strip() for c in selected.split(',')]
+                pipeline.start_pipeline(collections=colls)
+            else:
+                print("No collections selected, exiting...")
         else:
             print("Invalid option")
             
@@ -615,7 +680,11 @@ if __name__ == "__main__":
         print("\n🛑 Interrupted by user")
     except Exception as e:
         print(f"\n❌ Pipeline failed: {e}")
-        logger.error(f"Fatal error: {e}")
+        logger.error(f"Fatal error: {e}", exc_info=True)
     finally:
         if pipeline:
             pipeline.stop_pipeline()
+
+
+if __name__ == "__main__":
+    main()
