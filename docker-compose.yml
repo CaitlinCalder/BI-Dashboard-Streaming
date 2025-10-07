@@ -217,11 +217,6 @@ services:
       - clearvue_network
 
 
-
-
-
-
-
 # -----------------------------
 # Networks
 # -----------------------------
@@ -247,5 +242,3 @@ volumes:
   kafka_data:
     external: true
     name: clearvue_kafka_data
-
-    
