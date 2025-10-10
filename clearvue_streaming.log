@@ -1,0 +1,78 @@
+2025-10-10 17:46:28,398 - ClearVuePipeline - INFO - Initializing ClearVue Streaming Pipeline...
+2025-10-10 17:46:32,641 - ClearVuePipeline - INFO - Connected to MongoDB: Nova_Analytix
+2025-10-10 17:46:32,647 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=bootstrap-0 host=localhost:29092 <connecting> [IPv6 ('::1', 29092, 0, 0)]>: connecting to localhost:29092 [('::1', 29092, 0, 0) IPv6]
+2025-10-10 17:46:32,664 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=bootstrap-0 host=localhost:29092 <checking_api_versions_recv> [IPv6 ('::1', 29092, 0, 0)]>: Broker version identified as 2.6
+2025-10-10 17:46:32,665 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=bootstrap-0 host=localhost:29092 <connected> [IPv6 ('::1', 29092, 0, 0)]>: Connection complete.
+2025-10-10 17:46:32,665 - ClearVuePipeline - ERROR - Kafka setup failed: Libraries for snappy compression codec not found
+2025-10-10 17:46:32,666 - ClearVuePipeline - ERROR - Fatal error: Libraries for snappy compression codec not found
+Traceback (most recent call last):
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\mongodb_kafka_streaming.py", line 771, in main
+    pipeline = ClearVueStreamingPipeline()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\mongodb_kafka_streaming.py", line 77, in __init__
+    self._setup_kafka_producer()
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\mongodb_kafka_streaming.py", line 154, in _setup_kafka_producer
+    self.kafka_producer = KafkaProducer(
+                          ^^^^^^^^^^^^^^
+  File "C:\Users\caitl\AppData\Local\Programs\Python\Python311\Lib\site-packages\kafka\producer\kafka.py", line 501, in __init__
+    assert checker(), "Libraries for {} compression codec not found".format(ct)
+           ^^^^^^^^^
+AssertionError: Libraries for snappy compression codec not found
+2025-10-10 17:55:59,961 - ClearVuePipeline - INFO - Initializing ClearVue Streaming Pipeline...
+2025-10-10 17:56:03,723 - ClearVuePipeline - INFO - Connected to MongoDB: Nova_Analytix
+2025-10-10 17:56:03,726 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=bootstrap-0 host=localhost:29092 <connecting> [IPv6 ('::1', 29092, 0, 0)]>: connecting to localhost:29092 [('::1', 29092, 0, 0) IPv6]
+2025-10-10 17:56:03,746 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=bootstrap-0 host=localhost:29092 <checking_api_versions_recv> [IPv6 ('::1', 29092, 0, 0)]>: Broker version identified as 2.6
+2025-10-10 17:56:03,746 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=bootstrap-0 host=localhost:29092 <connected> [IPv6 ('::1', 29092, 0, 0)]>: Connection complete.
+2025-10-10 17:56:03,747 - ClearVuePipeline - ERROR - Kafka setup failed: Libraries for snappy compression codec not found
+2025-10-10 17:56:03,748 - ClearVuePipeline - ERROR - Fatal error: Libraries for snappy compression codec not found
+Traceback (most recent call last):
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\mongodb_kafka_streaming.py", line 771, in main
+    pipeline = ClearVueStreamingPipeline()
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\mongodb_kafka_streaming.py", line 77, in __init__
+    self._setup_kafka_producer()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\mongodb_kafka_streaming.py", line 154, in _setup_kafka_producer
+    self.kafka_producer = KafkaProducer(
+                          ~~~~~~~~~~~~~^
+        bootstrap_servers=self.kafka_servers,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+        **ClearVueConfig.KAFKA_PRODUCER_CONFIG
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\kafka\producer\kafka.py", line 501, in __init__
+    assert checker(), "Libraries for {} compression codec not found".format(ct)
+           ~~~~~~~^^
+AssertionError: Libraries for snappy compression codec not found
+2025-10-10 18:08:22,317 - ClearVuePipeline - INFO - Initializing ClearVue Streaming Pipeline...
+2025-10-10 18:08:26,170 - ClearVuePipeline - INFO - Connected to MongoDB: Nova_Analytix
+2025-10-10 18:08:26,179 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=bootstrap-0 host=localhost:29092 <connecting> [IPv6 ('::1', 29092, 0, 0)]>: connecting to localhost:29092 [('::1', 29092, 0, 0) IPv6]
+2025-10-10 18:08:26,201 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=bootstrap-0 host=localhost:29092 <checking_api_versions_recv> [IPv6 ('::1', 29092, 0, 0)]>: Broker version identified as 2.6
+2025-10-10 18:08:26,202 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=bootstrap-0 host=localhost:29092 <connected> [IPv6 ('::1', 29092, 0, 0)]>: Connection complete.
+2025-10-10 18:08:26,204 - ClearVuePipeline - INFO - Kafka producer initialized
+2025-10-10 18:08:26,205 - ClearVuePipeline - INFO - Pipeline initialized successfully
+2025-10-10 18:08:26,212 - kafka.conn - INFO - <BrokerConnection client_id=clearvue_pipeline_admin, node_id=bootstrap-0 host=localhost:29092 <connecting> [IPv6 ('::1', 29092, 0, 0)]>: connecting to localhost:29092 [('::1', 29092, 0, 0) IPv6]
+2025-10-10 18:08:26,224 - kafka.conn - INFO - <BrokerConnection client_id=clearvue_pipeline_admin, node_id=bootstrap-0 host=localhost:29092 <checking_api_versions_recv> [IPv6 ('::1', 29092, 0, 0)]>: Broker version identified as 2.6
+2025-10-10 18:08:26,225 - kafka.conn - INFO - <BrokerConnection client_id=clearvue_pipeline_admin, node_id=bootstrap-0 host=localhost:29092 <connected> [IPv6 ('::1', 29092, 0, 0)]>: Connection complete.
+2025-10-10 18:08:26,238 - kafka.conn - INFO - <BrokerConnection client_id=clearvue_pipeline_admin, node_id=1 host=localhost:29092 <connecting> [IPv6 ('::1', 29092, 0, 0)]>: connecting to localhost:29092 [('::1', 29092, 0, 0) IPv6]
+2025-10-10 18:08:26,239 - kafka.conn - INFO - <BrokerConnection client_id=clearvue_pipeline_admin, node_id=1 host=localhost:29092 <connected> [IPv6 ('::1', 29092, 0, 0)]>: Connection complete.
+2025-10-10 18:08:26,240 - kafka.conn - INFO - <BrokerConnection client_id=clearvue_pipeline_admin, node_id=bootstrap-0 host=localhost:29092 <connected> [IPv6 ('::1', 29092, 0, 0)]>: Closing connection. 
+2025-10-10 18:08:26,252 - ClearVuePipeline - INFO - Will create topic: clearvue.sales
+2025-10-10 18:08:26,252 - ClearVuePipeline - INFO - Will create topic: clearvue.payments
+2025-10-10 18:08:26,253 - ClearVuePipeline - INFO - Will create topic: clearvue.purchases
+2025-10-10 18:08:26,253 - ClearVuePipeline - INFO - Will create topic: clearvue.customers
+2025-10-10 18:08:26,253 - ClearVuePipeline - INFO - Will create topic: clearvue.products
+2025-10-10 18:08:26,254 - ClearVuePipeline - INFO - Will create topic: clearvue.suppliers
+2025-10-10 18:08:26,933 - ClearVuePipeline - INFO - Created 6 topics
+2025-10-10 18:08:26,934 - kafka.conn - INFO - <BrokerConnection client_id=clearvue_pipeline_admin, node_id=1 host=localhost:29092 <connected> [IPv6 ('::1', 29092, 0, 0)]>: Closing connection. 
+2025-10-10 18:08:26,935 - ClearVuePipeline - INFO - Started change stream: Sales_flat
+2025-10-10 18:08:26,936 - ClearVuePipeline - INFO - Started change stream: Payments_flat
+2025-10-10 18:08:26,937 - ClearVuePipeline - INFO - Started change stream: Purchases_flat
+2025-10-10 18:08:26,938 - ClearVuePipeline - INFO - Started change stream: Customer_flat_step2
+2025-10-10 18:08:26,940 - ClearVuePipeline - INFO - Started change stream: Products_flat
+2025-10-10 18:08:26,941 - ClearVuePipeline - INFO - Started change stream: Suppliers
+2025-10-10 18:08:26,942 - ClearVuePipeline - INFO - Pipeline started with 6 watchers
+2025-10-10 18:11:21,338 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=1 host=localhost:29092 <connecting> [IPv6 ('::1', 29092, 0, 0)]>: connecting to localhost:29092 [('::1', 29092, 0, 0) IPv6]
+2025-10-10 18:11:21,339 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=1 host=localhost:29092 <connected> [IPv6 ('::1', 29092, 0, 0)]>: Connection complete.
+2025-10-10 18:11:21,339 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=bootstrap-0 host=localhost:29092 <connected> [IPv6 ('::1', 29092, 0, 0)]>: Closing connection. 

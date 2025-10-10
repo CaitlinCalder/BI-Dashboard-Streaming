@@ -15,13 +15,8 @@ import sys
 from datetime import datetime
 from kafka import KafkaConsumer
 from kafka.errors import KafkaError, NoBrokersAvailable
-
+from ClearVueConfig import ClearVueConfig
 # Import configuration
-try:
-    from config import ClearVueConfig
-except ImportError:
-    print("❌ Error: config.py not found")
-    sys.exit(1)
 
 
 class ClearVueKafkaConsumerTest:

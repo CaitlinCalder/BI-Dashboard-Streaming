@@ -1,17 +1,13 @@
 """
 ClearVue Enhanced Transaction Simulator - Version 2.0
-Generates realistic transactions directly into MongoDB (6 collections)
-
-NO DATA TRANSFORMATION - Just realistic data generation!
-The data cleaning team already transformed the initial 17 CSV files.
-This simulator creates NEW transactions in the correct format.
+Generates realistic transactions directly into MongoDB Atlas
 
 Collections Generated:
-1. Sales (with embedded lines) - HIGH PRIORITY
-2. Payments (with embedded lines) - HIGH PRIORITY  
-3. Purchases (with embedded lines) - MEDIUM PRIORITY
-4. Customers (master data updates) - MEDIUM PRIORITY
-5. Products (master data updates) - MEDIUM PRIORITY
+1. Sales_flat (with embedded lines) - HIGH PRIORITY
+2. Payments_flat (with embedded lines) - HIGH PRIORITY  
+3. Purchases_flat (with embedded lines) - MEDIUM PRIORITY
+4. Customer_flat_step2 (master data updates) - MEDIUM PRIORITY
+5. Products_flat (master data updates) - MEDIUM PRIORITY
 6. Suppliers (master data updates) - LOW PRIORITY
 
 Author: ClearVue Streaming Team
@@ -30,14 +26,14 @@ from faker import Faker
 
 # Import configuration
 try:
-    from config import ClearVueConfig, print_startup_banner
+    from ClearVueConfig import ClearVueConfig, print_startup_banner
 except ImportError:
-    print("❌ Error: config.py not found")
+    print("❌ Error: ClearVueConfig.py not found")
     exit(1)
 
 # Initialize Faker for realistic data
 fake = Faker()
-fake.seed_instance(42)  # Reproducible random data
+fake.seed_instance(42)
 
 # South African specific data
 SA_REGIONS = ['Gauteng', 'Western Cape', 'KwaZulu-Natal', 'Eastern Cape', 
@@ -57,7 +53,7 @@ PRODUCT_RANGES = ['Running', 'Training', 'Casual', 'Sport', 'Lifestyle', 'Perfor
 class ClearVueTransactionSimulator:
     """
     Enhanced simulator for generating realistic ClearVue transactions
-    Inserts directly into MongoDB (already in correct format)
+    Inserts directly into MongoDB Atlas
     """
     
     def __init__(self):
@@ -79,7 +75,7 @@ class ClearVueTransactionSimulator:
         self.is_running = False
         self.transaction_count = 0
         
-        # Cache for reference data (loaded from existing DB)
+        # Cache for reference data
         self.sample_customers = []
         self.sample_products = []
         self.sample_suppliers = []
@@ -91,7 +87,7 @@ class ClearVueTransactionSimulator:
     
     def _connect_mongodb(self):
         """Connect to MongoDB Atlas"""
-        print("\n🔌 Connecting to MongoDB...")
+        print("\n🔌 Connecting to MongoDB Atlas...")
         
         try:
             self.client = MongoClient(
@@ -114,24 +110,24 @@ class ClearVueTransactionSimulator:
         """Load existing reference data or create minimal samples"""
         print("\n📚 Initializing reference data...")
         
-        # Check what exists in database
-        customer_count = self.db.customers.count_documents({})
-        product_count = self.db.products.count_documents({})
-        supplier_count = self.db.suppliers.count_documents({})
+        # Use correct Atlas collection names
+        customer_count = self.db.Customer_flat_step2.count_documents({})
+        product_count = self.db.Products_flat.count_documents({})
+        supplier_count = self.db.Suppliers.count_documents({})
         
         print(f"   Found: {customer_count} customers, {product_count} products, {supplier_count} suppliers")
         
         # Load samples from database if they exist
         if customer_count > 0:
-            self.sample_customers = list(self.db.customers.find().limit(100))
+            self.sample_customers = list(self.db.Customer_flat_step2.find().limit(100))
             print(f"   ✓ Loaded {len(self.sample_customers)} sample customers")
         
         if product_count > 0:
-            self.sample_products = list(self.db.products.find().limit(100))
+            self.sample_products = list(self.db.Products_flat.find().limit(100))
             print(f"   ✓ Loaded {len(self.sample_products)} sample products")
         
         if supplier_count > 0:
-            self.sample_suppliers = list(self.db.suppliers.find().limit(50))
+            self.sample_suppliers = list(self.db.Suppliers.find().limit(50))
             print(f"   ✓ Loaded {len(self.sample_suppliers)} sample suppliers")
         
         # Create minimal samples if database is empty
@@ -192,8 +188,8 @@ class ClearVueTransactionSimulator:
             }
             customers.append(customer)
         
-        # Insert into database
-        self.db.customers.insert_many(customers)
+        # Insert into database (use correct collection name)
+        self.db.Customer_flat_step2.insert_many(customers)
         print(f"   ✅ Created {count} sample customers")
         
         return customers
@@ -233,14 +229,14 @@ class ClearVueTransactionSimulator:
                 },
                 'inventory_code': inventory_code,
                 'last_cost': round(random.uniform(150, 2500), 2),
-                'stock_ind': random.choice([True, True, True, False]),  # 75% in stock
+                'stock_ind': random.choice([True, True, True, False]),
                 '_created_by': 'simulator',
                 '_created_at': datetime.now()
             }
             products.append(product)
         
-        # Insert into database
-        self.db.products.insert_many(products)
+        # Insert into database (use correct collection name)
+        self.db.Products_flat.insert_many(products)
         print(f"   ✅ Created {count} sample products")
         
         return products
@@ -255,7 +251,7 @@ class ClearVueTransactionSimulator:
             supplier = {
                 '_id': supplier_id,
                 'description': fake.company() + random.choice([' Ltd', ' (Pty) Ltd', ' Inc', ' International']),
-                'exclusive': random.choice([True, False, False, False]),  # 25% exclusive
+                'exclusive': random.choice([True, False, False, False]),
                 'normal_payterms': random.choice([30, 60, 90]),
                 'credit_limit': random.randint(50000, 1000000),
                 '_created_by': 'simulator',
@@ -263,8 +259,8 @@ class ClearVueTransactionSimulator:
             }
             suppliers.append(supplier)
         
-        # Insert into database
-        self.db.suppliers.insert_many(suppliers)
+        # Insert into database (use correct collection name)
+        self.db.Suppliers.insert_many(suppliers)
         print(f"   ✅ Created {count} sample suppliers")
         
         return suppliers
@@ -294,7 +290,7 @@ class ClearVueTransactionSimulator:
             product = random.choice(self.sample_products)
             quantity = random.randint(1, 20)
             
-            # Calculate price with markup (30% - 100% above cost)
+            # Calculate price with markup
             base_cost = product.get('last_cost', 500)
             markup = random.uniform(1.3, 2.0)
             unit_price = base_cost * markup
@@ -309,7 +305,7 @@ class ClearVueTransactionSimulator:
             }
             lines.append(line)
         
-        # Create sales document (matches your collection structure exactly)
+        # Create sales document
         sales_doc = {
             '_id': doc_number,
             'customer_id': customer['_id'],
@@ -424,7 +420,7 @@ class ClearVueTransactionSimulator:
         
         if update_type == 'credit_limit':
             new_limit = random.randint(10000, 250000)
-            self.db.customers.update_one(
+            self.db.Customer_flat_step2.update_one(
                 {'_id': customer['_id']},
                 {
                     '$set': {
@@ -442,14 +438,13 @@ class ClearVueTransactionSimulator:
             }
         
         elif update_type == 'age_analysis':
-            # Simulate aging of receivables
             total_due = random.randint(5000, 80000)
             current = round(total_due * random.uniform(0.4, 0.7), 2)
             amt_30 = round(total_due * random.uniform(0.1, 0.3), 2)
             amt_60 = round(total_due * random.uniform(0.05, 0.15), 2)
             amt_90 = round(total_due - current - amt_30 - amt_60, 2)
             
-            self.db.customers.update_one(
+            self.db.Customer_flat_step2.update_one(
                 {'_id': customer['_id']},
                 {
                     '$set': {
@@ -472,7 +467,7 @@ class ClearVueTransactionSimulator:
         
         elif update_type == 'discount':
             new_discount = random.choice([0, 5, 10, 15, 20])
-            self.db.customers.update_one(
+            self.db.Customer_flat_step2.update_one(
                 {'_id': customer['_id']},
                 {
                     '$set': {
@@ -491,7 +486,7 @@ class ClearVueTransactionSimulator:
         
         else:  # status
             new_status = random.choice(['Open', 'Suspended'])
-            self.db.customers.update_one(
+            self.db.Customer_flat_step2.update_one(
                 {'_id': customer['_id']},
                 {
                     '$set': {
@@ -515,14 +510,13 @@ class ClearVueTransactionSimulator:
             raise ValueError("No products available")
         
         product = random.choice(self.sample_products)
-        update_type = random.choice(['cost', 'stock', 'cost'])  # Cost changes more often
+        update_type = random.choice(['cost', 'stock', 'cost'])
         
         if update_type == 'cost':
-            # Simulate cost fluctuation
             old_cost = product.get('last_cost', 500)
             new_cost = round(old_cost * random.uniform(0.90, 1.15), 2)
             
-            self.db.products.update_one(
+            self.db.Products_flat.update_one(
                 {'_id': product['_id']},
                 {
                     '$set': {
@@ -542,7 +536,7 @@ class ClearVueTransactionSimulator:
         
         else:  # stock
             new_stock = random.choice([True, False])
-            self.db.products.update_one(
+            self.db.Products_flat.update_one(
                 {'_id': product['_id']},
                 {
                     '$set': {
@@ -570,7 +564,7 @@ class ClearVueTransactionSimulator:
         
         if update_type == 'credit_limit':
             new_limit = random.randint(50000, 1500000)
-            self.db.suppliers.update_one(
+            self.db.Suppliers.update_one(
                 {'_id': supplier['_id']},
                 {
                     '$set': {
@@ -589,7 +583,7 @@ class ClearVueTransactionSimulator:
         
         else:  # payment_terms
             new_terms = random.choice([30, 60, 90])
-            self.db.suppliers.update_one(
+            self.db.Suppliers.update_one(
                 {'_id': supplier['_id']},
                 {
                     '$set': {
@@ -624,7 +618,7 @@ class ClearVueTransactionSimulator:
             if transaction_type == 'sales' or (transaction_type == 'mixed' and random.random() < 0.35):
                 # SALES TRANSACTION (35% probability in mixed mode)
                 sales_doc = self.generate_sales_transaction()
-                self.db.sales.insert_one(sales_doc)
+                self.db.Sales_flat.insert_one(sales_doc)
                 
                 total = sum(line['total_line_cost'] for line in sales_doc['lines'])
                 print(f"🛒 SALES: {sales_doc['_id']} | Customer: {sales_doc['customer_id']} | "
@@ -636,7 +630,7 @@ class ClearVueTransactionSimulator:
             elif transaction_type == 'payments' or (transaction_type == 'mixed' and random.random() < 0.30):
                 # PAYMENT TRANSACTION (30% probability in mixed mode)
                 payment_doc = self.generate_payment_transaction()
-                self.db.payments.insert_one(payment_doc)
+                self.db.Payments_flat.insert_one(payment_doc)
                 
                 total = sum(line['tot_payment'] for line in payment_doc['lines'])
                 print(f"💳 PAYMENT: {payment_doc['deposit_ref']} | Customer: {payment_doc['customer_id']} | "
@@ -648,7 +642,7 @@ class ClearVueTransactionSimulator:
             elif transaction_type == 'purchases' or (transaction_type == 'mixed' and random.random() < 0.20):
                 # PURCHASE ORDER (20% probability in mixed mode)
                 purchase_doc = self.generate_purchase_transaction()
-                self.db.purchases.insert_one(purchase_doc)
+                self.db.Purchases_flat.insert_one(purchase_doc)
                 
                 total = sum(line['total_line_cost'] for line in purchase_doc['lines'])
                 print(f"📦 PURCHASE: {purchase_doc['_id']} | Supplier: {purchase_doc['supplier_id']} | "
@@ -691,14 +685,7 @@ class ClearVueTransactionSimulator:
             return False
     
     def run_burst(self, count: int = 20, delay_range: tuple = (0.5, 2.0), transaction_type: str = 'mixed'):
-        """
-        Run a burst of transactions
-        
-        Args:
-            count: Number of transactions to generate
-            delay_range: Min and max delay between transactions (seconds)
-            transaction_type: Type of transactions to generate
-        """
+        """Run a burst of transactions"""
         print(f"\n💥 Starting burst simulation...")
         print(f"   Transactions: {count}")
         print(f"   Type: {transaction_type}")
@@ -712,7 +699,6 @@ class ClearVueTransactionSimulator:
             if self.insert_transaction(transaction_type):
                 successful += 1
             
-            # Add delay between transactions (except for last one)
             if i < count - 1:
                 delay = random.uniform(delay_range[0], delay_range[1])
                 time.sleep(delay)
@@ -726,13 +712,7 @@ class ClearVueTransactionSimulator:
         print(f"   Rate: {successful/elapsed:.2f} tx/s\n")
     
     def run_continuous(self, transactions_per_minute: int = 10, transaction_type: str = 'mixed'):
-        """
-        Run continuous transaction simulation
-        
-        Args:
-            transactions_per_minute: Target transaction rate
-            transaction_type: Type of transactions to generate
-        """
+        """Run continuous transaction simulation"""
         if self.is_running:
             print("⚠️  Simulation already running")
             return
@@ -755,7 +735,6 @@ class ClearVueTransactionSimulator:
                 try:
                     self.insert_transaction(transaction_type)
                     
-                    # Print periodic summary
                     if self.transaction_count % 10 == 0:
                         elapsed = time.time() - start_time
                         rate = self.transaction_count / elapsed if elapsed > 0 else 0
@@ -780,47 +759,6 @@ class ClearVueTransactionSimulator:
             self.is_running = False
             time.sleep(1)
     
-    def run_stress_test(self, duration_seconds: int = 60):
-        """
-        Run high-volume stress test
-        
-        Args:
-            duration_seconds: How long to run the test
-        """
-        print(f"\n⚡ STRESS TEST MODE")
-        print(f"   Duration: {duration_seconds}s")
-        print(f"   Target: Maximum throughput")
-        print("=" * 70 + "\n")
-        
-        self.is_running = True
-        start_time = time.time()
-        
-        while self.is_running and (time.time() - start_time) < duration_seconds:
-            try:
-                self.insert_transaction('mixed')
-                
-                # Brief status update every 5 seconds
-                if self.transaction_count % 50 == 0:
-                    elapsed = time.time() - start_time
-                    rate = self.transaction_count / elapsed
-                    print(f"⚡ {self.transaction_count} tx | {rate:.1f} tx/s")
-            
-            except KeyboardInterrupt:
-                break
-            except Exception as e:
-                print(f"❌ Error: {e}")
-        
-        self.is_running = False
-        elapsed = time.time() - start_time
-        
-        print("\n" + "=" * 70)
-        print("⚡ STRESS TEST COMPLETE")
-        print("=" * 70)
-        print(f"Total Transactions: {self.transaction_count}")
-        print(f"Duration: {elapsed:.1f}s")
-        print(f"Average Rate: {self.transaction_count/elapsed:.2f} tx/s")
-        print("=" * 70 + "\n")
-    
     def get_statistics(self):
         """Print current database statistics"""
         print("\n" + "=" * 70)
@@ -828,12 +766,12 @@ class ClearVueTransactionSimulator:
         print("=" * 70)
         
         try:
-            print(f"Customers:  {self.db.customers.count_documents({}):,}")
-            print(f"Products:   {self.db.products.count_documents({}):,}")
-            print(f"Suppliers:  {self.db.suppliers.count_documents({}):,}")
-            print(f"Sales:      {self.db.sales.count_documents({}):,}")
-            print(f"Payments:   {self.db.payments.count_documents({}):,}")
-            print(f"Purchases:  {self.db.purchases.count_documents({}):,}")
+            print(f"Customers:  {self.db.Customer_flat_step2.count_documents({}):,}")
+            print(f"Products:   {self.db.Products_flat.count_documents({}):,}")
+            print(f"Suppliers:  {self.db.Suppliers.count_documents({}):,}")
+            print(f"Sales:      {self.db.Sales_flat.count_documents({}):,}")
+            print(f"Payments:   {self.db.Payments_flat.count_documents({}):,}")
+            print(f"Purchases:  {self.db.Purchases_flat.count_documents({}):,}")
         except Exception as e:
             print(f"❌ Error getting statistics: {e}")
         
@@ -865,15 +803,14 @@ def main():
     print("2. Continuous low-volume (10 tx/min - for testing)")
     print("3. Continuous medium-volume (30 tx/min - realistic)")
     print("4. Continuous high-volume (60 tx/min - busy period)")
-    print("5. Stress test (maximum throughput, 60s)")
-    print("6. Sales only (20 transactions)")
-    print("7. Payments only (20 transactions)")
-    print("8. Master data updates only (30 updates)")
-    print("9. Custom configuration")
-    print("10. View database statistics")
+    print("5. Sales only (20 transactions)")
+    print("6. Payments only (20 transactions)")
+    print("7. Master data updates only (30 updates)")
+    print("8. Custom configuration")
+    print("9. View database statistics")
     print("=" * 70)
     
-    choice = input("\n👉 Select mode (1-10) [default: 1]: ").strip() or "1"
+    choice = input("\n👉 Select mode (1-9) [default: 1]: ").strip() or "1"
     
     simulator = None
     
@@ -884,43 +821,31 @@ def main():
         
         # Execute based on choice
         if choice == "1":
-            # Quick burst
             simulator.run_burst(20, delay_range=(0.5, 1.5), transaction_type='mixed')
         
         elif choice == "2":
-            # Low volume continuous
             print("\n📊 Low-volume mode - ideal for testing change streams")
             simulator.run_continuous(transactions_per_minute=10, transaction_type='mixed')
         
         elif choice == "3":
-            # Medium volume continuous
             print("\n📊 Medium-volume mode - realistic business day")
             simulator.run_continuous(transactions_per_minute=30, transaction_type='mixed')
         
         elif choice == "4":
-            # High volume continuous
             print("\n⚡ High-volume mode - peak business hours")
             simulator.run_continuous(transactions_per_minute=60, transaction_type='mixed')
         
         elif choice == "5":
-            # Stress test
-            duration = input("Duration in seconds [60]: ").strip() or "60"
-            simulator.run_stress_test(duration_seconds=int(duration))
-        
-        elif choice == "6":
-            # Sales only
             print("\n🛒 Sales transactions only")
             count = input("Number of sales [20]: ").strip() or "20"
             simulator.run_burst(int(count), delay_range=(0.5, 1.5), transaction_type='sales')
         
-        elif choice == "7":
-            # Payments only
+        elif choice == "6":
             print("\n💳 Payment transactions only")
             count = input("Number of payments [20]: ").strip() or "20"
             simulator.run_burst(int(count), delay_range=(0.5, 1.5), transaction_type='payments')
         
-        elif choice == "8":
-            # Master data updates
+        elif choice == "7":
             print("\n📚 Master data updates")
             print("   - Customer updates")
             simulator.run_burst(10, delay_range=(0.3, 0.8), transaction_type='customer_update')
@@ -929,8 +854,7 @@ def main():
             print("\n   - Supplier updates")
             simulator.run_burst(5, delay_range=(0.3, 0.8), transaction_type='supplier_update')
         
-        elif choice == "9":
-            # Custom configuration
+        elif choice == "8":
             print("\n⚙️  Custom Configuration")
             print("Transaction types: mixed, sales, payments, purchases,")
             print("                   customer_update, product_update, supplier_update")
@@ -946,15 +870,14 @@ def main():
                 transaction_type=tx_type
             )
         
-        elif choice == "10":
-            # Statistics
+        elif choice == "9":
             simulator.get_statistics()
         
         else:
             print("❌ Invalid option")
         
         # Final summary
-        if choice != "10":
+        if choice != "9":
             print("\n" + "=" * 70)
             print("✅ SIMULATION COMPLETE")
             print("=" * 70)

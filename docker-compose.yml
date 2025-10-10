@@ -1,73 +1,5 @@
 services:
   # -----------------------------
-  # MongoDB Service (configured as replica set)
-  # -----------------------------
-  mongodb:
-    image: mongo:6.0
-    container_name: clearvue_mongodb
-    restart: unless-stopped
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongo_data:/data/db
-      - ./mongo-init:/docker-entrypoint-initdb.d
-    
-    # Start without replica set first, then init it
-    command: mongod --replSet rs0 --bind_ip_all
-    healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
-    networks:
-      - clearvue_network
-
-  # -----------------------------
-  # MongoDB Replica Set Initializer
-  # -----------------------------
-  mongo-setup:
-    image: mongo:6.0
-    container_name: mongo_setup
-    depends_on:
-      mongodb:
-        condition: service_healthy
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: admin
-      MONGO_INITDB_ROOT_PASSWORD: clearvue123
-    command: >
-      bash -c "
-        echo 'Waiting for MongoDB to be ready...'
-        sleep 10
-        echo 'Initializing replica set...'
-        mongosh --host mongodb:27017 -u admin -p clearvue123 --authenticationDatabase admin --eval '
-          try {
-            var result = rs.initiate({
-              _id: \"rs0\",
-              members: [
-                { _id: 0, host: \"mongodb:27017\" }
-              ]
-            })
-            print(\"Replica set initialized successfully\")
-          } catch(e) {
-            if (e.code === 23) {
-              print(\"Replica set already initialized\")
-            } else {
-              print(\"Error initializing replica set: \" + e)
-              throw e
-            }
-          }
-        '
-        echo 'Now restarting MongoDB with replica set enabled...'
-        docker exec clearvue_mongodb mongod --shutdown
-        sleep 5
-        echo 'Setup complete - MongoDB will restart automatically'
-      "
-    restart: "no"
-    networks:
-      - clearvue_network
-
-  # -----------------------------
   # Zookeeper Service
   # -----------------------------
   zookeeper:
@@ -161,27 +93,6 @@ services:
       - clearvue_network
 
   # -----------------------------
-  # MongoDB Express
-  # -----------------------------
-  mongo-express:
-    image: mongo-express:latest
-    container_name: clearvue_mongo_express
-    restart: unless-stopped
-    depends_on:
-      mongodb:
-        condition: service_healthy
-    ports:
-      - "8081:8081"
-    environment:
-      ME_CONFIG_MONGODB_ADMINUSERNAME: admin
-      ME_CONFIG_MONGODB_ADMINPASSWORD: clearvue123
-      ME_CONFIG_MONGODB_URL: mongodb://admin:clearvue123@mongodb:27017/
-      ME_CONFIG_BASICAUTH_USERNAME: clearvue
-      ME_CONFIG_BASICAUTH_PASSWORD: admin123
-    networks:
-      - clearvue_network
-
-  # -----------------------------
   # kafka Source Connector (Tyra)
   # -----------------------------
   kafka-connect:
@@ -230,9 +141,6 @@ networks:
 # Volumes
 # -----------------------------
 volumes:
-  mongo_data:
-    external: true
-    name: clearvue_mongo_data
   zookeeper_data:
     external: true
     name: clearvue_zookeeper_data

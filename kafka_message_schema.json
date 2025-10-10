@@ -1,0 +1,181 @@
+{
+  "metadata": {
+    "title": "ClearVue Kafka Message Schema",
+    "version": "2.0",
+    "date": "2025-10-10T18:20:37.435870",
+    "description": "Message structure for Power BI real-time dashboard"
+  },
+  "common_structure": {
+    "event_id": "string - Unique event identifier",
+    "timestamp": "string - ISO 8601 timestamp",
+    "source": "string - Always 'mongodb_atlas'",
+    "database": "string - Database name",
+    "collection": "string - Collection name (sales, payments, etc.)",
+    "operation": "string - Operation type (insert, update, delete)",
+    "priority": "string - Priority level (HIGH, MEDIUM, LOW)",
+    "document_key": "string - Document ID",
+    "change_data": "object - The actual changed data",
+    "business_context": "object - Enriched business intelligence",
+    "metadata": "object - Pipeline metadata"
+  },
+  "examples": {
+    "sales_transaction": {
+      "event_id": "507f1f77bcf86cd799439011",
+      "timestamp": "2025-10-09T14:30:00.123456",
+      "source": "mongodb_atlas",
+      "database": "Nova_Analytics",
+      "collection": "sales",
+      "operation": "insert",
+      "priority": "HIGH",
+      "document_key": "SALE123456",
+      "business_context": {
+        "transaction_type": "sales",
+        "doc_number": "SALE123456",
+        "customer_id": "CUST001",
+        "rep_id": "REP01",
+        "rep_name": "John Smith",
+        "trans_type": "Tax Invoice",
+        "trans_date": "2025-10-09",
+        "fin_period": 202510,
+        "financial_year": 2025,
+        "financial_month": 10,
+        "financial_quarter": "Q4",
+        "total_amount": 15000.0,
+        "total_cost": 9000.0,
+        "total_profit": 6000.0,
+        "profit_margin_pct": 40.0,
+        "line_count": 3,
+        "metric_category": "revenue",
+        "kpi_type": "sales_revenue"
+      }
+    },
+    "payment_transaction": {
+      "event_id": "507f1f77bcf86cd799439012",
+      "timestamp": "2025-10-09T14:35:00.123456",
+      "source": "mongodb_atlas",
+      "database": "Nova_Analytics",
+      "collection": "payments",
+      "operation": "insert",
+      "priority": "HIGH",
+      "business_context": {
+        "transaction_type": "payment",
+        "customer_id": "CUST001",
+        "deposit_ref": "DEP789456",
+        "deposit_date": "2025-10-09",
+        "fin_period": 202510,
+        "financial_year": 2025,
+        "financial_month": 10,
+        "financial_quarter": "Q4",
+        "total_bank_amount": 15000.0,
+        "total_discount": 750.0,
+        "total_payment": 14250.0,
+        "discount_pct": 5.0,
+        "payment_count": 1,
+        "metric_category": "cash_flow",
+        "kpi_type": "payments_received"
+      }
+    },
+    "customer_update": {
+      "event_id": "507f1f77bcf86cd799439013",
+      "timestamp": "2025-10-09T14:40:00.123456",
+      "source": "mongodb_atlas",
+      "database": "Nova_Analytics",
+      "collection": "customers",
+      "operation": "update",
+      "priority": "MEDIUM",
+      "business_context": {
+        "entity_type": "customer",
+        "customer_id": "CUST001",
+        "customer_name": "ABC Fashion",
+        "region_id": "REG05",
+        "region_name": "Cape Town",
+        "category_id": "CAT01",
+        "category_name": "Specialty Stores",
+        "credit_limit": 50000.0,
+        "total_due": 25000.0,
+        "metric_category": "customer_master",
+        "kpi_type": "customer_credit"
+      }
+    }
+  },
+  "power_bi_integration": {
+    "recommended_approach": "Power BI Streaming Dataset or DirectQuery to Kafka",
+    "key_fields_for_bi": {
+      "dimensions": [
+        "collection",
+        "operation",
+        "priority",
+        "business_context.customer_id",
+        "business_context.supplier_id",
+        "business_context.region_name",
+        "business_context.category_name",
+        "business_context.financial_quarter"
+      ],
+      "measures": [
+        "business_context.total_amount",
+        "business_context.total_payment",
+        "business_context.total_cost",
+        "business_context.total_profit",
+        "business_context.profit_margin_pct",
+        "business_context.credit_limit",
+        "business_context.total_due"
+      ],
+      "time_fields": [
+        "timestamp",
+        "business_context.trans_date",
+        "business_context.deposit_date",
+        "business_context.fin_period",
+        "business_context.financial_year",
+        "business_context.financial_month",
+        "business_context.financial_quarter"
+      ]
+    },
+    "sample_dax_measures": {
+      "total_revenue": "SUM(business_context.total_amount)",
+      "total_profit": "SUM(business_context.total_profit)",
+      "avg_profit_margin": "AVERAGE(business_context.profit_margin_pct)",
+      "total_payments": "SUM(business_context.total_payment)",
+      "outstanding_receivables": "SUM(business_context.total_due)"
+    }
+  },
+  "data_types": {
+    "string_fields": [
+      "event_id",
+      "timestamp",
+      "source",
+      "database",
+      "collection",
+      "operation",
+      "priority",
+      "document_key",
+      "customer_id",
+      "supplier_id",
+      "product_id",
+      "region_name",
+      "category_name"
+    ],
+    "numeric_fields": [
+      "total_amount",
+      "total_payment",
+      "total_cost",
+      "total_profit",
+      "profit_margin_pct",
+      "credit_limit",
+      "total_due",
+      "discount_pct",
+      "fin_period",
+      "financial_year",
+      "financial_month"
+    ],
+    "boolean_fields": [
+      "in_stock",
+      "exclusive"
+    ],
+    "datetime_fields": [
+      "timestamp",
+      "trans_date",
+      "deposit_date",
+      "purch_date"
+    ]
+  }
+}
