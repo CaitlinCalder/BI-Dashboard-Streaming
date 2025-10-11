@@ -76,3 +76,84 @@ AssertionError: Libraries for snappy compression codec not found
 2025-10-10 18:11:21,338 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=1 host=localhost:29092 <connecting> [IPv6 ('::1', 29092, 0, 0)]>: connecting to localhost:29092 [('::1', 29092, 0, 0) IPv6]
 2025-10-10 18:11:21,339 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=1 host=localhost:29092 <connected> [IPv6 ('::1', 29092, 0, 0)]>: Connection complete.
 2025-10-10 18:11:21,339 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=bootstrap-0 host=localhost:29092 <connected> [IPv6 ('::1', 29092, 0, 0)]>: Closing connection. 
+2025-10-11 14:32:08,507 - ClearVuePipeline - INFO - Initializing ClearVue Streaming Pipeline...
+2025-10-11 14:32:12,398 - ClearVuePipeline - INFO - Connected to MongoDB: Nova_Analytix
+2025-10-11 14:32:12,401 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=bootstrap-0 host=localhost:29092 <connecting> [IPv6 ('::1', 29092, 0, 0)]>: connecting to localhost:29092 [('::1', 29092, 0, 0) IPv6]
+2025-10-11 14:32:12,414 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=bootstrap-0 host=localhost:29092 <checking_api_versions_recv> [IPv6 ('::1', 29092, 0, 0)]>: Broker version identified as 2.6
+2025-10-11 14:32:12,415 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=bootstrap-0 host=localhost:29092 <connected> [IPv6 ('::1', 29092, 0, 0)]>: Connection complete.
+2025-10-11 14:32:12,415 - ClearVuePipeline - ERROR - Kafka setup failed: Libraries for snappy compression codec not found
+2025-10-11 14:32:12,416 - ClearVuePipeline - ERROR - Fatal error: Libraries for snappy compression codec not found
+Traceback (most recent call last):
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\mongodb_kafka_streaming.py", line 771, in main
+    pipeline = ClearVueStreamingPipeline()
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\mongodb_kafka_streaming.py", line 78, in __init__
+    self._setup_kafka_producer()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\mongodb_kafka_streaming.py", line 155, in _setup_kafka_producer
+    self.kafka_producer = KafkaProducer(
+                          ~~~~~~~~~~~~~^
+        bootstrap_servers=self.kafka_servers,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+        **ClearVueConfig.KAFKA_PRODUCER_CONFIG
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\kafka\producer\kafka.py", line 501, in __init__
+    assert checker(), "Libraries for {} compression codec not found".format(ct)
+           ~~~~~~~^^
+AssertionError: Libraries for snappy compression codec not found
+2025-10-11 14:34:38,996 - ClearVuePipeline - INFO - Initializing ClearVue Streaming Pipeline...
+2025-10-11 14:34:43,829 - ClearVuePipeline - INFO - Connected to MongoDB: Nova_Analytix
+2025-10-11 14:34:43,834 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=bootstrap-0 host=localhost:29092 <connecting> [IPv6 ('::1', 29092, 0, 0)]>: connecting to localhost:29092 [('::1', 29092, 0, 0) IPv6]
+2025-10-11 14:34:43,848 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=bootstrap-0 host=localhost:29092 <checking_api_versions_recv> [IPv6 ('::1', 29092, 0, 0)]>: Broker version identified as 2.6
+2025-10-11 14:34:43,850 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=bootstrap-0 host=localhost:29092 <connected> [IPv6 ('::1', 29092, 0, 0)]>: Connection complete.
+2025-10-11 14:34:43,852 - ClearVuePipeline - ERROR - Kafka setup failed: Libraries for snappy compression codec not found
+2025-10-11 14:34:43,859 - ClearVuePipeline - ERROR - Fatal error: Libraries for snappy compression codec not found
+Traceback (most recent call last):
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\mongodb_kafka_streaming.py", line 771, in main
+    pipeline = ClearVueStreamingPipeline()
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\mongodb_kafka_streaming.py", line 78, in __init__
+    self._setup_kafka_producer()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\mongodb_kafka_streaming.py", line 155, in _setup_kafka_producer
+    self.kafka_producer = KafkaProducer(
+                          ~~~~~~~~~~~~~^
+        bootstrap_servers=self.kafka_servers,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+        **ClearVueConfig.KAFKA_PRODUCER_CONFIG
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\kafka\producer\kafka.py", line 501, in __init__
+    assert checker(), "Libraries for {} compression codec not found".format(ct)
+           ~~~~~~~^^
+AssertionError: Libraries for snappy compression codec not found
+2025-10-11 14:34:57,439 - ClearVuePipeline - INFO - Initializing ClearVue Streaming Pipeline...
+2025-10-11 14:35:01,095 - ClearVuePipeline - INFO - Connected to MongoDB: Nova_Analytix
+2025-10-11 14:35:01,099 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=bootstrap-0 host=localhost:29092 <connecting> [IPv6 ('::1', 29092, 0, 0)]>: connecting to localhost:29092 [('::1', 29092, 0, 0) IPv6]
+2025-10-11 14:35:01,111 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=bootstrap-0 host=localhost:29092 <checking_api_versions_recv> [IPv6 ('::1', 29092, 0, 0)]>: Broker version identified as 2.6
+2025-10-11 14:35:01,111 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=bootstrap-0 host=localhost:29092 <connected> [IPv6 ('::1', 29092, 0, 0)]>: Connection complete.
+2025-10-11 14:35:01,112 - ClearVuePipeline - ERROR - Kafka setup failed: Libraries for snappy compression codec not found
+2025-10-11 14:35:01,113 - ClearVuePipeline - ERROR - Fatal error: Libraries for snappy compression codec not found
+Traceback (most recent call last):
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\mongodb_kafka_streaming.py", line 771, in main
+    pipeline = ClearVueStreamingPipeline()
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\mongodb_kafka_streaming.py", line 78, in __init__
+    self._setup_kafka_producer()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\mongodb_kafka_streaming.py", line 155, in _setup_kafka_producer
+    self.kafka_producer = KafkaProducer(
+                          ~~~~~~~~~~~~~^
+        bootstrap_servers=self.kafka_servers,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+        **ClearVueConfig.KAFKA_PRODUCER_CONFIG
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\kafka\producer\kafka.py", line 501, in __init__
+    assert checker(), "Libraries for {} compression codec not found".format(ct)
+           ~~~~~~~^^
+AssertionError: Libraries for snappy compression codec not found

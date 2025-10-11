@@ -1,763 +1,588 @@
 """
-ClearVue FastAPI Streaming Server
-Real-time API and Web Dashboard for Power BI Integration
+ClearVue Real-Time API - TRUE Real-Time Streaming for Power BI
+Uses WebSockets + Server-Sent Events (SSE) for instant data push
 
-Features:
-- REST API endpoints for Power BI
-- WebSocket streaming for web dashboard
-- Real-time metrics aggregation
-- Historical data caching
-- CORS enabled for Power BI custom visuals
+This API pushes data to dashboards INSTANTLY when Kafka receives messages.
+No polling, no delays - true real-time updates!
 
-Author: ClearVue Streaming Team
+Two modes:
+1. WebSockets - For custom dashboards (bidirectional)
+2. Server-Sent Events (SSE) - For Power BI (unidirectional push)
+
+Author: ClearVue Analytics Team
 Date: October 2025
 """
 
-import json
-import asyncio
-import logging
-from datetime import datetime, timedelta
-from typing import List, Dict, Optional
-from collections import defaultdict, deque
-
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException, Query
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse, JSONResponse
-from fastapi.staticfiles import StaticFiles
-import uvicorn
-
+from flask import Flask, jsonify, request, Response, render_template_string
+from flask_cors import CORS
+from flask_socketio import SocketIO, emit
 from kafka import KafkaConsumer
-from kafka.errors import KafkaError
+import json
 import threading
+import time
+from datetime import datetime
+from collections import deque
+import logging
 
-# Import config
 try:
     from ClearVueConfig import ClearVueConfig
 except ImportError:
-    print("Error: config.py not found")
+    print("❌ Error: ClearVueConfig.py not found")
     exit(1)
 
-# Logging
+# Initialize Flask app with SocketIO
+app = Flask(__name__)
+app.config['SECRET_KEY'] = 'clearvue-secret-key'
+CORS(app)
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode='threading')
+
+# Configure logging
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger("ClearVueAPI")
+logger = logging.getLogger('ClearVueRealTimeAPI')
 
-# FastAPI app
-app = FastAPI(
-    title="ClearVue Streaming API",
-    description="Real-time streaming data API for Power BI dashboards",
-    version="2.0"
-)
+# Message cache (for REST endpoints)
+MESSAGE_CACHE_SIZE = 1000
+message_cache = {
+    'sales': deque(maxlen=MESSAGE_CACHE_SIZE),
+    'payments': deque(maxlen=MESSAGE_CACHE_SIZE),
+    'purchases': deque(maxlen=MESSAGE_CACHE_SIZE),
+    'customers': deque(maxlen=MESSAGE_CACHE_SIZE),
+    'products': deque(maxlen=MESSAGE_CACHE_SIZE),
+    'suppliers': deque(maxlen=MESSAGE_CACHE_SIZE)
+}
 
-# CORS - Allow Power BI and web dashboard
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # In production, specify Power BI domains
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# SSE clients (for Server-Sent Events)
+sse_clients = {
+    'sales': [],
+    'payments': [],
+    'purchases': [],
+    'customers': [],
+    'products': [],
+    'suppliers': [],
+    'all': []
+}
+
+# Statistics
+api_stats = {
+    'start_time': datetime.now().isoformat(),
+    'messages_pushed': 0,
+    'websocket_connections': 0,
+    'sse_connections': 0,
+    'messages_consumed': 0
+}
+
+# Consumer threads
+consumer_threads = []
+consumers_running = False
 
 
-class StreamingDataManager:
-    """Manages real-time data streaming and caching"""
+class RealTimeKafkaConsumer:
+    """
+    Real-time Kafka consumer that INSTANTLY broadcasts to connected clients
+    """
     
-    def __init__(self):
-        # Real-time data cache (last 1000 messages)
-        self.recent_messages = deque(maxlen=1000)
-        
-        # Aggregated metrics
-        self.metrics = {
-            'total_sales': 0,
-            'total_payments': 0,
-            'total_profit': 0,
-            'transaction_count': 0,
-            'last_update': None
-        }
-        
-        # Metrics by collection
-        self.collection_metrics = defaultdict(lambda: {
-            'count': 0,
-            'total_amount': 0,
-            'last_update': None
-        })
-        
-        # WebSocket connections
-        self.active_connections: List[WebSocket] = []
-        
-        # Kafka consumer
+    def __init__(self, topic, channel):
+        self.topic = topic
+        self.channel = channel  # e.g., 'sales', 'payments'
         self.consumer = None
-        self.is_consuming = False
-        
-        # Statistics
-        self.stats = {
-            'messages_processed': 0,
-            'api_requests': 0,
-            'websocket_broadcasts': 0,
-            'start_time': datetime.now()
-        }
+        self.running = False
     
-    def start_kafka_consumer(self):
-        """Start Kafka consumer in background thread"""
+    def broadcast_message(self, message_data):
+        """
+        Broadcast message to ALL connected clients via:
+        1. WebSocket (for custom dashboards)
+        2. SSE (for Power BI/web apps)
+        3. Cache (for REST API fallback)
+        """
         
-        def consume_kafka():
-            logger.info("Starting Kafka consumer thread...")
-            
-            try:
-                # Subscribe to all ClearVue topics
-                topics = [config['topic'] for config in ClearVueConfig.KAFKA_TOPICS.values()]
-                
-                self.consumer = KafkaConsumer(
-                    *topics,
-                    bootstrap_servers=ClearVueConfig.get_kafka_servers(),
-                    value_deserializer=lambda m: json.loads(m.decode('utf-8')),
-                    auto_offset_reset='latest',
-                    enable_auto_commit=True,
-                    group_id='clearvue_api_consumer'
-                )
-                
-                logger.info(f"Kafka consumer connected to {len(topics)} topics")
-                self.is_consuming = True
-                
-                for message in self.consumer:
-                    if not self.is_consuming:
-                        break
-                    
-                    self.process_message(message.value)
-            
-            except Exception as e:
-                logger.error(f"Kafka consumer error: {e}")
-                self.is_consuming = False
-        
-        # Start in background thread
-        thread = threading.Thread(target=consume_kafka, daemon=True)
-        thread.start()
-        logger.info("Kafka consumer thread started")
-    
-    def process_message(self, data: Dict):
-        """Process incoming Kafka message"""
-        
-        # Add to recent messages
-        self.recent_messages.append({
+        formatted_message = {
             'timestamp': datetime.now().isoformat(),
-            'data': data
-        })
+            'channel': self.channel,
+            'data': message_data
+        }
         
-        # Update metrics
-        collection = data.get('collection')
-        ctx = data.get('business_context', {})
+        # 1. Broadcast via WebSocket to connected clients
+        try:
+            socketio.emit(
+                'new_message',
+                formatted_message,
+                namespace=f'/{self.channel}',
+                broadcast=True
+            )
+            api_stats['messages_pushed'] += 1
+            logger.debug(f"📡 WebSocket broadcast: {self.channel}")
+        except Exception as e:
+            logger.error(f"WebSocket broadcast error: {e}")
         
-        self.collection_metrics[collection]['count'] += 1
-        self.collection_metrics[collection]['last_update'] = datetime.now().isoformat()
+        # 2. Send to SSE clients (for Power BI)
+        try:
+            self._send_to_sse_clients(formatted_message)
+        except Exception as e:
+            logger.error(f"SSE broadcast error: {e}")
         
-        # Update collection-specific metrics
-        if collection == 'sales':
-            amount = ctx.get('total_amount', 0)
-            profit = ctx.get('total_profit', 0)
-            
-            self.metrics['total_sales'] += amount
-            self.metrics['total_profit'] += profit
-            self.collection_metrics[collection]['total_amount'] += amount
-        
-        elif collection == 'payments':
-            payment = ctx.get('total_payment', 0)
-            self.metrics['total_payments'] += payment
-            self.collection_metrics[collection]['total_amount'] += payment
-        
-        elif collection == 'purchases':
-            cost = ctx.get('total_cost', 0)
-            self.collection_metrics[collection]['total_amount'] += cost
-        
-        self.metrics['transaction_count'] += 1
-        self.metrics['last_update'] = datetime.now().isoformat()
-        self.stats['messages_processed'] += 1
-        
-        # Broadcast to WebSocket clients
-        asyncio.run(self.broadcast_to_websockets(data))
+        # 3. Add to cache (for REST API)
+        message_cache[self.channel].append(formatted_message)
     
-    async def broadcast_to_websockets(self, data: Dict):
-        """Broadcast message to all connected WebSocket clients"""
-        if not self.active_connections:
-            return
-        
-        message = json.dumps({
-            'type': 'realtime_update',
-            'data': data,
-            'timestamp': datetime.now().isoformat()
-        })
-        
-        disconnected = []
-        for connection in self.active_connections:
+    def _send_to_sse_clients(self, message):
+        """Send message to all SSE clients subscribed to this channel"""
+        # Send to channel-specific clients
+        for client_queue in sse_clients.get(self.channel, []):
             try:
-                await connection.send_text(message)
-                self.stats['websocket_broadcasts'] += 1
+                client_queue.put(message)
             except:
-                disconnected.append(connection)
+                pass
         
-        # Remove disconnected clients
-        for conn in disconnected:
-            self.active_connections.remove(conn)
-    
-    def get_metrics_summary(self) -> Dict:
-        """Get aggregated metrics summary"""
-        return {
-            'metrics': self.metrics,
-            'collection_metrics': dict(self.collection_metrics),
-            'stats': {
-                **self.stats,
-                'uptime_seconds': (datetime.now() - self.stats['start_time']).seconds,
-                'active_websockets': len(self.active_connections)
-            }
-        }
-
-
-# Global data manager
-data_manager = StreamingDataManager()
-
-
-# ============================================================================
-# API ENDPOINTS
-# ============================================================================
-
-@app.on_event("startup")
-async def startup_event():
-    """Initialize on startup"""
-    logger.info("ClearVue Streaming API starting...")
-    data_manager.start_kafka_consumer()
-    logger.info("API ready!")
-
-
-@app.get("/")
-async def root():
-    """Root endpoint - API info"""
-    return {
-        "service": "ClearVue Streaming API",
-        "version": "2.0",
-        "status": "running",
-        "kafka_consuming": data_manager.is_consuming,
-        "endpoints": {
-            "metrics": "/api/metrics",
-            "recent": "/api/recent",
-            "sales": "/api/sales",
-            "payments": "/api/payments",
-            "dashboard": "/dashboard",
-            "websocket": "/ws"
-        }
-    }
-
-
-@app.get("/api/health")
-async def health_check():
-    """Health check endpoint"""
-    return {
-        "status": "healthy" if data_manager.is_consuming else "degraded",
-        "kafka_connected": data_manager.is_consuming,
-        "messages_processed": data_manager.stats['messages_processed'],
-        "active_websockets": len(data_manager.active_connections),
-        "uptime_seconds": (datetime.now() - data_manager.stats['start_time']).seconds
-    }
-
-
-@app.get("/api/metrics")
-async def get_metrics():
-    """
-    Get aggregated metrics summary
-    Perfect for Power BI card visuals
-    """
-    data_manager.stats['api_requests'] += 1
-    return data_manager.get_metrics_summary()
-
-
-@app.get("/api/recent")
-async def get_recent_messages(
-    limit: int = Query(100, ge=1, le=1000),
-    collection: Optional[str] = None
-):
-    """
-    Get recent messages
-    
-    Args:
-        limit: Number of messages to return (max 1000)
-        collection: Filter by collection (sales, payments, etc.)
-    """
-    data_manager.stats['api_requests'] += 1
-    
-    messages = list(data_manager.recent_messages)
-    
-    # Filter by collection if specified
-    if collection:
-        messages = [m for m in messages if m['data'].get('collection') == collection]
-    
-    # Limit results
-    messages = messages[-limit:]
-    
-    return {
-        "total": len(messages),
-        "limit": limit,
-        "collection": collection,
-        "messages": messages
-    }
-
-
-@app.get("/api/sales")
-async def get_sales_data(
-    limit: int = Query(50, ge=1, le=500),
-    financial_year: Optional[int] = None,
-    financial_quarter: Optional[str] = None
-):
-    """
-    Get sales transactions for Power BI
-    
-    Args:
-        limit: Number of records
-        financial_year: Filter by year (e.g., 2025)
-        financial_quarter: Filter by quarter (e.g., Q4)
-    """
-    data_manager.stats['api_requests'] += 1
-    
-    # Filter sales messages
-    sales_messages = [
-        m for m in data_manager.recent_messages
-        if m['data'].get('collection') == 'sales'
-    ]
-    
-    # Apply filters
-    if financial_year:
-        sales_messages = [
-            m for m in sales_messages
-            if m['data'].get('business_context', {}).get('financial_year') == financial_year
-        ]
-    
-    if financial_quarter:
-        sales_messages = [
-            m for m in sales_messages
-            if m['data'].get('business_context', {}).get('financial_quarter') == financial_quarter
-        ]
-    
-    # Limit and format for Power BI
-    sales_messages = sales_messages[-limit:]
-    
-    # Transform to flat structure for Power BI
-    sales_data = []
-    for msg in sales_messages:
-        data = msg['data']
-        ctx = data.get('business_context', {})
-        
-        sales_data.append({
-            'event_id': data.get('event_id'),
-            'timestamp': data.get('timestamp'),
-            'doc_number': ctx.get('doc_number'),
-            'customer_id': ctx.get('customer_id'),
-            'rep_id': ctx.get('rep_id'),
-            'rep_name': ctx.get('rep_name'),
-            'trans_type': ctx.get('trans_type'),
-            'total_amount': ctx.get('total_amount', 0),
-            'total_cost': ctx.get('total_cost', 0),
-            'total_profit': ctx.get('total_profit', 0),
-            'profit_margin_pct': ctx.get('profit_margin_pct', 0),
-            'line_count': ctx.get('line_count', 0),
-            'fin_period': ctx.get('fin_period'),
-            'financial_year': ctx.get('financial_year'),
-            'financial_quarter': ctx.get('financial_quarter'),
-            'financial_month': ctx.get('financial_month')
-        })
-    
-    return {
-        "total": len(sales_data),
-        "data": sales_data
-    }
-
-
-@app.get("/api/payments")
-async def get_payments_data(
-    limit: int = Query(50, ge=1, le=500),
-    financial_year: Optional[int] = None
-):
-    """Get payment transactions for Power BI"""
-    data_manager.stats['api_requests'] += 1
-    
-    # Filter payment messages
-    payment_messages = [
-        m for m in data_manager.recent_messages
-        if m['data'].get('collection') == 'payments'
-    ]
-    
-    # Apply filters
-    if financial_year:
-        payment_messages = [
-            m for m in payment_messages
-            if m['data'].get('business_context', {}).get('financial_year') == financial_year
-        ]
-    
-    payment_messages = payment_messages[-limit:]
-    
-    # Transform to flat structure
-    payment_data = []
-    for msg in payment_messages:
-        data = msg['data']
-        ctx = data.get('business_context', {})
-        
-        payment_data.append({
-            'event_id': data.get('event_id'),
-            'timestamp': data.get('timestamp'),
-            'customer_id': ctx.get('customer_id'),
-            'deposit_ref': ctx.get('deposit_ref'),
-            'total_bank_amount': ctx.get('total_bank_amount', 0),
-            'total_discount': ctx.get('total_discount', 0),
-            'total_payment': ctx.get('total_payment', 0),
-            'discount_pct': ctx.get('discount_pct', 0),
-            'fin_period': ctx.get('fin_period'),
-            'financial_year': ctx.get('financial_year'),
-            'financial_quarter': ctx.get('financial_quarter')
-        })
-    
-    return {
-        "total": len(payment_data),
-        "data": payment_data
-    }
-
-
-@app.get("/api/collection/{collection_name}")
-async def get_collection_data(
-    collection_name: str,
-    limit: int = Query(100, ge=1, le=500)
-):
-    """
-    Get data for specific collection
-    Generic endpoint for any collection
-    """
-    data_manager.stats['api_requests'] += 1
-    
-    messages = [
-        m for m in data_manager.recent_messages
-        if m['data'].get('collection') == collection_name
-    ]
-    
-    return {
-        "collection": collection_name,
-        "total": len(messages),
-        "messages": messages[-limit:]
-    }
-
-
-# ============================================================================
-# WEBSOCKET ENDPOINT
-# ============================================================================
-
-@app.websocket("/ws")
-async def websocket_endpoint(websocket: WebSocket):
-    """
-    WebSocket endpoint for real-time streaming
-    Web dashboard connects here for live updates
-    """
-    await websocket.accept()
-    data_manager.active_connections.append(websocket)
-    
-    logger.info(f"WebSocket client connected. Total: {len(data_manager.active_connections)}")
-    
-    try:
-        # Send initial metrics
-        await websocket.send_json({
-            'type': 'connection_established',
-            'metrics': data_manager.get_metrics_summary()
-        })
-        
-        # Keep connection alive
-        while True:
-            # Wait for messages from client (ping/pong)
+        # Send to 'all' subscribers
+        for client_queue in sse_clients.get('all', []):
             try:
-                data = await asyncio.wait_for(websocket.receive_text(), timeout=30)
-                
-                # Echo back for ping/pong
-                if data == "ping":
-                    await websocket.send_text("pong")
-            
-            except asyncio.TimeoutError:
-                # Send heartbeat
-                await websocket.send_json({
-                    'type': 'heartbeat',
-                    'timestamp': datetime.now().isoformat()
-                })
+                client_queue.put(message)
+            except:
+                pass
     
-    except WebSocketDisconnect:
-        data_manager.active_connections.remove(websocket)
-        logger.info(f"WebSocket client disconnected. Remaining: {len(data_manager.active_connections)}")
+    def start(self):
+        """Start consuming and broadcasting messages"""
+        try:
+            self.consumer = KafkaConsumer(
+                self.topic,
+                bootstrap_servers=ClearVueConfig.get_kafka_servers(),
+                auto_offset_reset='latest',
+                enable_auto_commit=True,
+                group_id=f'clearvue_realtime_{self.channel}',
+                value_deserializer=lambda x: json.loads(x.decode('utf-8')),
+                consumer_timeout_ms=1000
+            )
+            
+            self.running = True
+            logger.info(f"✅ Started real-time consumer: {self.topic}")
+            
+            while self.running:
+                try:
+                    messages = self.consumer.poll(timeout_ms=100)  # Poll very frequently!
+                    
+                    for topic_partition, records in messages.items():
+                        for record in records:
+                            # INSTANTLY broadcast to all connected clients!
+                            self.broadcast_message(record.value)
+                            
+                            api_stats['messages_consumed'] += 1
+                            
+                            logger.info(
+                                f"⚡ Real-time broadcast: {self.channel} | "
+                                f"Pushed: {api_stats['messages_pushed']}"
+                            )
+                
+                except Exception as e:
+                    logger.error(f"Error consuming from {self.topic}: {e}")
+                    time.sleep(1)
+        
+        except Exception as e:
+            logger.error(f"Failed to start consumer for {self.topic}: {e}")
+        
+        finally:
+            if self.consumer:
+                self.consumer.close()
+            logger.info(f"Stopped consumer: {self.topic}")
+    
+    def stop(self):
+        """Stop consuming"""
+        self.running = False
+
+
+def start_realtime_consumers():
+    """Start real-time Kafka consumers"""
+    global consumers_running, consumer_threads
+    
+    if consumers_running:
+        return
+    
+    logger.info("🚀 Starting real-time Kafka consumers...")
+    
+    topics_config = [
+        ('clearvue.sales', 'sales'),
+        ('clearvue.payments', 'payments'),
+        ('clearvue.purchases', 'purchases'),
+        ('clearvue.customers', 'customers'),
+        ('clearvue.products', 'products'),
+        ('clearvue.suppliers', 'suppliers')
+    ]
+    
+    for topic, channel in topics_config:
+        consumer = RealTimeKafkaConsumer(topic, channel)
+        thread = threading.Thread(target=consumer.start, daemon=True)
+        thread.start()
+        consumer_threads.append({'thread': thread, 'consumer': consumer})
+    
+    consumers_running = True
+    logger.info(f"✅ Started {len(consumer_threads)} real-time consumers")
 
 
 # ============================================================================
-# WEB DASHBOARD
+# WebSocket Endpoints (for Custom Dashboards)
 # ============================================================================
 
-@app.get("/dashboard", response_class=HTMLResponse)
-async def dashboard():
-    """Real-time web dashboard"""
-    return """
+@socketio.on('connect', namespace='/sales')
+def handle_sales_connect():
+    """Client connected to sales WebSocket"""
+    api_stats['websocket_connections'] += 1
+    logger.info(f"🔌 WebSocket connected: sales | Total: {api_stats['websocket_connections']}")
+    emit('connection_response', {'status': 'connected', 'channel': 'sales'})
+
+
+@socketio.on('connect', namespace='/payments')
+def handle_payments_connect():
+    """Client connected to payments WebSocket"""
+    api_stats['websocket_connections'] += 1
+    logger.info(f"🔌 WebSocket connected: payments | Total: {api_stats['websocket_connections']}")
+    emit('connection_response', {'status': 'connected', 'channel': 'payments'})
+
+
+@socketio.on('disconnect', namespace='/sales')
+def handle_sales_disconnect():
+    """Client disconnected from sales WebSocket"""
+    api_stats['websocket_connections'] -= 1
+    logger.info(f"❌ WebSocket disconnected: sales")
+
+
+# ============================================================================
+# Server-Sent Events (SSE) - For Power BI Real-Time
+# ============================================================================
+
+@app.route('/stream/sales')
+def stream_sales():
+    """SSE endpoint for real-time sales - INSTANT PUSH to Power BI!"""
+    from queue import Queue
+    
+    client_queue = Queue(maxsize=100)
+    sse_clients['sales'].append(client_queue)
+    api_stats['sse_connections'] += 1
+    
+    logger.info(f"📡 SSE client connected: sales | Total: {api_stats['sse_connections']}")
+    
+    def generate():
+        """Generate Server-Sent Events stream"""
+        try:
+            # Send initial connection confirmation
+            yield f"data: {json.dumps({'status': 'connected', 'channel': 'sales'})}\n\n"
+            
+            # Stream messages as they arrive
+            while True:
+                try:
+                    # Wait for new message (blocking)
+                    message = client_queue.get(timeout=30)
+                    
+                    # Send message to client
+                    yield f"data: {json.dumps(message)}\n\n"
+                    
+                except:
+                    # Send keepalive every 30 seconds
+                    yield f": keepalive\n\n"
+        
+        finally:
+            # Clean up when client disconnects
+            if client_queue in sse_clients['sales']:
+                sse_clients['sales'].remove(client_queue)
+            api_stats['sse_connections'] -= 1
+            logger.info(f"❌ SSE client disconnected: sales")
+    
+    return Response(generate(), mimetype='text/event-stream')
+
+
+@app.route('/stream/payments')
+def stream_payments():
+    """SSE endpoint for real-time payments"""
+    from queue import Queue
+    
+    client_queue = Queue(maxsize=100)
+    sse_clients['payments'].append(client_queue)
+    api_stats['sse_connections'] += 1
+    
+    def generate():
+        try:
+            yield f"data: {json.dumps({'status': 'connected', 'channel': 'payments'})}\n\n"
+            
+            while True:
+                try:
+                    message = client_queue.get(timeout=30)
+                    yield f"data: {json.dumps(message)}\n\n"
+                except:
+                    yield f": keepalive\n\n"
+        finally:
+            if client_queue in sse_clients['payments']:
+                sse_clients['payments'].remove(client_queue)
+            api_stats['sse_connections'] -= 1
+    
+    return Response(generate(), mimetype='text/event-stream')
+
+
+@app.route('/stream/all')
+def stream_all():
+    """SSE endpoint for ALL real-time data - ALL channels combined!"""
+    from queue import Queue
+    
+    client_queue = Queue(maxsize=500)
+    sse_clients['all'].append(client_queue)
+    api_stats['sse_connections'] += 1
+    
+    logger.info(f"📡 SSE client connected: ALL channels | Total: {api_stats['sse_connections']}")
+    
+    def generate():
+        try:
+            yield f"data: {json.dumps({'status': 'connected', 'channel': 'all'})}\n\n"
+            
+            while True:
+                try:
+                    message = client_queue.get(timeout=30)
+                    yield f"data: {json.dumps(message)}\n\n"
+                except:
+                    yield f": keepalive\n\n"
+        finally:
+            if client_queue in sse_clients['all']:
+                sse_clients['all'].remove(client_queue)
+            api_stats['sse_connections'] -= 1
+    
+    return Response(generate(), mimetype='text/event-stream')
+
+
+# ============================================================================
+# REST API Endpoints (Fallback / Historical Data)
+# ============================================================================
+
+@app.route('/')
+def home():
+    """API home page"""
+    return jsonify({
+        'name': 'ClearVue Real-Time API',
+        'version': '2.0',
+        'description': 'INSTANT real-time data streaming for Power BI',
+        'real_time_endpoints': {
+            'sse_sales': '/stream/sales (Server-Sent Events)',
+            'sse_payments': '/stream/payments',
+            'sse_all': '/stream/all (All channels combined)',
+            'websocket_sales': 'ws://localhost:5000/sales',
+            'websocket_payments': 'ws://localhost:5000/payments'
+        },
+        'rest_endpoints': {
+            '/api/sales': 'Get recent sales (REST)',
+            '/api/payments': 'Get recent payments (REST)',
+            '/api/stats': 'Get API statistics',
+            '/api/health': 'Health check'
+        },
+        'demo': '/demo (Live dashboard demo)'
+    })
+
+
+@app.route('/api/health')
+def health():
+    """Health check"""
+    return jsonify({
+        'status': 'healthy',
+        'timestamp': datetime.now().isoformat(),
+        'websocket_connections': api_stats['websocket_connections'],
+        'sse_connections': api_stats['sse_connections'],
+        'messages_pushed': api_stats['messages_pushed']
+    })
+
+
+@app.route('/api/stats')
+def stats():
+    """API statistics"""
+    uptime = str(datetime.now() - datetime.fromisoformat(api_stats['start_time'])).split('.')[0]
+    
+    return jsonify({
+        **api_stats,
+        'uptime': uptime,
+        'cache_sizes': {k: len(v) for k, v in message_cache.items()},
+        'active_sse_clients': {k: len(v) for k, v in sse_clients.items()}
+    })
+
+
+@app.route('/api/sales')
+def get_sales():
+    """Get recent sales (REST fallback)"""
+    limit = request.args.get('limit', 100, type=int)
+    messages = list(message_cache['sales'])[-limit:]
+    
+    return jsonify({
+        'count': len(messages),
+        'data': messages,
+        'note': 'For real-time updates, use /stream/sales (SSE)'
+    })
+
+
+@app.route('/api/payments')
+def get_payments():
+    """Get recent payments (REST fallback)"""
+    limit = request.args.get('limit', 100, type=int)
+    messages = list(message_cache['payments'])[-limit:]
+    
+    return jsonify({
+        'count': len(messages),
+        'data': messages,
+        'note': 'For real-time updates, use /stream/payments (SSE)'
+    })
+
+
+# ============================================================================
+# Demo Dashboard (HTML with live updates)
+# ============================================================================
+
+@app.route('/demo')
+def demo():
+    """Live demo dashboard showing real-time updates"""
+    html = """
     <!DOCTYPE html>
     <html>
     <head>
-        <title>ClearVue Real-Time Dashboard</title>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>ClearVue Real-Time Dashboard Demo</title>
         <style>
-            * { margin: 0; padding: 0; box-sizing: border-box; }
-            body {
-                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                color: #fff;
-                padding: 20px;
-            }
-            .container { max-width: 1400px; margin: 0 auto; }
-            h1 {
-                text-align: center;
-                margin-bottom: 30px;
-                font-size: 2.5em;
-                text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-            }
-            .status {
-                text-align: center;
-                margin-bottom: 20px;
-                padding: 10px;
-                background: rgba(255,255,255,0.1);
-                border-radius: 10px;
-            }
-            .status.connected { background: rgba(16,185,129,0.3); }
-            .status.disconnected { background: rgba(239,68,68,0.3); }
-            
-            .metrics {
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-                gap: 20px;
-                margin-bottom: 30px;
-            }
-            .metric-card {
-                background: rgba(255,255,255,0.15);
-                backdrop-filter: blur(10px);
-                border-radius: 15px;
-                padding: 25px;
-                box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-                transition: transform 0.3s;
-            }
-            .metric-card:hover { transform: translateY(-5px); }
-            .metric-label {
-                font-size: 0.9em;
-                opacity: 0.9;
-                margin-bottom: 10px;
-            }
-            .metric-value {
-                font-size: 2.5em;
-                font-weight: bold;
-                margin-bottom: 5px;
-            }
-            .metric-change {
-                font-size: 0.85em;
-                opacity: 0.8;
-            }
-            
-            .transactions {
-                background: rgba(255,255,255,0.15);
-                backdrop-filter: blur(10px);
-                border-radius: 15px;
-                padding: 25px;
-                max-height: 600px;
-                overflow-y: auto;
-            }
-            .transaction-item {
-                background: rgba(255,255,255,0.1);
-                padding: 15px;
-                border-radius: 10px;
-                margin-bottom: 10px;
-                border-left: 4px solid #10b981;
-                animation: slideIn 0.3s ease-out;
-            }
-            @keyframes slideIn {
-                from {
-                    opacity: 0;
-                    transform: translateX(-20px);
-                }
-                to {
-                    opacity: 1;
-                    transform: translateX(0);
-                }
-            }
-            .transaction-header {
-                display: flex;
-                justify-content: space-between;
-                margin-bottom: 8px;
-                font-weight: bold;
-            }
-            .transaction-details {
-                font-size: 0.9em;
-                opacity: 0.9;
-            }
-            .priority-HIGH { border-left-color: #ef4444; }
-            .priority-MEDIUM { border-left-color: #f59e0b; }
-            .priority-LOW { border-left-color: #10b981; }
+            body { font-family: Arial; margin: 20px; background: #1e1e1e; color: #fff; }
+            h1 { color: #4CAF50; }
+            .container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+            .panel { background: #2d2d2d; padding: 20px; border-radius: 8px; }
+            .message { padding: 10px; margin: 5px 0; background: #3d3d3d; border-left: 3px solid #4CAF50; }
+            .timestamp { color: #888; font-size: 12px; }
+            .amount { color: #4CAF50; font-weight: bold; }
+            #status { padding: 10px; background: #4CAF50; color: white; border-radius: 5px; }
+            #status.connected { background: #4CAF50; }
+            #status.disconnected { background: #f44336; }
         </style>
     </head>
     <body>
+        <h1>🚀 ClearVue Real-Time Dashboard Demo</h1>
+        <div id="status">⏳ Connecting...</div>
+        <p>This dashboard updates INSTANTLY when new data arrives from Kafka!</p>
+        
         <div class="container">
-            <h1>ClearVue Real-Time Dashboard</h1>
-            
-            <div id="status" class="status disconnected">
-                <strong>Status:</strong> <span id="statusText">Connecting...</span>
+            <div class="panel">
+                <h2>💰 Real-Time Sales</h2>
+                <div id="sales"></div>
             </div>
-            
-            <div class="metrics">
-                <div class="metric-card">
-                    <div class="metric-label"> Total Sales</div>
-                    <div class="metric-value" id="totalSales">R0</div>
-                    <div class="metric-change">This session</div>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-label"> Total Payments</div>
-                    <div class="metric-value" id="totalPayments">R0</div>
-                    <div class="metric-change">This session</div>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-label"> Total Profit</div>
-                    <div class="metric-value" id="totalProfit">R0</div>
-                    <div class="metric-change">This session</div>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-label"> Transactions</div>
-                    <div class="metric-value" id="transactionCount">0</div>
-                    <div class="metric-change">Live count</div>
-                </div>
-            </div>
-            
-            <div class="transactions">
-                <h2 style="margin-bottom: 20px;"> Live Transactions</h2>
-                <div id="transactionsList"></div>
+            <div class="panel">
+                <h2>💳 Real-Time Payments</h2>
+                <div id="payments"></div>
             </div>
         </div>
         
         <script>
-            let ws;
-            const maxTransactions = 50;
+            // Connect to Server-Sent Events
+            const salesSource = new EventSource('/stream/sales');
+            const paymentsSource = new EventSource('/stream/payments');
             
-            function connect() {
-                ws = new WebSocket(`ws://${window.location.host}/ws`);
-                
-                ws.onopen = () => {
-                    console.log('WebSocket connected');
-                    document.getElementById('status').className = 'status connected';
-                    document.getElementById('statusText').textContent = ' Connected';
-                };
-                
-                ws.onmessage = (event) => {
-                    const message = JSON.parse(event.data);
-                    
-                    if (message.type === 'connection_established') {
-                        updateMetrics(message.metrics.metrics);
-                    }
-                    else if (message.type === 'realtime_update') {
-                        handleRealtimeUpdate(message.data);
-                    }
-                };
-                
-                ws.onerror = (error) => {
-                    console.error('WebSocket error:', error);
-                };
-                
-                ws.onclose = () => {
-                    console.log('WebSocket disconnected');
-                    document.getElementById('status').className = 'status disconnected';
-                    document.getElementById('statusText').textContent = ' Disconnected - Reconnecting...';
-                    setTimeout(connect, 3000);
-                };
-                
-                // Send ping every 25 seconds
-                setInterval(() => {
-                    if (ws.readyState === WebSocket.OPEN) {
-                        ws.send('ping');
-                    }
-                }, 25000);
-            }
+            const statusDiv = document.getElementById('status');
+            const salesDiv = document.getElementById('sales');
+            const paymentsDiv = document.getElementById('payments');
             
-            function updateMetrics(metrics) {
-                document.getElementById('totalSales').textContent = 
-                    'R' + metrics.total_sales.toLocaleString('en-ZA', {minimumFractionDigits: 2});
-                document.getElementById('totalPayments').textContent = 
-                    'R' + metrics.total_payments.toLocaleString('en-ZA', {minimumFractionDigits: 2});
-                document.getElementById('totalProfit').textContent = 
-                    'R' + metrics.total_profit.toLocaleString('en-ZA', {minimumFractionDigits: 2});
-                document.getElementById('transactionCount').textContent = 
-                    metrics.transaction_count.toLocaleString('en-ZA');
-            }
+            salesSource.onopen = () => {
+                statusDiv.textContent = '✅ Connected - Streaming live data!';
+                statusDiv.className = 'connected';
+            };
             
-            function handleRealtimeUpdate(data) {
-                const ctx = data.business_context || {};
-                const collection = data.collection;
-                const operation = data.operation;
-                const priority = data.priority;
+            salesSource.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                if (data.status === 'connected') return;
                 
-                // Update metrics
-                fetch('/api/metrics')
-                    .then(r => r.json())
-                    .then(d => updateMetrics(d.metrics));
-                
-                // Add to transaction list
-                const list = document.getElementById('transactionsList');
-                const item = document.createElement('div');
-                item.className = `transaction-item priority-${priority}`;
-                
-                let icon = '';
-                let title = collection.toUpperCase();
-                let details = '';
-                
-                if (collection === 'sales') {
-                    icon = '';
-                    details = `Customer: ${ctx.customer_id} | Amount: R${(ctx.total_amount || 0).toLocaleString('en-ZA', {minimumFractionDigits: 2})}`;
-                } else if (collection === 'payments') {
-                    icon = '';
-                    details = `Customer: ${ctx.customer_id} | Payment: R${(ctx.total_payment || 0).toLocaleString('en-ZA', {minimumFractionDigits: 2})}`;
-                } else if (collection === 'purchases') {
-                    icon = '';
-                    details = `Supplier: ${ctx.supplier_id} | Cost: R${(ctx.total_cost || 0).toLocaleString('en-ZA', {minimumFractionDigits: 2})}`;
-                } else {
-                    details = `${operation.toUpperCase()}`;
-                }
-                
-                item.innerHTML = `
-                    <div class="transaction-header">
-                        <span>${icon} ${title}</span>
-                        <span style="font-size: 0.85em; opacity: 0.8;">${new Date().toLocaleTimeString()}</span>
+                const msg = data.data.business_context || {};
+                const html = `
+                    <div class="message">
+                        <div class="timestamp">${data.timestamp}</div>
+                        <div>Customer: ${msg.customer_id || 'N/A'}</div>
+                        <div class="amount">Amount: R${(msg.total_amount || 0).toFixed(2)}</div>
+                        <div>Profit: R${(msg.total_profit || 0).toFixed(2)}</div>
                     </div>
-                    <div class="transaction-details">${details}</div>
                 `;
+                salesDiv.innerHTML = html + salesDiv.innerHTML;
                 
-                list.insertBefore(item, list.firstChild);
-                
-                // Keep only last N transactions
-                while (list.children.length > maxTransactions) {
-                    list.removeChild(list.lastChild);
+                // Keep only last 10
+                const messages = salesDiv.getElementsByClassName('message');
+                while (messages.length > 10) {
+                    salesDiv.removeChild(messages[messages.length - 1]);
                 }
-            }
+            };
             
-            // Connect on load
-            connect();
+            paymentsSource.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                if (data.status === 'connected') return;
+                
+                const msg = data.data.business_context || {};
+                const html = `
+                    <div class="message">
+                        <div class="timestamp">${data.timestamp}</div>
+                        <div>Customer: ${msg.customer_id || 'N/A'}</div>
+                        <div class="amount">Payment: R${(msg.total_payment || 0).toFixed(2)}</div>
+                        <div>Discount: R${(msg.total_discount || 0).toFixed(2)}</div>
+                    </div>
+                `;
+                paymentsDiv.innerHTML = html + paymentsDiv.innerHTML;
+                
+                const messages = paymentsDiv.getElementsByClassName('message');
+                while (messages.length > 10) {
+                    paymentsDiv.removeChild(messages[messages.length - 1]);
+                }
+            };
+            
+            salesSource.onerror = () => {
+                statusDiv.textContent = '❌ Disconnected - Retrying...';
+                statusDiv.className = 'disconnected';
+            };
         </script>
     </body>
     </html>
     """
+    return render_template_string(html)
 
 
-# ============================================================================
-# RUN SERVER
-# ============================================================================
-
-if __name__ == "__main__":
+def main():
+    """Start the real-time API server"""
     print("\n" + "="*70)
-    print(" CLEARVUE FASTAPI STREAMING SERVER")
+    print("🚀 CLEARVUE REAL-TIME API SERVER")
     print("="*70)
-    print("\n Starting server...")
-    print("   API: http://localhost:8000")
-    print("   Docs: http://localhost:8000/docs")
-    print("   Dashboard: http://localhost:8000/dashboard")
-    print("\n" + "="*70 + "\n")
+    print("\n⚡ TRUE REAL-TIME MODE")
+    print("   Messages are pushed INSTANTLY to connected clients!")
+    print("   No polling delays - sub-second latency!")
+    print("\n📡 Starting Kafka real-time consumers...")
     
-    uvicorn.run(
-        app,
-        host="0.0.0.0",
-        port=8000,
-        log_level="info"
-    )
+    # Start Kafka consumers
+    start_realtime_consumers()
+    time.sleep(2)
+    
+    print("\n✅ Real-time consumers active")
+    print("\n🌐 Starting Flask + SocketIO server...")
+    print("="*70)
+    print("\n📋 Endpoints:")
+    print(f"   Home:              http://localhost:5000/")
+    print(f"   Live Demo:         http://localhost:5000/demo")
+    print(f"   Health:            http://localhost:5000/api/health")
+    print(f"   Stats:             http://localhost:5000/api/stats")
+    print("\n📡 Real-Time Streaming (SSE - for Power BI):")
+    print(f"   Sales Stream:      http://localhost:5000/stream/sales")
+    print(f"   Payments Stream:   http://localhost:5000/stream/payments")
+    print(f"   All Data Stream:   http://localhost:5000/stream/all")
+    print("\n🔌 WebSocket (for custom dashboards):")
+    print(f"   Sales WS:          ws://localhost:5000/sales")
+    print(f"   Payments WS:       ws://localhost:5000/payments")
+    print("="*70 + "\n")
+    print("💡 TIP: Open http://localhost:5000/demo to see live updates!")
+    print("="*70 + "\n")
+    print("⚠️  IMPORTANT: Do NOT use uvicorn to run this!")
+    print("   This is a WSGI app (Flask), not ASGI")
+    print("   Run with: python ClearVue_RealTime_API.py")
+    print("="*70 + "\n")
+    
+    try:
+        # Start SocketIO server (uses Flask's built-in server)
+        socketio.run(
+            app,
+            host='0.0.0.0',
+            port=5000,
+            debug=False,
+            use_reloader=False,
+            log_output=True
+        )
+    except KeyboardInterrupt:
+        print("\n\n🛑 Shutting down...")
+    finally:
+        print("✅ API server stopped\n")
+
+
+if __name__ == '__main__':
+    main()

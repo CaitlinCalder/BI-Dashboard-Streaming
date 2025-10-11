@@ -28,7 +28,7 @@ from pymongo.errors import PyMongoError, ServerSelectionTimeoutError
 from kafka import KafkaProducer
 from kafka.admin import KafkaAdminClient, NewTopic
 from kafka.errors import KafkaError
-from pymongo import bson
+import bson
 
 
 # Import configuration
