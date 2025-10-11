@@ -167,7 +167,7 @@ class ClearVueConfig:
         print("\n" + "="*70)
         print("CLEARVUE CONFIGURATION")
         print("="*70)
-        print("☁️  MongoDB Atlas (Cloud)")
+        print("  MongoDB Atlas (Cloud)")
         print(f"   URI: mongodb+srv://...@novacluster.1re1a4e.mongodb.net")
         print(f"   Database: {cls.MONGODB_ATLAS_DB}")
         print(f"   Collections: {len(cls.COLLECTIONS)}")
@@ -177,10 +177,9 @@ class ClearVueConfig:
             for alias, actual in cls.COLLECTIONS.items():
                 priority = cls.get_collection_priority(actual)
                 topic = cls.get_topic_for_collection(actual)
-                icon = "⚡" if priority == 'HIGH' else "📊" if priority == 'MEDIUM' else "📁"
-                print(f"   {icon} {actual:22} → {topic:25} ({priority})")
+                print(f"   {actual:22} → {topic:25} ({priority})")
         
-        print(f"\n📡 Kafka: {', '.join(cls.KAFKA_BOOTSTRAP_SERVERS)}")
+        print(f"\n Kafka: {', '.join(cls.KAFKA_BOOTSTRAP_SERVERS)}")
         print(f"   Topics: {len(cls.KAFKA_TOPICS)}")
         print("="*70 + "\n")
 

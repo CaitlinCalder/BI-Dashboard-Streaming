@@ -32,9 +32,9 @@ import threading
 
 # Import config
 try:
-    from config import ClearVueConfig
+    from ClearVueConfig import ClearVueConfig
 except ImportError:
-    print("❌ Error: config.py not found")
+    print("Error: config.py not found")
     exit(1)
 
 # Logging
@@ -221,9 +221,9 @@ data_manager = StreamingDataManager()
 @app.on_event("startup")
 async def startup_event():
     """Initialize on startup"""
-    logger.info("🚀 ClearVue Streaming API starting...")
+    logger.info("ClearVue Streaming API starting...")
     data_manager.start_kafka_consumer()
-    logger.info("✅ API ready!")
+    logger.info("API ready!")
 
 
 @app.get("/")
@@ -595,7 +595,7 @@ async def dashboard():
     </head>
     <body>
         <div class="container">
-            <h1>🚀 ClearVue Real-Time Dashboard</h1>
+            <h1>ClearVue Real-Time Dashboard</h1>
             
             <div id="status" class="status disconnected">
                 <strong>Status:</strong> <span id="statusText">Connecting...</span>
@@ -603,29 +603,29 @@ async def dashboard():
             
             <div class="metrics">
                 <div class="metric-card">
-                    <div class="metric-label">💰 Total Sales</div>
+                    <div class="metric-label"> Total Sales</div>
                     <div class="metric-value" id="totalSales">R0</div>
                     <div class="metric-change">This session</div>
                 </div>
                 <div class="metric-card">
-                    <div class="metric-label">💳 Total Payments</div>
+                    <div class="metric-label"> Total Payments</div>
                     <div class="metric-value" id="totalPayments">R0</div>
                     <div class="metric-change">This session</div>
                 </div>
                 <div class="metric-card">
-                    <div class="metric-label">📈 Total Profit</div>
+                    <div class="metric-label"> Total Profit</div>
                     <div class="metric-value" id="totalProfit">R0</div>
                     <div class="metric-change">This session</div>
                 </div>
                 <div class="metric-card">
-                    <div class="metric-label">📊 Transactions</div>
+                    <div class="metric-label"> Transactions</div>
                     <div class="metric-value" id="transactionCount">0</div>
                     <div class="metric-change">Live count</div>
                 </div>
             </div>
             
             <div class="transactions">
-                <h2 style="margin-bottom: 20px;">📡 Live Transactions</h2>
+                <h2 style="margin-bottom: 20px;"> Live Transactions</h2>
                 <div id="transactionsList"></div>
             </div>
         </div>
@@ -640,7 +640,7 @@ async def dashboard():
                 ws.onopen = () => {
                     console.log('WebSocket connected');
                     document.getElementById('status').className = 'status connected';
-                    document.getElementById('statusText').textContent = '🟢 Connected';
+                    document.getElementById('statusText').textContent = ' Connected';
                 };
                 
                 ws.onmessage = (event) => {
@@ -661,7 +661,7 @@ async def dashboard():
                 ws.onclose = () => {
                     console.log('WebSocket disconnected');
                     document.getElementById('status').className = 'status disconnected';
-                    document.getElementById('statusText').textContent = '🔴 Disconnected - Reconnecting...';
+                    document.getElementById('statusText').textContent = ' Disconnected - Reconnecting...';
                     setTimeout(connect, 3000);
                 };
                 
@@ -700,18 +700,18 @@ async def dashboard():
                 const item = document.createElement('div');
                 item.className = `transaction-item priority-${priority}`;
                 
-                let icon = '📊';
+                let icon = '';
                 let title = collection.toUpperCase();
                 let details = '';
                 
                 if (collection === 'sales') {
-                    icon = '🛒';
+                    icon = '';
                     details = `Customer: ${ctx.customer_id} | Amount: R${(ctx.total_amount || 0).toLocaleString('en-ZA', {minimumFractionDigits: 2})}`;
                 } else if (collection === 'payments') {
-                    icon = '💳';
+                    icon = '';
                     details = `Customer: ${ctx.customer_id} | Payment: R${(ctx.total_payment || 0).toLocaleString('en-ZA', {minimumFractionDigits: 2})}`;
                 } else if (collection === 'purchases') {
-                    icon = '📦';
+                    icon = '';
                     details = `Supplier: ${ctx.supplier_id} | Cost: R${(ctx.total_cost || 0).toLocaleString('en-ZA', {minimumFractionDigits: 2})}`;
                 } else {
                     details = `${operation.toUpperCase()}`;
@@ -747,9 +747,9 @@ async def dashboard():
 
 if __name__ == "__main__":
     print("\n" + "="*70)
-    print("🚀 CLEARVUE FASTAPI STREAMING SERVER")
+    print(" CLEARVUE FASTAPI STREAMING SERVER")
     print("="*70)
-    print("\n📡 Starting server...")
+    print("\n Starting server...")
     print("   API: http://localhost:8000")
     print("   Docs: http://localhost:8000/docs")
     print("   Dashboard: http://localhost:8000/dashboard")

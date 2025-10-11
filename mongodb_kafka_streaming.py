@@ -28,13 +28,14 @@ from pymongo.errors import PyMongoError, ServerSelectionTimeoutError
 from kafka import KafkaProducer
 from kafka.admin import KafkaAdminClient, NewTopic
 from kafka.errors import KafkaError
-import bson
+from pymongo import bson
+
 
 # Import configuration
 try:
     from ClearVueConfig import ClearVueConfig, print_startup_banner
 except ImportError:
-    print("❌ Error: ClearVueConfig.py not found")
+    print(" Error: ClearVueConfig.py not found")
     sys.exit(1)
 
 # Logging configuration
@@ -124,7 +125,7 @@ class ClearVueStreamingPipeline:
             existing_collections = self.db.list_collection_names()
             monitored_collections = ClearVueConfig.get_all_collections()
             
-            print(f"✅ MongoDB Atlas connected!")
+            print(f" MongoDB Atlas connected!")
             print(f"   Database: {self.db_name}")
             print(f"   Collections found: {len(existing_collections)}")
             
@@ -132,23 +133,23 @@ class ClearVueStreamingPipeline:
             missing = [c for c in monitored_collections if c not in existing_collections]
             if missing:
                 logger.warning(f"Collections not found: {missing}")
-                print(f"⚠️  Warning: Missing collections: {', '.join(missing)}")
+                print(f"  Warning: Missing collections: {', '.join(missing)}")
             
             logger.info(f"Connected to MongoDB: {self.db_name}")
             
         except ServerSelectionTimeoutError:
             logger.error("MongoDB connection timeout - check network/credentials")
-            print("❌ MongoDB connection failed: Timeout")
+            print(" MongoDB connection failed: Timeout")
             print("   Check: 1) Network connection 2) MongoDB Atlas IP whitelist 3) Credentials")
             raise
         except Exception as e:
             logger.error(f"MongoDB connection failed: {e}")
-            print(f"❌ MongoDB connection failed: {e}")
+            print(f" MongoDB connection failed: {e}")
             raise
     
     def _setup_kafka_producer(self):
         """Setup Kafka producer with configuration"""
-        print("\n📡 Setting up Kafka producer...")
+        print("\n Setting up Kafka producer...")
         
         try:
             self.kafka_producer = KafkaProducer(
@@ -158,12 +159,12 @@ class ClearVueStreamingPipeline:
                 **ClearVueConfig.KAFKA_PRODUCER_CONFIG
             )
             
-            print("✅ Kafka producer ready!")
+            print(" Kafka producer ready!")
             logger.info("Kafka producer initialized")
             
         except Exception as e:
             logger.error(f"Kafka setup failed: {e}")
-            print(f"❌ Kafka setup failed: {e}")
+            print(f" Kafka setup failed: {e}")
             print("   Make sure Kafka is running: docker-compose up -d")
             raise
     
@@ -179,7 +180,7 @@ class ClearVueStreamingPipeline:
     
     def create_kafka_topics(self):
         """Create Kafka topics if they don't exist"""
-        print("\n📡 Creating/verifying Kafka topics...")
+        print("\n Creating/verifying Kafka topics...")
         
         try:
             admin_client = KafkaAdminClient(
@@ -206,17 +207,17 @@ class ClearVueStreamingPipeline:
             
             if topics_to_create:
                 admin_client.create_topics(new_topics=topics_to_create, validate_only=False)
-                print(f"✅ Created {len(topics_to_create)} new Kafka topics")
+                print(f" Created {len(topics_to_create)} new Kafka topics")
                 logger.info(f"Created {len(topics_to_create)} topics")
             else:
-                print("✅ All Kafka topics already exist")
+                print(" All Kafka topics already exist")
                 logger.info("All topics exist")
             
             admin_client.close()
             
         except Exception as e:
             logger.warning(f"Topic creation warning: {e}")
-            print(f"⚠️  Topic warning (may already exist): {e}")
+            print(f" Topic warning (may already exist): {e}")
     
     def calculate_financial_period(self, date_obj: Optional[datetime] = None) -> Dict[str, Any]:
         """
@@ -552,12 +553,12 @@ class ClearVueStreamingPipeline:
         except PyMongoError as e:
             logger.error(f"MongoDB error for {collection_name}: {e}", exc_info=True)
             self.stats['mongodb_errors'] += 1
-            print(f"❌ MongoDB stream error for {collection_name}: {e}")
+            print(f" MongoDB stream error for {collection_name}: {e}")
         
         except Exception as e:
             logger.error(f"Change stream error for {collection_name}: {e}", exc_info=True)
             self.stats['errors'] += 1
-            print(f"❌ Stream error for {collection_name}: {e}")
+            print(f" Stream error for {collection_name}: {e}")
         
         finally:
             if collection_name in self.change_streams:
@@ -588,30 +589,29 @@ class ClearVueStreamingPipeline:
             uptime = str(datetime.now() - start).split('.')[0]
         
         print("\n" + "="*70)
-        print(f"{'📊 FINAL STATISTICS' if final else '📊 PIPELINE STATISTICS'}")
+        print(f"{'FINAL STATISTICS' if final else '📊 PIPELINE STATISTICS'}")
         print("="*70)
-        print(f"⏱️  Uptime: {uptime}")
-        print(f"📈 Total changes: {self.stats['total_changes']:,}")
-        print(f"⚡ High priority: {self.stats['high_priority_events']:,}")
-        print(f"❌ Errors: {self.stats['errors']}")
-        print(f"📡 Kafka errors: {self.stats['kafka_send_errors']}")
-        print(f"🗄️  MongoDB errors: {self.stats['mongodb_errors']}")
-        print(f"💚 Health: {'HEALTHY ✓' if self.is_healthy else 'UNHEALTHY ✗'}")
-        print(f"🕐 Last processed: {self.stats['last_processed'] or 'N/A'}")
+        print(f"  Uptime: {uptime}")
+        print(f" Total changes: {self.stats['total_changes']:,}")
+        print(f" High priority: {self.stats['high_priority_events']:,}")
+        print(f" Errors: {self.stats['errors']}")
+        print(f" Kafka errors: {self.stats['kafka_send_errors']}")
+        print(f" MongoDB errors: {self.stats['mongodb_errors']}")
+        print(f" Health: {'HEALTHY ✓' if self.is_healthy else 'UNHEALTHY ✗'}")
+        print(f" Last processed: {self.stats['last_processed'] or 'N/A'}")
         
         if self.stats['changes_by_collection']:
-            print("\n📊 Changes by collection:")
+            print("\n Changes by collection:")
             for coll, count in sorted(
                 self.stats['changes_by_collection'].items(),
                 key=lambda x: x[1],
                 reverse=True
             ):
                 priority = ClearVueConfig.get_collection_priority(coll)
-                icon = "⚡" if priority == 'HIGH' else "📊" if priority == 'MEDIUM' else "📁"
-                print(f"   {icon} {coll:25} : {count:,} ({priority})")
+                print(f"   {coll:25} : {count:,} ({priority})")
         
         if self.stats['changes_by_operation']:
-            print("\n🔄 Changes by operation:")
+            print("\n Changes by operation:")
             for op, count in sorted(self.stats['changes_by_operation'].items()):
                 print(f"   {op:10} : {count:,}")
         
@@ -625,7 +625,7 @@ class ClearVueStreamingPipeline:
             collections: List of collections to monitor (None = all collections)
         """
         if self.is_running:
-            print("⚠️  Pipeline is already running!")
+            print("  Pipeline is already running!")
             return
         
         # Default to all collections from config
@@ -633,12 +633,12 @@ class ClearVueStreamingPipeline:
             collections = ClearVueConfig.get_all_collections()
         
         print("\n" + "="*70)
-        print("🚀 STARTING CLEARVUE STREAMING PIPELINE")
+        print(" STARTING CLEARVUE STREAMING PIPELINE")
         print("="*70)
-        print(f"🗄️  Database: {self.db_name}")
-        print(f"📚 Collections: {', '.join(collections)}")
-        print(f"📡 Kafka Topics: {len(collections)}")
-        print(f"☁️  Mode: MongoDB ATLAS (Production)")
+        print(f"  Database: {self.db_name}")
+        print(f"Collections: {', '.join(collections)}")
+        print(f" Kafka Topics: {len(collections)}")
+        print(f"  Mode: MongoDB ATLAS (Production)")
         print("="*70 + "\n")
         
         # Create Kafka topics
@@ -650,7 +650,7 @@ class ClearVueStreamingPipeline:
         
         # Setup signal handlers for graceful shutdown
         def signal_handler(signum, frame):
-            print("\n🛑 Shutdown signal received")
+            print("\n Shutdown signal received")
             logger.info("Shutdown signal received")
             self.stop_pipeline()
         
@@ -670,15 +670,15 @@ class ClearVueStreamingPipeline:
                 thread.start()
                 self.stream_threads.append(thread)
             else:
-                print(f"⚠️  Unknown collection: {collection_name}")
+                print(f"  Unknown collection: {collection_name}")
                 logger.warning(f"Unknown collection: {collection_name}")
         
-        print(f"\n✅ Started {len(self.stream_threads)} change stream watchers\n")
+        print(f"\n Started {len(self.stream_threads)} change stream watchers\n")
         logger.info(f"Pipeline started with {len(self.stream_threads)} watchers")
         
-        print("🎯 PIPELINE IS RUNNING!")
-        print("👀 Waiting for database changes...")
-        print("⌨️  Press Ctrl+C to stop\n")
+        print(" PIPELINE IS RUNNING!")
+        print(" Waiting for database changes...")
+        print("  Press Ctrl+C to stop\n")
         
         # Keep main thread alive and print stats periodically
         try:
@@ -701,21 +701,21 @@ class ClearVueStreamingPipeline:
                     last_health_check = now
         
         except KeyboardInterrupt:
-            print("\n⌨️  Manual shutdown requested")
+            print("\n  Manual shutdown requested")
             logger.info("Manual shutdown requested")
             self.stop_pipeline()
         
         # Wait for threads to finish
-        print("\n⏳ Waiting for threads to finish...")
+        print("\n Waiting for threads to finish...")
         for thread in self.stream_threads:
             thread.join(timeout=5)
         
-        print("\n✅ Pipeline stopped successfully")
+        print("\n Pipeline stopped successfully")
         logger.info("Pipeline stopped")
     
     def stop_pipeline(self):
         """Stop the pipeline gracefully"""
-        print("\n🛑 Stopping pipeline...")
+        print("\n Stopping pipeline...")
         logger.info("Stopping pipeline...")
         self.is_running = False
         
@@ -754,7 +754,7 @@ def main():
     
     print_startup_banner()
     
-    print("\n📋 PIPELINE MONITORING OPTIONS:")
+    print("\n PIPELINE MONITORING OPTIONS:")
     print("="*70)
     print("1. ALL collections (all 6 collections)")
     print("2. TRANSACTION data only (Sales, Payments, Purchases)")
@@ -763,7 +763,7 @@ def main():
     print("5. CUSTOM selection")
     print("="*70)
     
-    choice = input("\n👉 Select option (1-5) [default: 1]: ").strip() or "1"
+    choice = input("\n Select option (1-5) [default: 1]: ").strip() or "1"
     
     pipeline = None
     try:
@@ -777,50 +777,50 @@ def main():
         
         elif choice == "2":
             # Transaction data only
-            print("\n📊 Monitoring TRANSACTION collections only...")
+            print("\n Monitoring TRANSACTION collections only...")
             pipeline.start_pipeline(collections=['Sales_flat', 'Payments_flat', 'Purchases_flat'])
         
         elif choice == "3":
             # Master data only
-            print("\n📚 Monitoring MASTER DATA collections only...")
+            print("\n Monitoring MASTER DATA collections only...")
             pipeline.start_pipeline(collections=['Customer_flat_step2', 'Products_flat', 'Suppliers'])
         
         elif choice == "4":
             # High priority only
-            print("\n⚡ Monitoring HIGH PRIORITY collections only...")
+            print("\n Monitoring HIGH PRIORITY collections only...")
             pipeline.start_pipeline(collections=['Sales_flat', 'Payments_flat'])
         
         elif choice == "5":
             # Custom selection
-            print("\n⚙️  Available collections:")
+            print("\n  Available collections:")
             all_collections = ClearVueConfig.get_all_collections()
             for i, coll in enumerate(all_collections, 1):
                 priority = ClearVueConfig.get_collection_priority(coll)
                 topic = ClearVueConfig.get_topic_for_collection(coll)
                 print(f"   {i}. {coll:25} → {topic:25} ({priority})")
             
-            selected = input("\n👉 Enter collection names (comma-separated): ").strip()
+            selected = input("\n Enter collection names (comma-separated): ").strip()
             if selected:
                 colls = [c.strip() for c in selected.split(',')]
                 pipeline.start_pipeline(collections=colls)
             else:
-                print("❌ No collections selected, exiting...")
+                print(" No collections selected, exiting...")
         
         else:
-            print("❌ Invalid option")
+            print(" Invalid option")
     
     except KeyboardInterrupt:
-        print("\n⌨️  Interrupted by user")
+        print("\n  Interrupted by user")
         logger.info("Interrupted by user")
     
     except Exception as e:
-        print(f"\n❌ Pipeline failed: {e}")
+        print(f"\n Pipeline failed: {e}")
         logger.error(f"Fatal error: {e}", exc_info=True)
     
     finally:
         if pipeline:
             pipeline.stop_pipeline()
-        print("\n👋 Goodbye!\n")
+        print("\n Goodbye!\n")
 
 
 if __name__ == "__main__":

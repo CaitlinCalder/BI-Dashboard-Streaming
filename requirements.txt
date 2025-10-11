@@ -1,0 +1,8 @@
+fastapi
+uvicorn[standard]
+pymongo
+kafka-python
+websockets
+pydantic
+python-dotenv
+requests
