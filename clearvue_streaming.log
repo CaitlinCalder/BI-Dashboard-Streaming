@@ -214,3 +214,2092 @@ Traceback (most recent call last):
   File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\kafka\client_async.py", line 1074, in check_version
     raise Errors.NoBrokersAvailable()
 kafka.errors.NoBrokersAvailable: NoBrokersAvailable
+2025-10-13 20:40:56,571 - ClearVuePipeline - INFO - Initializing ClearVue Streaming Pipeline...
+2025-10-13 20:41:00,919 - ClearVuePipeline - INFO - Connected to MongoDB: Nova_Analytix
+2025-10-13 20:41:00,922 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=bootstrap-0 host=localhost:29092 <connecting> [IPv6 ('::1', 29092, 0, 0)]>: connecting to localhost:29092 [('::1', 29092, 0, 0) IPv6]
+2025-10-13 20:41:02,934 - ClearVuePipeline - ERROR - Kafka setup failed: NoBrokersAvailable
+2025-10-13 20:41:02,935 - ClearVuePipeline - ERROR - Fatal error: NoBrokersAvailable
+Traceback (most recent call last):
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\mongodb_kafka_streaming.py", line 860, in main
+    pipeline = ClearVueStreamingPipeline()
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\mongodb_kafka_streaming.py", line 65, in __init__
+    self._setup_kafka_producer()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\mongodb_kafka_streaming.py", line 144, in _setup_kafka_producer
+    self.kafka_producer = KafkaProducer(
+                          ~~~~~~~~~~~~~^
+        bootstrap_servers=self.kafka_servers,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+        **ClearVueConfig.KAFKA_PRODUCER_CONFIG
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\kafka\producer\kafka.py", line 481, in __init__
+    client = self.config['kafka_client'](
+        metrics=self._metrics, metric_group_prefix='producer',
+        wakeup_timeout_ms=self.config['max_block_ms'],
+        **self.config)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\kafka\client_async.py", line 262, in __init__
+    self.config['api_version'] = self.check_version()
+                                 ~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\kafka\client_async.py", line 1074, in check_version
+    raise Errors.NoBrokersAvailable()
+kafka.errors.NoBrokersAvailable: NoBrokersAvailable
+2025-10-13 20:48:53,098 - ClearVuePipeline - INFO - Initializing ClearVue Streaming Pipeline...
+2025-10-13 20:48:58,307 - ClearVuePipeline - INFO - Connected to MongoDB: Nova_Analytix
+2025-10-13 20:48:58,309 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=bootstrap-0 host=localhost:29092 <connecting> [IPv6 ('::1', 29092, 0, 0)]>: connecting to localhost:29092 [('::1', 29092, 0, 0) IPv6]
+2025-10-13 20:48:58,371 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=bootstrap-0 host=localhost:29092 <checking_api_versions_recv> [IPv6 ('::1', 29092, 0, 0)]>: Broker version identified as 2.6
+2025-10-13 20:48:58,371 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=bootstrap-0 host=localhost:29092 <connected> [IPv6 ('::1', 29092, 0, 0)]>: Connection complete.
+2025-10-13 20:48:58,374 - ClearVuePipeline - INFO - Kafka producer initialized
+2025-10-13 20:48:58,374 - ClearVuePipeline - INFO - Pipeline initialized successfully
+2025-10-13 20:48:58,375 - ClearVuePipeline - ERROR - Fatal error: type object 'ClearVueConfig' has no attribute 'get_powerbi_push_url'
+Traceback (most recent call last):
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\mongodb_kafka_streaming.py", line 870, in main
+    pipeline.start_pipeline(collections=['Sales_flat', 'Payments_flat', 'Purchases_flat'])
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\mongodb_kafka_streaming.py", line 724, in start_pipeline
+    powerbi_url = ClearVueConfig.get_powerbi_push_url()
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: type object 'ClearVueConfig' has no attribute 'get_powerbi_push_url'
+2025-10-13 20:48:58,378 - ClearVuePipeline - INFO - Stopping pipeline...
+2025-10-13 20:48:58,379 - kafka.producer.kafka - INFO - <KafkaProducer client_id=kafka-python-producer-1 transactional_id=None>: Closing the Kafka producer with 4294967.0 secs timeout.
+2025-10-13 20:48:58,380 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=bootstrap-0 host=localhost:29092 <connected> [IPv6 ('::1', 29092, 0, 0)]>: Closing connection. 
+2025-10-13 20:48:58,381 - ClearVuePipeline - INFO - Kafka producer closed
+2025-10-13 20:48:58,799 - ClearVuePipeline - INFO - MongoDB connection closed
+2025-10-13 20:49:38,748 - ClearVuePipeline - INFO - Initializing ClearVue Streaming Pipeline...
+2025-10-13 20:50:05,176 - ClearVuePipeline - INFO - Connected to MongoDB: Nova_Analytix
+2025-10-13 20:50:05,180 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=bootstrap-0 host=localhost:29092 <connecting> [IPv6 ('::1', 29092, 0, 0)]>: connecting to localhost:29092 [('::1', 29092, 0, 0) IPv6]
+2025-10-13 20:50:05,228 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=bootstrap-0 host=localhost:29092 <checking_api_versions_recv> [IPv6 ('::1', 29092, 0, 0)]>: Broker version identified as 2.6
+2025-10-13 20:50:05,228 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=bootstrap-0 host=localhost:29092 <connected> [IPv6 ('::1', 29092, 0, 0)]>: Connection complete.
+2025-10-13 20:50:05,230 - ClearVuePipeline - INFO - Kafka producer initialized
+2025-10-13 20:50:05,230 - ClearVuePipeline - INFO - Pipeline initialized successfully
+2025-10-13 20:50:05,233 - ClearVuePipeline - ERROR - Fatal error: type object 'ClearVueConfig' has no attribute 'get_powerbi_push_url'
+Traceback (most recent call last):
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\mongodb_kafka_streaming.py", line 870, in main
+    pipeline.start_pipeline(collections=['Sales_flat', 'Payments_flat', 'Purchases_flat'])
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\mongodb_kafka_streaming.py", line 724, in start_pipeline
+    powerbi_url = ClearVueConfig.get_powerbi_push_url()
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: type object 'ClearVueConfig' has no attribute 'get_powerbi_push_url'
+2025-10-13 20:50:05,236 - ClearVuePipeline - INFO - Stopping pipeline...
+2025-10-13 20:50:05,236 - kafka.producer.kafka - INFO - <KafkaProducer client_id=kafka-python-producer-1 transactional_id=None>: Closing the Kafka producer with 4294967.0 secs timeout.
+2025-10-13 20:50:05,237 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=bootstrap-0 host=localhost:29092 <connected> [IPv6 ('::1', 29092, 0, 0)]>: Closing connection. 
+2025-10-13 20:50:05,238 - ClearVuePipeline - INFO - Kafka producer closed
+2025-10-13 20:50:08,184 - ClearVuePipeline - INFO - MongoDB connection closed
+2025-10-13 20:54:15,003 - ClearVuePipeline - INFO - Initializing ClearVue Streaming Pipeline...
+2025-10-13 20:54:20,240 - ClearVuePipeline - INFO - Connected to MongoDB: Nova_Analytix
+2025-10-13 20:54:20,244 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=bootstrap-0 host=localhost:29092 <connecting> [IPv6 ('::1', 29092, 0, 0)]>: connecting to localhost:29092 [('::1', 29092, 0, 0) IPv6]
+2025-10-13 20:54:20,276 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=bootstrap-0 host=localhost:29092 <checking_api_versions_recv> [IPv6 ('::1', 29092, 0, 0)]>: Broker version identified as 2.6
+2025-10-13 20:54:20,277 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=bootstrap-0 host=localhost:29092 <connected> [IPv6 ('::1', 29092, 0, 0)]>: Connection complete.
+2025-10-13 20:54:20,279 - ClearVuePipeline - INFO - Kafka producer initialized
+2025-10-13 20:54:20,280 - ClearVuePipeline - INFO - Pipeline initialized successfully
+2025-10-13 20:54:20,281 - ClearVuePipeline - ERROR - Fatal error: type object 'ClearVueConfig' has no attribute 'get_powerbi_push_url'
+Traceback (most recent call last):
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\mongodb_kafka_streaming.py", line 870, in main
+    pipeline.start_pipeline(collections=['Sales_flat', 'Payments_flat', 'Purchases_flat'])
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\mongodb_kafka_streaming.py", line 724, in start_pipeline
+    powerbi_url = ClearVueConfig.get_powerbi_push_url()
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: type object 'ClearVueConfig' has no attribute 'get_powerbi_push_url'
+2025-10-13 20:54:20,285 - ClearVuePipeline - INFO - Stopping pipeline...
+2025-10-13 20:54:20,286 - kafka.producer.kafka - INFO - <KafkaProducer client_id=kafka-python-producer-1 transactional_id=None>: Closing the Kafka producer with 4294967.0 secs timeout.
+2025-10-13 20:54:20,287 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=bootstrap-0 host=localhost:29092 <connected> [IPv6 ('::1', 29092, 0, 0)]>: Closing connection. 
+2025-10-13 20:54:20,288 - ClearVuePipeline - INFO - Kafka producer closed
+2025-10-13 20:54:20,773 - ClearVuePipeline - INFO - MongoDB connection closed
+2025-10-13 20:58:00,362 - ClearVuePipeline - INFO - Initializing ClearVue Streaming Pipeline...
+2025-10-13 20:58:05,874 - ClearVuePipeline - INFO - Connected to MongoDB: Nova_Analytix
+2025-10-13 20:58:05,877 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=bootstrap-0 host=localhost:29092 <connecting> [IPv6 ('::1', 29092, 0, 0)]>: connecting to localhost:29092 [('::1', 29092, 0, 0) IPv6]
+2025-10-13 20:58:05,896 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=bootstrap-0 host=localhost:29092 <checking_api_versions_recv> [IPv6 ('::1', 29092, 0, 0)]>: Broker version identified as 2.6
+2025-10-13 20:58:05,896 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=bootstrap-0 host=localhost:29092 <connected> [IPv6 ('::1', 29092, 0, 0)]>: Connection complete.
+2025-10-13 20:58:05,898 - ClearVuePipeline - INFO - Kafka producer initialized
+2025-10-13 20:58:05,900 - ClearVuePipeline - INFO - Pipeline initialized successfully
+2025-10-13 20:58:05,907 - kafka.conn - INFO - <BrokerConnection client_id=clearvue_pipeline_admin, node_id=bootstrap-0 host=localhost:29092 <connecting> [IPv6 ('::1', 29092, 0, 0)]>: connecting to localhost:29092 [('::1', 29092, 0, 0) IPv6]
+2025-10-13 20:58:05,923 - kafka.conn - INFO - <BrokerConnection client_id=clearvue_pipeline_admin, node_id=bootstrap-0 host=localhost:29092 <checking_api_versions_recv> [IPv6 ('::1', 29092, 0, 0)]>: Broker version identified as 2.6
+2025-10-13 20:58:05,923 - kafka.conn - INFO - <BrokerConnection client_id=clearvue_pipeline_admin, node_id=bootstrap-0 host=localhost:29092 <connected> [IPv6 ('::1', 29092, 0, 0)]>: Connection complete.
+2025-10-13 20:58:05,936 - kafka.conn - INFO - <BrokerConnection client_id=clearvue_pipeline_admin, node_id=1 host=localhost:29092 <connecting> [IPv6 ('::1', 29092, 0, 0)]>: connecting to localhost:29092 [('::1', 29092, 0, 0) IPv6]
+2025-10-13 20:58:05,938 - kafka.conn - INFO - <BrokerConnection client_id=clearvue_pipeline_admin, node_id=1 host=localhost:29092 <connected> [IPv6 ('::1', 29092, 0, 0)]>: Connection complete.
+2025-10-13 20:58:05,939 - kafka.conn - INFO - <BrokerConnection client_id=clearvue_pipeline_admin, node_id=bootstrap-0 host=localhost:29092 <connected> [IPv6 ('::1', 29092, 0, 0)]>: Closing connection. 
+2025-10-13 20:58:05,956 - ClearVuePipeline - INFO - All topics exist
+2025-10-13 20:58:05,957 - kafka.conn - INFO - <BrokerConnection client_id=clearvue_pipeline_admin, node_id=1 host=localhost:29092 <connected> [IPv6 ('::1', 29092, 0, 0)]>: Closing connection. 
+2025-10-13 20:58:05,959 - ClearVuePipeline - INFO - Started change stream: Sales_flat
+2025-10-13 20:58:05,959 - ClearVuePipeline - INFO - Started change stream: Payments_flat
+2025-10-13 20:58:05,960 - ClearVuePipeline - INFO - Started change stream: Purchases_flat
+2025-10-13 20:58:05,962 - ClearVuePipeline - INFO - Pipeline started with 3 watchers
+2025-10-13 20:58:54,842 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=1 host=localhost:29092 <connecting> [IPv6 ('::1', 29092, 0, 0)]>: connecting to localhost:29092 [('::1', 29092, 0, 0) IPv6]
+2025-10-13 20:58:54,844 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=1 host=localhost:29092 <connected> [IPv6 ('::1', 29092, 0, 0)]>: Connection complete.
+2025-10-13 20:58:54,844 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=bootstrap-0 host=localhost:29092 <connected> [IPv6 ('::1', 29092, 0, 0)]>: Closing connection. 
+2025-10-13 20:58:55,257 - ClearVuePipeline - ERROR - Error pushing to Power BI: Object of type ObjectId is not JSON serializable
+2025-10-13 20:58:55,809 - ClearVuePipeline - ERROR - Error pushing to Power BI: Object of type ObjectId is not JSON serializable
+2025-10-13 20:58:56,243 - ClearVuePipeline - ERROR - Error pushing to Power BI: Object of type ObjectId is not JSON serializable
+2025-10-13 20:58:56,273 - ClearVuePipeline - ERROR - Error pushing to Power BI: Object of type ObjectId is not JSON serializable
+2025-10-13 20:58:56,916 - ClearVuePipeline - ERROR - Error pushing to Power BI: Object of type ObjectId is not JSON serializable
+2025-10-13 20:58:57,334 - ClearVuePipeline - ERROR - Error pushing to Power BI: Object of type ObjectId is not JSON serializable
+2025-10-13 20:58:57,766 - ClearVuePipeline - ERROR - Error pushing to Power BI: Object of type ObjectId is not JSON serializable
+2025-10-13 20:58:58,213 - ClearVuePipeline - ERROR - Error pushing to Power BI: Object of type ObjectId is not JSON serializable
+2025-10-13 20:58:58,664 - ClearVuePipeline - ERROR - Error pushing to Power BI: Object of type ObjectId is not JSON serializable
+2025-10-13 20:58:59,094 - ClearVuePipeline - ERROR - Error pushing to Power BI: Object of type ObjectId is not JSON serializable
+2025-10-13 21:01:25,948 - ClearVuePipeline - ERROR - MongoDB error for Payments_flat: ac-xzu5hoz-shard-00-02.1re1a4e.mongodb.net:27017: [Errno 11001] getaddrinfo failed (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms)
+Traceback (most recent call last):
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\pool.py", line 466, in receive_message
+    return receive_message(self, request_id, self.max_message_size)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\network_layer.py", line 759, in receive_message
+    length, _, response_to, op_code = _UNPACK_HEADER(receive_data(conn, 16, deadline))
+                                                     ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\network_layer.py", line 343, in receive_data
+    wait_for_read(conn, deadline)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\network_layer.py", line 322, in wait_for_read
+    raise socket.timeout("timed out")
+TimeoutError: timed out
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\change_stream.py", line 381, in try_next
+    change = self._cursor._try_next(True)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\command_cursor.py", line 347, in _try_next
+    self._refresh()
+    ~~~~~~~~~~~~~^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\command_cursor.py", line 307, in _refresh
+    self._send_message(
+    ~~~~~~~~~~~~~~~~~~^
+        self._getmore_class(
+        ^^^^^^^^^^^^^^^^^^^^
+    ...<12 lines>...
+        )
+        ^
+    )
+    ^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\command_cursor.py", line 254, in _send_message
+    response = client._run_operation(
+        operation, self._unpack_response, address=self._address
+    )
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 1938, in _run_operation
+    return self._retryable_read(
+           ~~~~~~~~~~~~~~~~~~~~^
+        _cmd,
+        ^^^^^
+    ...<4 lines>...
+        operation=operation.name,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 2047, in _retryable_read
+    return self._retry_internal(
+           ~~~~~~~~~~~~~~~~~~~~^
+        func,
+        ^^^^^
+    ...<7 lines>...
+        operation_id=operation_id,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 2014, in _retry_internal
+    ).run()
+      ~~~^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 2765, in run
+    return self._read() if self._is_read else self._write()
+           ~~~~~~~~~~^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 2926, in _read
+    return self._func(self._session, self._server, conn, read_pref)  # type: ignore
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 1929, in _cmd
+    return server.run_operation(
+           ~~~~~~~~~~~~~~~~~~~~^
+        conn,
+        ^^^^^
+    ...<4 lines>...
+        self,
+        ^^^^^
+    )
+    ^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\helpers.py", line 47, in inner
+    return func(*args, **kwargs)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\server.py", line 208, in run_operation
+    reply = conn.receive_message(request_id)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\pool.py", line 469, in receive_message
+    self._raise_connection_failure(error)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\pool.py", line 643, in _raise_connection_failure
+    _raise_connection_failure(self.address, error, timeout_details=details)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\pool_shared.py", line 142, in _raise_connection_failure
+    raise NetworkTimeout(msg) from error
+pymongo.errors.NetworkTimeout: ac-xzu5hoz-shard-00-02.1re1a4e.mongodb.net:27017: timed out (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\pool.py", line 1032, in connect
+    networking_interface = _configured_socket_interface(self.address, self.opts)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\pool_shared.py", line 484, in _configured_socket_interface
+    sock = _create_connection(address, options)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\pool_shared.py", line 388, in _create_connection
+    for res in socket.getaddrinfo(host, port, family=family, type=socket.SOCK_STREAM):  # type: ignore[attr-defined, unused-ignore]
+               ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\caitl\AppData\Local\Programs\Python\Python314\Lib\socket.py", line 983, in getaddrinfo
+    for res in _socket.getaddrinfo(host, port, family, type, proto, flags):
+               ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+socket.gaierror: [Errno 11001] getaddrinfo failed
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\mongodb_kafka_streaming.py", line 626, in watch_collection
+    for change in stream:
+                  ^^^^^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\change_stream.py", line 323, in next
+    doc = self.try_next()
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\change_stream.py", line 385, in try_next
+    self._resume()
+    ~~~~~~~~~~~~^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\change_stream.py", line 270, in _resume
+    self._cursor = self._create_cursor()
+                   ~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\change_stream.py", line 262, in _create_cursor
+    return self._run_aggregation_cmd(session=s, explicit_session=self._session is not None)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\change_stream.py", line 253, in _run_aggregation_cmd
+    return self._client._retryable_read(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        cmd.get_cursor,
+        ^^^^^^^^^^^^^^^
+    ...<2 lines>...
+        operation=_Op.AGGREGATE,
+        ^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 2047, in _retryable_read
+    return self._retry_internal(
+           ~~~~~~~~~~~~~~~~~~~~^
+        func,
+        ^^^^^
+    ...<7 lines>...
+        operation_id=operation_id,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 2014, in _retry_internal
+    ).run()
+      ~~~^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 2770, in run
+    self._check_last_error()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 2851, in _check_last_error
+    raise self._last_error
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 2765, in run
+    return self._read() if self._is_read else self._write()
+           ~~~~~~~~~~^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 2912, in _read
+    with self._client._conn_from_server(self._read_pref, self._server, self._session) as (
+         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\caitl\AppData\Local\Programs\Python\Python314\Lib\contextlib.py", line 141, in __enter__
+    return next(self.gen)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 1867, in _conn_from_server
+    with self._checkout(server, session) as conn:
+         ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\caitl\AppData\Local\Programs\Python\Python314\Lib\contextlib.py", line 141, in __enter__
+    return next(self.gen)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 1777, in _checkout
+    with server.checkout(handler=err_handler) as conn:
+         ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\caitl\AppData\Local\Programs\Python\Python314\Lib\contextlib.py", line 141, in __enter__
+    return next(self.gen)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\pool.py", line 1118, in checkout
+    conn = self._get_conn(checkout_started_time, handler=handler)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\pool.py", line 1280, in _get_conn
+    conn = self.connect(handler=handler)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\pool.py", line 1055, in connect
+    _raise_connection_failure(self.address, error, timeout_details=details)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\pool_shared.py", line 150, in _raise_connection_failure
+    raise AutoReconnect(msg) from error
+pymongo.errors.AutoReconnect: ac-xzu5hoz-shard-00-02.1re1a4e.mongodb.net:27017: [Errno 11001] getaddrinfo failed (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms)
+2025-10-13 21:01:25,949 - ClearVuePipeline - ERROR - MongoDB error for Purchases_flat: ac-xzu5hoz-shard-00-02.1re1a4e.mongodb.net:27017: [Errno 11001] getaddrinfo failed (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms),ac-xzu5hoz-shard-00-01.1re1a4e.mongodb.net:27017: [Errno 11001] getaddrinfo failed (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms),ac-xzu5hoz-shard-00-00.1re1a4e.mongodb.net:27017: [Errno 11001] getaddrinfo failed (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms), Timeout: 10.0s, Topology Description: <TopologyDescription id: 68ed4bb85d9e426f5377c71d, topology_type: ReplicaSetNoPrimary, servers: [<ServerDescription ('ac-xzu5hoz-shard-00-00.1re1a4e.mongodb.net', 27017) server_type: Unknown, rtt: None, error=AutoReconnect('ac-xzu5hoz-shard-00-00.1re1a4e.mongodb.net:27017: [Errno 11001] getaddrinfo failed (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms)')>, <ServerDescription ('ac-xzu5hoz-shard-00-01.1re1a4e.mongodb.net', 27017) server_type: Unknown, rtt: None, error=AutoReconnect('ac-xzu5hoz-shard-00-01.1re1a4e.mongodb.net:27017: [Errno 11001] getaddrinfo failed (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms)')>, <ServerDescription ('ac-xzu5hoz-shard-00-02.1re1a4e.mongodb.net', 27017) server_type: Unknown, rtt: None, error=AutoReconnect('ac-xzu5hoz-shard-00-02.1re1a4e.mongodb.net:27017: [Errno 11001] getaddrinfo failed (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms)')>]>
+Traceback (most recent call last):
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\pool.py", line 466, in receive_message
+    return receive_message(self, request_id, self.max_message_size)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\network_layer.py", line 759, in receive_message
+    length, _, response_to, op_code = _UNPACK_HEADER(receive_data(conn, 16, deadline))
+                                                     ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\network_layer.py", line 343, in receive_data
+    wait_for_read(conn, deadline)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\network_layer.py", line 322, in wait_for_read
+    raise socket.timeout("timed out")
+TimeoutError: timed out
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\change_stream.py", line 381, in try_next
+    change = self._cursor._try_next(True)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\command_cursor.py", line 347, in _try_next
+    self._refresh()
+    ~~~~~~~~~~~~~^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\command_cursor.py", line 307, in _refresh
+    self._send_message(
+    ~~~~~~~~~~~~~~~~~~^
+        self._getmore_class(
+        ^^^^^^^^^^^^^^^^^^^^
+    ...<12 lines>...
+        )
+        ^
+    )
+    ^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\command_cursor.py", line 254, in _send_message
+    response = client._run_operation(
+        operation, self._unpack_response, address=self._address
+    )
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 1938, in _run_operation
+    return self._retryable_read(
+           ~~~~~~~~~~~~~~~~~~~~^
+        _cmd,
+        ^^^^^
+    ...<4 lines>...
+        operation=operation.name,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 2047, in _retryable_read
+    return self._retry_internal(
+           ~~~~~~~~~~~~~~~~~~~~^
+        func,
+        ^^^^^
+    ...<7 lines>...
+        operation_id=operation_id,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 2014, in _retry_internal
+    ).run()
+      ~~~^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 2765, in run
+    return self._read() if self._is_read else self._write()
+           ~~~~~~~~~~^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 2926, in _read
+    return self._func(self._session, self._server, conn, read_pref)  # type: ignore
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 1929, in _cmd
+    return server.run_operation(
+           ~~~~~~~~~~~~~~~~~~~~^
+        conn,
+        ^^^^^
+    ...<4 lines>...
+        self,
+        ^^^^^
+    )
+    ^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\helpers.py", line 47, in inner
+    return func(*args, **kwargs)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\server.py", line 208, in run_operation
+    reply = conn.receive_message(request_id)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\pool.py", line 469, in receive_message
+    self._raise_connection_failure(error)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\pool.py", line 643, in _raise_connection_failure
+    _raise_connection_failure(self.address, error, timeout_details=details)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\pool_shared.py", line 142, in _raise_connection_failure
+    raise NetworkTimeout(msg) from error
+pymongo.errors.NetworkTimeout: ac-xzu5hoz-shard-00-02.1re1a4e.mongodb.net:27017: timed out (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\mongodb_kafka_streaming.py", line 626, in watch_collection
+    for change in stream:
+                  ^^^^^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\change_stream.py", line 323, in next
+    doc = self.try_next()
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\change_stream.py", line 385, in try_next
+    self._resume()
+    ~~~~~~~~~~~~^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\change_stream.py", line 270, in _resume
+    self._cursor = self._create_cursor()
+                   ~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\change_stream.py", line 262, in _create_cursor
+    return self._run_aggregation_cmd(session=s, explicit_session=self._session is not None)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\change_stream.py", line 253, in _run_aggregation_cmd
+    return self._client._retryable_read(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        cmd.get_cursor,
+        ^^^^^^^^^^^^^^^
+    ...<2 lines>...
+        operation=_Op.AGGREGATE,
+        ^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 2047, in _retryable_read
+    return self._retry_internal(
+           ~~~~~~~~~~~~~~~~~~~~^
+        func,
+        ^^^^^
+    ...<7 lines>...
+        operation_id=operation_id,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 2014, in _retry_internal
+    ).run()
+      ~~~^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 2765, in run
+    return self._read() if self._is_read else self._write()
+           ~~~~~~~~~~^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 2910, in _read
+    self._server = self._get_server()
+                   ~~~~~~~~~~~~~~~~^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 2858, in _get_server
+    return self._client._select_server(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self._server_selector,
+        ^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+        operation_id=self._operation_id,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 1833, in _select_server
+    server = topology.select_server(
+        server_selector,
+    ...<2 lines>...
+        operation_id=operation_id,
+    )
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\topology.py", line 409, in select_server
+    server = self._select_server(
+        selector,
+    ...<4 lines>...
+        operation_id=operation_id,
+    )
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\topology.py", line 387, in _select_server
+    servers = self.select_servers(
+        selector, operation, server_selection_timeout, address, operation_id
+    )
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\topology.py", line 294, in select_servers
+    server_descriptions = self._select_servers_loop(
+        selector, server_timeout, operation, operation_id, address
+    )
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\topology.py", line 344, in _select_servers_loop
+    raise ServerSelectionTimeoutError(
+        f"{self._error_message(selector)}, Timeout: {timeout}s, Topology Description: {self.description!r}"
+    )
+pymongo.errors.ServerSelectionTimeoutError: ac-xzu5hoz-shard-00-02.1re1a4e.mongodb.net:27017: [Errno 11001] getaddrinfo failed (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms),ac-xzu5hoz-shard-00-01.1re1a4e.mongodb.net:27017: [Errno 11001] getaddrinfo failed (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms),ac-xzu5hoz-shard-00-00.1re1a4e.mongodb.net:27017: [Errno 11001] getaddrinfo failed (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms), Timeout: 10.0s, Topology Description: <TopologyDescription id: 68ed4bb85d9e426f5377c71d, topology_type: ReplicaSetNoPrimary, servers: [<ServerDescription ('ac-xzu5hoz-shard-00-00.1re1a4e.mongodb.net', 27017) server_type: Unknown, rtt: None, error=AutoReconnect('ac-xzu5hoz-shard-00-00.1re1a4e.mongodb.net:27017: [Errno 11001] getaddrinfo failed (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms)')>, <ServerDescription ('ac-xzu5hoz-shard-00-01.1re1a4e.mongodb.net', 27017) server_type: Unknown, rtt: None, error=AutoReconnect('ac-xzu5hoz-shard-00-01.1re1a4e.mongodb.net:27017: [Errno 11001] getaddrinfo failed (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms)')>, <ServerDescription ('ac-xzu5hoz-shard-00-02.1re1a4e.mongodb.net', 27017) server_type: Unknown, rtt: None, error=AutoReconnect('ac-xzu5hoz-shard-00-02.1re1a4e.mongodb.net:27017: [Errno 11001] getaddrinfo failed (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms)')>]>
+2025-10-13 21:01:25,949 - ClearVuePipeline - ERROR - MongoDB error for Sales_flat: ac-xzu5hoz-shard-00-02.1re1a4e.mongodb.net:27017: [Errno 11001] getaddrinfo failed (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms),ac-xzu5hoz-shard-00-01.1re1a4e.mongodb.net:27017: [Errno 11001] getaddrinfo failed (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms),ac-xzu5hoz-shard-00-00.1re1a4e.mongodb.net:27017: [Errno 11001] getaddrinfo failed (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms), Timeout: 10.0s, Topology Description: <TopologyDescription id: 68ed4bb85d9e426f5377c71d, topology_type: ReplicaSetNoPrimary, servers: [<ServerDescription ('ac-xzu5hoz-shard-00-00.1re1a4e.mongodb.net', 27017) server_type: Unknown, rtt: None, error=AutoReconnect('ac-xzu5hoz-shard-00-00.1re1a4e.mongodb.net:27017: [Errno 11001] getaddrinfo failed (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms)')>, <ServerDescription ('ac-xzu5hoz-shard-00-01.1re1a4e.mongodb.net', 27017) server_type: Unknown, rtt: None, error=AutoReconnect('ac-xzu5hoz-shard-00-01.1re1a4e.mongodb.net:27017: [Errno 11001] getaddrinfo failed (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms)')>, <ServerDescription ('ac-xzu5hoz-shard-00-02.1re1a4e.mongodb.net', 27017) server_type: Unknown, rtt: None, error=AutoReconnect('ac-xzu5hoz-shard-00-02.1re1a4e.mongodb.net:27017: [Errno 11001] getaddrinfo failed (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms)')>]>
+Traceback (most recent call last):
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\pool.py", line 466, in receive_message
+    return receive_message(self, request_id, self.max_message_size)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\network_layer.py", line 759, in receive_message
+    length, _, response_to, op_code = _UNPACK_HEADER(receive_data(conn, 16, deadline))
+                                                     ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\network_layer.py", line 343, in receive_data
+    wait_for_read(conn, deadline)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\network_layer.py", line 322, in wait_for_read
+    raise socket.timeout("timed out")
+TimeoutError: timed out
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\change_stream.py", line 381, in try_next
+    change = self._cursor._try_next(True)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\command_cursor.py", line 347, in _try_next
+    self._refresh()
+    ~~~~~~~~~~~~~^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\command_cursor.py", line 307, in _refresh
+    self._send_message(
+    ~~~~~~~~~~~~~~~~~~^
+        self._getmore_class(
+        ^^^^^^^^^^^^^^^^^^^^
+    ...<12 lines>...
+        )
+        ^
+    )
+    ^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\command_cursor.py", line 254, in _send_message
+    response = client._run_operation(
+        operation, self._unpack_response, address=self._address
+    )
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 1938, in _run_operation
+    return self._retryable_read(
+           ~~~~~~~~~~~~~~~~~~~~^
+        _cmd,
+        ^^^^^
+    ...<4 lines>...
+        operation=operation.name,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 2047, in _retryable_read
+    return self._retry_internal(
+           ~~~~~~~~~~~~~~~~~~~~^
+        func,
+        ^^^^^
+    ...<7 lines>...
+        operation_id=operation_id,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 2014, in _retry_internal
+    ).run()
+      ~~~^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 2765, in run
+    return self._read() if self._is_read else self._write()
+           ~~~~~~~~~~^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 2926, in _read
+    return self._func(self._session, self._server, conn, read_pref)  # type: ignore
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 1929, in _cmd
+    return server.run_operation(
+           ~~~~~~~~~~~~~~~~~~~~^
+        conn,
+        ^^^^^
+    ...<4 lines>...
+        self,
+        ^^^^^
+    )
+    ^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\helpers.py", line 47, in inner
+    return func(*args, **kwargs)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\server.py", line 208, in run_operation
+    reply = conn.receive_message(request_id)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\pool.py", line 469, in receive_message
+    self._raise_connection_failure(error)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\pool.py", line 643, in _raise_connection_failure
+    _raise_connection_failure(self.address, error, timeout_details=details)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\pool_shared.py", line 142, in _raise_connection_failure
+    raise NetworkTimeout(msg) from error
+pymongo.errors.NetworkTimeout: ac-xzu5hoz-shard-00-02.1re1a4e.mongodb.net:27017: timed out (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\mongodb_kafka_streaming.py", line 626, in watch_collection
+    for change in stream:
+                  ^^^^^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\change_stream.py", line 323, in next
+    doc = self.try_next()
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\change_stream.py", line 385, in try_next
+    self._resume()
+    ~~~~~~~~~~~~^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\change_stream.py", line 270, in _resume
+    self._cursor = self._create_cursor()
+                   ~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\change_stream.py", line 262, in _create_cursor
+    return self._run_aggregation_cmd(session=s, explicit_session=self._session is not None)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\change_stream.py", line 253, in _run_aggregation_cmd
+    return self._client._retryable_read(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        cmd.get_cursor,
+        ^^^^^^^^^^^^^^^
+    ...<2 lines>...
+        operation=_Op.AGGREGATE,
+        ^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 2047, in _retryable_read
+    return self._retry_internal(
+           ~~~~~~~~~~~~~~~~~~~~^
+        func,
+        ^^^^^
+    ...<7 lines>...
+        operation_id=operation_id,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 2014, in _retry_internal
+    ).run()
+      ~~~^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 2765, in run
+    return self._read() if self._is_read else self._write()
+           ~~~~~~~~~~^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 2910, in _read
+    self._server = self._get_server()
+                   ~~~~~~~~~~~~~~~~^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 2858, in _get_server
+    return self._client._select_server(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self._server_selector,
+        ^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+        operation_id=self._operation_id,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 1833, in _select_server
+    server = topology.select_server(
+        server_selector,
+    ...<2 lines>...
+        operation_id=operation_id,
+    )
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\topology.py", line 409, in select_server
+    server = self._select_server(
+        selector,
+    ...<4 lines>...
+        operation_id=operation_id,
+    )
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\topology.py", line 387, in _select_server
+    servers = self.select_servers(
+        selector, operation, server_selection_timeout, address, operation_id
+    )
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\topology.py", line 294, in select_servers
+    server_descriptions = self._select_servers_loop(
+        selector, server_timeout, operation, operation_id, address
+    )
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\topology.py", line 344, in _select_servers_loop
+    raise ServerSelectionTimeoutError(
+        f"{self._error_message(selector)}, Timeout: {timeout}s, Topology Description: {self.description!r}"
+    )
+pymongo.errors.ServerSelectionTimeoutError: ac-xzu5hoz-shard-00-02.1re1a4e.mongodb.net:27017: [Errno 11001] getaddrinfo failed (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms),ac-xzu5hoz-shard-00-01.1re1a4e.mongodb.net:27017: [Errno 11001] getaddrinfo failed (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms),ac-xzu5hoz-shard-00-00.1re1a4e.mongodb.net:27017: [Errno 11001] getaddrinfo failed (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms), Timeout: 10.0s, Topology Description: <TopologyDescription id: 68ed4bb85d9e426f5377c71d, topology_type: ReplicaSetNoPrimary, servers: [<ServerDescription ('ac-xzu5hoz-shard-00-00.1re1a4e.mongodb.net', 27017) server_type: Unknown, rtt: None, error=AutoReconnect('ac-xzu5hoz-shard-00-00.1re1a4e.mongodb.net:27017: [Errno 11001] getaddrinfo failed (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms)')>, <ServerDescription ('ac-xzu5hoz-shard-00-01.1re1a4e.mongodb.net', 27017) server_type: Unknown, rtt: None, error=AutoReconnect('ac-xzu5hoz-shard-00-01.1re1a4e.mongodb.net:27017: [Errno 11001] getaddrinfo failed (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms)')>, <ServerDescription ('ac-xzu5hoz-shard-00-02.1re1a4e.mongodb.net', 27017) server_type: Unknown, rtt: None, error=AutoReconnect('ac-xzu5hoz-shard-00-02.1re1a4e.mongodb.net:27017: [Errno 11001] getaddrinfo failed (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms)')>]>
+2025-10-13 21:01:25,979 - ClearVuePipeline - INFO - Change stream closed: Payments_flat
+2025-10-13 21:01:25,988 - ClearVuePipeline - INFO - Change stream closed: Purchases_flat
+2025-10-13 21:01:25,992 - ClearVuePipeline - INFO - Change stream closed: Sales_flat
+2025-10-13 21:01:29,250 - ClearVuePipeline - ERROR - Health check failed: ac-xzu5hoz-shard-00-02.1re1a4e.mongodb.net:27017: timed out (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms)
+2025-10-13 21:01:29,251 - ClearVuePipeline - INFO - Pipeline stopped
+2025-10-13 21:01:29,252 - ClearVuePipeline - INFO - Stopping pipeline...
+2025-10-13 21:01:29,253 - kafka.producer.kafka - INFO - <KafkaProducer client_id=kafka-python-producer-1 transactional_id=None>: Closing the Kafka producer with 4294967.0 secs timeout.
+2025-10-13 21:01:29,254 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=1 host=localhost:29092 <connected> [IPv6 ('::1', 29092, 0, 0)]>: Closing connection. 
+2025-10-13 21:01:29,256 - ClearVuePipeline - INFO - Kafka producer closed
+2025-10-13 21:01:29,257 - ClearVuePipeline - INFO - MongoDB connection closed
+2025-10-13 21:21:48,522 - ClearVuePipeline - INFO - Initializing ClearVue Streaming Pipeline...
+2025-10-13 21:21:59,546 - ClearVuePipeline - ERROR - MongoDB connection failed: All nameservers failed to answer the query _mongodb._tcp.novacluster.1re1a4e.mongodb.net. IN SRV: Server Do53:172.26.200.128@53 answered The DNS operation timed out.; Server Do53:40.30.1.59@53 answered The DNS operation timed out.; Server Do53:172.26.200.128@53 answered The DNS operation timed out.; Server Do53:40.30.1.59@53 answered The DNS operation timed out.; Server Do53:172.26.200.128@53 answered The DNS operation timed out.; Server Do53:40.30.1.59@53 answered [WinError 10051] A socket operation was attempted to an unreachable network; Server Do53:172.26.200.128@53 answered [WinError 10051] A socket operation was attempted to an unreachable network
+2025-10-13 21:21:59,547 - ClearVuePipeline - ERROR - Fatal error: All nameservers failed to answer the query _mongodb._tcp.novacluster.1re1a4e.mongodb.net. IN SRV: Server Do53:172.26.200.128@53 answered The DNS operation timed out.; Server Do53:40.30.1.59@53 answered The DNS operation timed out.; Server Do53:172.26.200.128@53 answered The DNS operation timed out.; Server Do53:40.30.1.59@53 answered The DNS operation timed out.; Server Do53:172.26.200.128@53 answered The DNS operation timed out.; Server Do53:40.30.1.59@53 answered [WinError 10051] A socket operation was attempted to an unreachable network; Server Do53:172.26.200.128@53 answered [WinError 10051] A socket operation was attempted to an unreachable network
+Traceback (most recent call last):
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\mongodb_kafka_streaming.py", line 843, in main
+    pipeline = ClearVueStreamingPipeline()
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\mongodb_kafka_streaming.py", line 62, in __init__
+    self._connect_mongodb()
+    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\mongodb_kafka_streaming.py", line 98, in _connect_mongodb
+    self.mongo_client = MongoClient(
+                        ~~~~~~~~~~~^
+        self.mongo_uri,
+        ^^^^^^^^^^^^^^^
+    ...<4 lines>...
+        w='majority'
+        ^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 891, in __init__
+    self._get_topology()  # type: ignore[unused-coroutine]
+    ~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 1758, in _get_topology
+    self._resolve_srv()
+    ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 910, in _resolve_srv
+    res = uri_parser._parse_srv(
+        entity,
+    ...<6 lines>...
+        srv_max_hosts=srv_max_hosts,
+    )
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\uri_parser.py", line 168, in _parse_srv
+    nodes = dns_resolver.get_hosts()
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\srv_resolver.py", line 157, in get_hosts
+    _, nodes = self._get_srv_response_and_hosts(True)
+               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\srv_resolver.py", line 131, in _get_srv_response_and_hosts
+    results = self._resolve_uri(encapsulate_errors)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\srv_resolver.py", line 125, in _resolve_uri
+    raise ConfigurationError(str(exc)) from None
+pymongo.errors.ConfigurationError: All nameservers failed to answer the query _mongodb._tcp.novacluster.1re1a4e.mongodb.net. IN SRV: Server Do53:172.26.200.128@53 answered The DNS operation timed out.; Server Do53:40.30.1.59@53 answered The DNS operation timed out.; Server Do53:172.26.200.128@53 answered The DNS operation timed out.; Server Do53:40.30.1.59@53 answered The DNS operation timed out.; Server Do53:172.26.200.128@53 answered The DNS operation timed out.; Server Do53:40.30.1.59@53 answered [WinError 10051] A socket operation was attempted to an unreachable network; Server Do53:172.26.200.128@53 answered [WinError 10051] A socket operation was attempted to an unreachable network
+2025-10-13 21:22:14,743 - ClearVuePipeline - INFO - Initializing ClearVue Streaming Pipeline...
+2025-10-13 21:22:14,856 - ClearVuePipeline - ERROR - MongoDB connection failed: All nameservers failed to answer the query _mongodb._tcp.novacluster.1re1a4e.mongodb.net. IN SRV: Server Do53:172.26.200.128@53 answered [WinError 10051] A socket operation was attempted to an unreachable network; Server Do53:40.30.1.59@53 answered [WinError 10051] A socket operation was attempted to an unreachable network
+2025-10-13 21:22:14,857 - ClearVuePipeline - ERROR - Fatal error: All nameservers failed to answer the query _mongodb._tcp.novacluster.1re1a4e.mongodb.net. IN SRV: Server Do53:172.26.200.128@53 answered [WinError 10051] A socket operation was attempted to an unreachable network; Server Do53:40.30.1.59@53 answered [WinError 10051] A socket operation was attempted to an unreachable network
+Traceback (most recent call last):
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\mongodb_kafka_streaming.py", line 843, in main
+    pipeline = ClearVueStreamingPipeline()
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\mongodb_kafka_streaming.py", line 62, in __init__
+    self._connect_mongodb()
+    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\mongodb_kafka_streaming.py", line 98, in _connect_mongodb
+    self.mongo_client = MongoClient(
+                        ~~~~~~~~~~~^
+        self.mongo_uri,
+        ^^^^^^^^^^^^^^^
+    ...<4 lines>...
+        w='majority'
+        ^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 891, in __init__
+    self._get_topology()  # type: ignore[unused-coroutine]
+    ~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 1758, in _get_topology
+    self._resolve_srv()
+    ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 910, in _resolve_srv
+    res = uri_parser._parse_srv(
+        entity,
+    ...<6 lines>...
+        srv_max_hosts=srv_max_hosts,
+    )
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\uri_parser.py", line 168, in _parse_srv
+    nodes = dns_resolver.get_hosts()
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\srv_resolver.py", line 157, in get_hosts
+    _, nodes = self._get_srv_response_and_hosts(True)
+               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\srv_resolver.py", line 131, in _get_srv_response_and_hosts
+    results = self._resolve_uri(encapsulate_errors)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\srv_resolver.py", line 125, in _resolve_uri
+    raise ConfigurationError(str(exc)) from None
+pymongo.errors.ConfigurationError: All nameservers failed to answer the query _mongodb._tcp.novacluster.1re1a4e.mongodb.net. IN SRV: Server Do53:172.26.200.128@53 answered [WinError 10051] A socket operation was attempted to an unreachable network; Server Do53:40.30.1.59@53 answered [WinError 10051] A socket operation was attempted to an unreachable network
+2025-10-13 21:25:40,422 - ClearVuePipeline - INFO - Initializing ClearVue Streaming Pipeline...
+2025-10-13 21:25:45,930 - ClearVuePipeline - INFO - Connected to MongoDB: Nova_Analytix
+2025-10-13 21:25:45,935 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=bootstrap-0 host=localhost:29092 <connecting> [IPv6 ('::1', 29092, 0, 0)]>: connecting to localhost:29092 [('::1', 29092, 0, 0) IPv6]
+2025-10-13 21:25:46,043 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=bootstrap-0 host=localhost:29092 <checking_api_versions_recv> [IPv6 ('::1', 29092, 0, 0)]>: Broker version identified as 2.6
+2025-10-13 21:25:46,043 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=bootstrap-0 host=localhost:29092 <connected> [IPv6 ('::1', 29092, 0, 0)]>: Connection complete.
+2025-10-13 21:25:46,046 - ClearVuePipeline - INFO - Kafka producer initialized
+2025-10-13 21:25:46,046 - ClearVuePipeline - INFO - Pipeline initialized successfully
+2025-10-13 21:25:46,047 - ClearVuePipeline - ERROR - Fatal error: 'ClearVueStreamingPipeline' object has no attribute 'start_pipeline'
+Traceback (most recent call last):
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\mongodb_kafka_streaming.py", line 853, in main
+    pipeline.start_pipeline(collections=['Sales_flat', 'Payments_flat', 'Purchases_flat'])
+    ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'ClearVueStreamingPipeline' object has no attribute 'start_pipeline'
+2025-10-13 21:25:46,054 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=bootstrap-0 host=localhost:29092 <connected> [IPv6 ('::1', 29092, 0, 0)]>: Closing connection. 
+2025-10-13 21:37:50,171 - ClearVuePipeline - INFO - Initializing ClearVue Streaming Pipeline...
+2025-10-13 21:38:02,865 - ClearVuePipeline - INFO - Connected to MongoDB: Nova_Analytix
+2025-10-13 21:38:02,869 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=bootstrap-0 host=localhost:29092 <connecting> [IPv6 ('::1', 29092, 0, 0)]>: connecting to localhost:29092 [('::1', 29092, 0, 0) IPv6]
+2025-10-13 21:38:02,936 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=bootstrap-0 host=localhost:29092 <checking_api_versions_recv> [IPv6 ('::1', 29092, 0, 0)]>: Broker version identified as 2.6
+2025-10-13 21:38:02,937 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=bootstrap-0 host=localhost:29092 <connected> [IPv6 ('::1', 29092, 0, 0)]>: Connection complete.
+2025-10-13 21:38:02,939 - ClearVuePipeline - INFO - Kafka producer initialized
+2025-10-13 21:38:02,940 - ClearVuePipeline - INFO - Pipeline initialized successfully
+2025-10-13 21:38:02,944 - kafka.conn - INFO - <BrokerConnection client_id=clearvue_pipeline_admin, node_id=bootstrap-0 host=localhost:29092 <connecting> [IPv6 ('::1', 29092, 0, 0)]>: connecting to localhost:29092 [('::1', 29092, 0, 0) IPv6]
+2025-10-13 21:38:02,960 - kafka.conn - INFO - <BrokerConnection client_id=clearvue_pipeline_admin, node_id=bootstrap-0 host=localhost:29092 <checking_api_versions_recv> [IPv6 ('::1', 29092, 0, 0)]>: Broker version identified as 2.6
+2025-10-13 21:38:02,961 - kafka.conn - INFO - <BrokerConnection client_id=clearvue_pipeline_admin, node_id=bootstrap-0 host=localhost:29092 <connected> [IPv6 ('::1', 29092, 0, 0)]>: Connection complete.
+2025-10-13 21:38:02,978 - kafka.conn - INFO - <BrokerConnection client_id=clearvue_pipeline_admin, node_id=1 host=localhost:29092 <connecting> [IPv6 ('::1', 29092, 0, 0)]>: connecting to localhost:29092 [('::1', 29092, 0, 0) IPv6]
+2025-10-13 21:38:02,980 - kafka.conn - INFO - <BrokerConnection client_id=clearvue_pipeline_admin, node_id=1 host=localhost:29092 <connected> [IPv6 ('::1', 29092, 0, 0)]>: Connection complete.
+2025-10-13 21:38:02,980 - kafka.conn - INFO - <BrokerConnection client_id=clearvue_pipeline_admin, node_id=bootstrap-0 host=localhost:29092 <connected> [IPv6 ('::1', 29092, 0, 0)]>: Closing connection. 
+2025-10-13 21:38:02,994 - ClearVuePipeline - INFO - All topics exist
+2025-10-13 21:38:02,995 - kafka.conn - INFO - <BrokerConnection client_id=clearvue_pipeline_admin, node_id=1 host=localhost:29092 <connected> [IPv6 ('::1', 29092, 0, 0)]>: Closing connection. 
+2025-10-13 21:38:02,997 - ClearVuePipeline - INFO - Started change stream: Sales_flat
+2025-10-13 21:38:02,998 - ClearVuePipeline - INFO - Started change stream: Payments_flat
+2025-10-13 21:38:02,999 - ClearVuePipeline - INFO - Started change stream: Purchases_flat
+2025-10-13 21:38:03,000 - ClearVuePipeline - INFO - Pipeline started with 3 watchers
+2025-10-13 21:38:24,876 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=1 host=localhost:29092 <connecting> [IPv6 ('::1', 29092, 0, 0)]>: connecting to localhost:29092 [('::1', 29092, 0, 0) IPv6]
+2025-10-13 21:38:24,877 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=1 host=localhost:29092 <connected> [IPv6 ('::1', 29092, 0, 0)]>: Connection complete.
+2025-10-13 21:38:24,878 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=bootstrap-0 host=localhost:29092 <connected> [IPv6 ('::1', 29092, 0, 0)]>: Closing connection. 
+2025-10-13 21:38:25,086 - ClearVuePipeline - ERROR - Error processing change event: 'ClearVueStreamingPipeline' object has no attribute 'send_to_powerbi'
+Traceback (most recent call last):
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\mongodb_kafka_streaming.py", line 559, in process_change_event
+    powerbi_success = self.send_to_powerbi(enhanced_event)
+                      ^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'ClearVueStreamingPipeline' object has no attribute 'send_to_powerbi'
+2025-10-13 21:39:16,075 - ClearVuePipeline - INFO - Shutdown signal received
+2025-10-13 21:39:16,076 - ClearVuePipeline - INFO - Stopping pipeline...
+2025-10-13 21:39:16,518 - ClearVuePipeline - ERROR - MongoDB error for Sales_flat: Executor error during getMore :: caused by :: operation was interrupted, full error: {'ok': 0.0, 'errmsg': 'Executor error during getMore :: caused by :: operation was interrupted', 'code': 237, 'codeName': 'CursorKilled', '$clusterTime': {'clusterTime': Timestamp(1760384353, 2), 'signature': {'hash': b'm\xc0\xf2G\xab\xf4\x851\xa6\xdf\xf0\x85{Tk\xbb7\rW\xd9', 'keyId': 7498364625042276356}}, 'operationTime': Timestamp(1760384353, 2)}
+Traceback (most recent call last):
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\mongodb_kafka_streaming.py", line 610, in watch_collection
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\change_stream.py", line 323, in next
+    doc = self.try_next()
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\change_stream.py", line 381, in try_next
+    change = self._cursor._try_next(True)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\command_cursor.py", line 347, in _try_next
+    self._refresh()
+    ~~~~~~~~~~~~~^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\command_cursor.py", line 307, in _refresh
+    self._send_message(
+    ~~~~~~~~~~~~~~~~~~^
+        self._getmore_class(
+        ^^^^^^^^^^^^^^^^^^^^
+    ...<12 lines>...
+        )
+        ^
+    )
+    ^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\command_cursor.py", line 254, in _send_message
+    response = client._run_operation(
+        operation, self._unpack_response, address=self._address
+    )
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 1938, in _run_operation
+    return self._retryable_read(
+           ~~~~~~~~~~~~~~~~~~~~^
+        _cmd,
+        ^^^^^
+    ...<4 lines>...
+        operation=operation.name,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 2047, in _retryable_read
+    return self._retry_internal(
+           ~~~~~~~~~~~~~~~~~~~~^
+        func,
+        ^^^^^
+    ...<7 lines>...
+        operation_id=operation_id,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 2014, in _retry_internal
+    ).run()
+      ~~~^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 2765, in run
+    return self._read() if self._is_read else self._write()
+           ~~~~~~~~~~^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 2926, in _read
+    return self._func(self._session, self._server, conn, read_pref)  # type: ignore
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 1929, in _cmd
+    return server.run_operation(
+           ~~~~~~~~~~~~~~~~~~~~^
+        conn,
+        ^^^^^
+    ...<4 lines>...
+        self,
+        ^^^^^
+    )
+    ^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\helpers.py", line 47, in inner
+    return func(*args, **kwargs)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\server.py", line 227, in run_operation
+    _check_command_response(first, conn.max_wire_version, pool_opts=conn.opts)  # type:ignore[has-type]
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\helpers_shared.py", line 284, in _check_command_response
+    raise OperationFailure(errmsg, code, response, max_wire_version)
+pymongo.errors.OperationFailure: Executor error during getMore :: caused by :: operation was interrupted, full error: {'ok': 0.0, 'errmsg': 'Executor error during getMore :: caused by :: operation was interrupted', 'code': 237, 'codeName': 'CursorKilled', '$clusterTime': {'clusterTime': Timestamp(1760384353, 2), 'signature': {'hash': b'm\xc0\xf2G\xab\xf4\x851\xa6\xdf\xf0\x85{Tk\xbb7\rW\xd9', 'keyId': 7498364625042276356}}, 'operationTime': Timestamp(1760384353, 2)}
+2025-10-13 21:39:16,530 - ClearVuePipeline - INFO - Change stream closed: Sales_flat
+2025-10-13 21:39:16,931 - ClearVuePipeline - ERROR - MongoDB error for Purchases_flat: Executor error during getMore :: caused by :: operation was interrupted, full error: {'ok': 0.0, 'errmsg': 'Executor error during getMore :: caused by :: operation was interrupted', 'code': 237, 'codeName': 'CursorKilled', '$clusterTime': {'clusterTime': Timestamp(1760384353, 4), 'signature': {'hash': b'm\xc0\xf2G\xab\xf4\x851\xa6\xdf\xf0\x85{Tk\xbb7\rW\xd9', 'keyId': 7498364625042276356}}, 'operationTime': Timestamp(1760384353, 4)}
+Traceback (most recent call last):
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\mongodb_kafka_streaming.py", line 610, in watch_collection
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\change_stream.py", line 323, in next
+    doc = self.try_next()
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\change_stream.py", line 381, in try_next
+    change = self._cursor._try_next(True)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\command_cursor.py", line 347, in _try_next
+    self._refresh()
+    ~~~~~~~~~~~~~^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\command_cursor.py", line 307, in _refresh
+    self._send_message(
+    ~~~~~~~~~~~~~~~~~~^
+        self._getmore_class(
+        ^^^^^^^^^^^^^^^^^^^^
+    ...<12 lines>...
+        )
+        ^
+    )
+    ^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\command_cursor.py", line 254, in _send_message
+    response = client._run_operation(
+        operation, self._unpack_response, address=self._address
+    )
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 1938, in _run_operation
+    return self._retryable_read(
+           ~~~~~~~~~~~~~~~~~~~~^
+        _cmd,
+        ^^^^^
+    ...<4 lines>...
+        operation=operation.name,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 2047, in _retryable_read
+    return self._retry_internal(
+           ~~~~~~~~~~~~~~~~~~~~^
+        func,
+        ^^^^^
+    ...<7 lines>...
+        operation_id=operation_id,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 2014, in _retry_internal
+    ).run()
+      ~~~^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 2765, in run
+    return self._read() if self._is_read else self._write()
+           ~~~~~~~~~~^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 2926, in _read
+    return self._func(self._session, self._server, conn, read_pref)  # type: ignore
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 1929, in _cmd
+    return server.run_operation(
+           ~~~~~~~~~~~~~~~~~~~~^
+        conn,
+        ^^^^^
+    ...<4 lines>...
+        self,
+        ^^^^^
+    )
+    ^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\helpers.py", line 47, in inner
+    return func(*args, **kwargs)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\server.py", line 227, in run_operation
+    _check_command_response(first, conn.max_wire_version, pool_opts=conn.opts)  # type:ignore[has-type]
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\helpers_shared.py", line 284, in _check_command_response
+    raise OperationFailure(errmsg, code, response, max_wire_version)
+pymongo.errors.OperationFailure: Executor error during getMore :: caused by :: operation was interrupted, full error: {'ok': 0.0, 'errmsg': 'Executor error during getMore :: caused by :: operation was interrupted', 'code': 237, 'codeName': 'CursorKilled', '$clusterTime': {'clusterTime': Timestamp(1760384353, 4), 'signature': {'hash': b'm\xc0\xf2G\xab\xf4\x851\xa6\xdf\xf0\x85{Tk\xbb7\rW\xd9', 'keyId': 7498364625042276356}}, 'operationTime': Timestamp(1760384353, 4)}
+2025-10-13 21:39:16,937 - ClearVuePipeline - INFO - Change stream closed: Purchases_flat
+2025-10-13 21:39:17,352 - kafka.producer.kafka - INFO - <KafkaProducer client_id=kafka-python-producer-1 transactional_id=None>: Closing the Kafka producer with 4294967.0 secs timeout.
+2025-10-13 21:39:17,353 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=1 host=localhost:29092 <connected> [IPv6 ('::1', 29092, 0, 0)]>: Closing connection. 
+2025-10-13 21:39:17,354 - ClearVuePipeline - INFO - Kafka producer closed
+2025-10-13 21:39:17,360 - ClearVuePipeline - ERROR - MongoDB error for Payments_flat: Executor error during getMore :: caused by :: operation was interrupted, full error: {'ok': 0.0, 'errmsg': 'Executor error during getMore :: caused by :: operation was interrupted', 'code': 237, 'codeName': 'CursorKilled', '$clusterTime': {'clusterTime': Timestamp(1760384354, 2), 'signature': {'hash': b'\x9chj&"k\x04\x14^NX!\xfe\x11\x92\x81\xc6\xc5\xf2\xcc', 'keyId': 7498364625042276356}}, 'operationTime': Timestamp(1760384354, 2)}
+Traceback (most recent call last):
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\mongodb_kafka_streaming.py", line 610, in watch_collection
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\change_stream.py", line 323, in next
+    doc = self.try_next()
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\change_stream.py", line 381, in try_next
+    change = self._cursor._try_next(True)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\command_cursor.py", line 347, in _try_next
+    self._refresh()
+    ~~~~~~~~~~~~~^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\command_cursor.py", line 307, in _refresh
+    self._send_message(
+    ~~~~~~~~~~~~~~~~~~^
+        self._getmore_class(
+        ^^^^^^^^^^^^^^^^^^^^
+    ...<12 lines>...
+        )
+        ^
+    )
+    ^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\command_cursor.py", line 254, in _send_message
+    response = client._run_operation(
+        operation, self._unpack_response, address=self._address
+    )
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 1938, in _run_operation
+    return self._retryable_read(
+           ~~~~~~~~~~~~~~~~~~~~^
+        _cmd,
+        ^^^^^
+    ...<4 lines>...
+        operation=operation.name,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 2047, in _retryable_read
+    return self._retry_internal(
+           ~~~~~~~~~~~~~~~~~~~~^
+        func,
+        ^^^^^
+    ...<7 lines>...
+        operation_id=operation_id,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 2014, in _retry_internal
+    ).run()
+      ~~~^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 2765, in run
+    return self._read() if self._is_read else self._write()
+           ~~~~~~~~~~^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 2926, in _read
+    return self._func(self._session, self._server, conn, read_pref)  # type: ignore
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 1929, in _cmd
+    return server.run_operation(
+           ~~~~~~~~~~~~~~~~~~~~^
+        conn,
+        ^^^^^
+    ...<4 lines>...
+        self,
+        ^^^^^
+    )
+    ^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\helpers.py", line 47, in inner
+    return func(*args, **kwargs)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\server.py", line 227, in run_operation
+    _check_command_response(first, conn.max_wire_version, pool_opts=conn.opts)  # type:ignore[has-type]
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\helpers_shared.py", line 284, in _check_command_response
+    raise OperationFailure(errmsg, code, response, max_wire_version)
+pymongo.errors.OperationFailure: Executor error during getMore :: caused by :: operation was interrupted, full error: {'ok': 0.0, 'errmsg': 'Executor error during getMore :: caused by :: operation was interrupted', 'code': 237, 'codeName': 'CursorKilled', '$clusterTime': {'clusterTime': Timestamp(1760384354, 2), 'signature': {'hash': b'\x9chj&"k\x04\x14^NX!\xfe\x11\x92\x81\xc6\xc5\xf2\xcc', 'keyId': 7498364625042276356}}, 'operationTime': Timestamp(1760384354, 2)}
+2025-10-13 21:39:17,364 - ClearVuePipeline - INFO - Change stream closed: Payments_flat
+2025-10-13 21:39:17,773 - ClearVuePipeline - INFO - MongoDB connection closed
+2025-10-13 21:39:17,780 - ClearVuePipeline - INFO - Pipeline stopped
+2025-10-13 21:39:17,781 - ClearVuePipeline - INFO - Stopping pipeline...
+2025-10-13 21:39:17,782 - kafka.producer.kafka - INFO - <KafkaProducer client_id=kafka-python-producer-1 transactional_id=None>: Kafka producer closed
+2025-10-13 21:39:17,783 - ClearVuePipeline - INFO - Kafka producer closed
+2025-10-13 21:39:17,785 - ClearVuePipeline - INFO - MongoDB connection closed
+2025-10-13 21:39:54,812 - ClearVuePipeline - INFO - Initializing ClearVue Streaming Pipeline...
+2025-10-13 21:40:00,356 - ClearVuePipeline - INFO - Connected to MongoDB: Nova_Analytix
+2025-10-13 21:40:00,360 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=bootstrap-0 host=localhost:29092 <connecting> [IPv6 ('::1', 29092, 0, 0)]>: connecting to localhost:29092 [('::1', 29092, 0, 0) IPv6]
+2025-10-13 21:40:00,373 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=bootstrap-0 host=localhost:29092 <checking_api_versions_recv> [IPv6 ('::1', 29092, 0, 0)]>: Broker version identified as 2.6
+2025-10-13 21:40:00,374 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=bootstrap-0 host=localhost:29092 <connected> [IPv6 ('::1', 29092, 0, 0)]>: Connection complete.
+2025-10-13 21:40:00,377 - ClearVuePipeline - INFO - Kafka producer initialized
+2025-10-13 21:40:00,377 - ClearVuePipeline - INFO - Pipeline initialized successfully
+2025-10-13 21:40:00,383 - kafka.conn - INFO - <BrokerConnection client_id=clearvue_pipeline_admin, node_id=bootstrap-0 host=localhost:29092 <connecting> [IPv6 ('::1', 29092, 0, 0)]>: connecting to localhost:29092 [('::1', 29092, 0, 0) IPv6]
+2025-10-13 21:40:00,425 - kafka.conn - INFO - <BrokerConnection client_id=clearvue_pipeline_admin, node_id=bootstrap-0 host=localhost:29092 <checking_api_versions_recv> [IPv6 ('::1', 29092, 0, 0)]>: Broker version identified as 2.6
+2025-10-13 21:40:00,427 - kafka.conn - INFO - <BrokerConnection client_id=clearvue_pipeline_admin, node_id=bootstrap-0 host=localhost:29092 <connected> [IPv6 ('::1', 29092, 0, 0)]>: Connection complete.
+2025-10-13 21:40:00,436 - kafka.conn - INFO - <BrokerConnection client_id=clearvue_pipeline_admin, node_id=1 host=localhost:29092 <connecting> [IPv6 ('::1', 29092, 0, 0)]>: connecting to localhost:29092 [('::1', 29092, 0, 0) IPv6]
+2025-10-13 21:40:00,438 - kafka.conn - INFO - <BrokerConnection client_id=clearvue_pipeline_admin, node_id=1 host=localhost:29092 <connected> [IPv6 ('::1', 29092, 0, 0)]>: Connection complete.
+2025-10-13 21:40:00,439 - kafka.conn - INFO - <BrokerConnection client_id=clearvue_pipeline_admin, node_id=bootstrap-0 host=localhost:29092 <connected> [IPv6 ('::1', 29092, 0, 0)]>: Closing connection. 
+2025-10-13 21:40:00,456 - ClearVuePipeline - INFO - All topics exist
+2025-10-13 21:40:00,459 - kafka.conn - INFO - <BrokerConnection client_id=clearvue_pipeline_admin, node_id=1 host=localhost:29092 <connected> [IPv6 ('::1', 29092, 0, 0)]>: Closing connection. 
+2025-10-13 21:40:00,463 - ClearVuePipeline - INFO - Started change stream: Sales_flat
+2025-10-13 21:40:00,465 - ClearVuePipeline - INFO - Started change stream: Payments_flat
+2025-10-13 21:40:00,467 - ClearVuePipeline - INFO - Started change stream: Purchases_flat
+2025-10-13 21:40:00,470 - ClearVuePipeline - INFO - Pipeline started with 3 watchers
+2025-10-13 21:40:08,241 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=1 host=localhost:29092 <connecting> [IPv6 ('::1', 29092, 0, 0)]>: connecting to localhost:29092 [('::1', 29092, 0, 0) IPv6]
+2025-10-13 21:40:08,243 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=1 host=localhost:29092 <connected> [IPv6 ('::1', 29092, 0, 0)]>: Connection complete.
+2025-10-13 21:40:08,247 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=bootstrap-0 host=localhost:29092 <connected> [IPv6 ('::1', 29092, 0, 0)]>: Closing connection. 
+2025-10-13 21:51:44,448 - ClearVuePipeline - INFO - Shutdown signal received
+2025-10-13 21:51:44,472 - ClearVuePipeline - INFO - Stopping pipeline...
+2025-10-13 21:51:45,038 - ClearVuePipeline - ERROR - MongoDB error for Sales_flat: Executor error during getMore :: caused by :: operation was interrupted, full error: {'ok': 0.0, 'errmsg': 'Executor error during getMore :: caused by :: operation was interrupted', 'code': 237, 'codeName': 'CursorKilled', '$clusterTime': {'clusterTime': Timestamp(1760385101, 1), 'signature': {'hash': b'`\xd3\xb3\xac\xdeGuBMS\xbcu$\x13 )C\x14\xd5:', 'keyId': 7498364625042276356}}, 'operationTime': Timestamp(1760385101, 1)}
+Traceback (most recent call last):
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\mongodb_kafka_streaming.py", line 611, in watch_collection
+    {
+    
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\change_stream.py", line 323, in next
+    doc = self.try_next()
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\change_stream.py", line 381, in try_next
+    change = self._cursor._try_next(True)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\command_cursor.py", line 347, in _try_next
+    self._refresh()
+    ~~~~~~~~~~~~~^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\command_cursor.py", line 307, in _refresh
+    self._send_message(
+    ~~~~~~~~~~~~~~~~~~^
+        self._getmore_class(
+        ^^^^^^^^^^^^^^^^^^^^
+    ...<12 lines>...
+        )
+        ^
+    )
+    ^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\command_cursor.py", line 254, in _send_message
+    response = client._run_operation(
+        operation, self._unpack_response, address=self._address
+    )
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 1938, in _run_operation
+    return self._retryable_read(
+           ~~~~~~~~~~~~~~~~~~~~^
+        _cmd,
+        ^^^^^
+    ...<4 lines>...
+        operation=operation.name,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 2047, in _retryable_read
+    return self._retry_internal(
+           ~~~~~~~~~~~~~~~~~~~~^
+        func,
+        ^^^^^
+    ...<7 lines>...
+        operation_id=operation_id,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 2014, in _retry_internal
+    ).run()
+      ~~~^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 2765, in run
+    return self._read() if self._is_read else self._write()
+           ~~~~~~~~~~^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 2926, in _read
+    return self._func(self._session, self._server, conn, read_pref)  # type: ignore
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 1929, in _cmd
+    return server.run_operation(
+           ~~~~~~~~~~~~~~~~~~~~^
+        conn,
+        ^^^^^
+    ...<4 lines>...
+        self,
+        ^^^^^
+    )
+    ^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\helpers.py", line 47, in inner
+    return func(*args, **kwargs)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\server.py", line 227, in run_operation
+    _check_command_response(first, conn.max_wire_version, pool_opts=conn.opts)  # type:ignore[has-type]
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\helpers_shared.py", line 284, in _check_command_response
+    raise OperationFailure(errmsg, code, response, max_wire_version)
+pymongo.errors.OperationFailure: Executor error during getMore :: caused by :: operation was interrupted, full error: {'ok': 0.0, 'errmsg': 'Executor error during getMore :: caused by :: operation was interrupted', 'code': 237, 'codeName': 'CursorKilled', '$clusterTime': {'clusterTime': Timestamp(1760385101, 1), 'signature': {'hash': b'`\xd3\xb3\xac\xdeGuBMS\xbcu$\x13 )C\x14\xd5:', 'keyId': 7498364625042276356}}, 'operationTime': Timestamp(1760385101, 1)}
+2025-10-13 21:51:45,120 - ClearVuePipeline - INFO - Change stream closed: Sales_flat
+2025-10-13 21:51:45,140 - ClearVuePipeline - INFO - Change stream closed: Purchases_flat
+2025-10-13 21:51:45,898 - ClearVuePipeline - ERROR - MongoDB error for Payments_flat: Executor error during getMore :: caused by :: operation was interrupted, full error: {'ok': 0.0, 'errmsg': 'Executor error during getMore :: caused by :: operation was interrupted', 'code': 237, 'codeName': 'CursorKilled', '$clusterTime': {'clusterTime': Timestamp(1760385101, 2), 'signature': {'hash': b'`\xd3\xb3\xac\xdeGuBMS\xbcu$\x13 )C\x14\xd5:', 'keyId': 7498364625042276356}}, 'operationTime': Timestamp(1760385101, 2)}
+Traceback (most recent call last):
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\mongodb_kafka_streaming.py", line 611, in watch_collection
+    {
+    
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\change_stream.py", line 323, in next
+    doc = self.try_next()
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\change_stream.py", line 381, in try_next
+    change = self._cursor._try_next(True)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\command_cursor.py", line 347, in _try_next
+    self._refresh()
+    ~~~~~~~~~~~~~^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\command_cursor.py", line 307, in _refresh
+    self._send_message(
+    ~~~~~~~~~~~~~~~~~~^
+        self._getmore_class(
+        ^^^^^^^^^^^^^^^^^^^^
+    ...<12 lines>...
+        )
+        ^
+    )
+    ^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\command_cursor.py", line 254, in _send_message
+    response = client._run_operation(
+        operation, self._unpack_response, address=self._address
+    )
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 1938, in _run_operation
+    return self._retryable_read(
+           ~~~~~~~~~~~~~~~~~~~~^
+        _cmd,
+        ^^^^^
+    ...<4 lines>...
+        operation=operation.name,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 2047, in _retryable_read
+    return self._retry_internal(
+           ~~~~~~~~~~~~~~~~~~~~^
+        func,
+        ^^^^^
+    ...<7 lines>...
+        operation_id=operation_id,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 2014, in _retry_internal
+    ).run()
+      ~~~^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 2765, in run
+    return self._read() if self._is_read else self._write()
+           ~~~~~~~~~~^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 2926, in _read
+    return self._func(self._session, self._server, conn, read_pref)  # type: ignore
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 1929, in _cmd
+    return server.run_operation(
+           ~~~~~~~~~~~~~~~~~~~~^
+        conn,
+        ^^^^^
+    ...<4 lines>...
+        self,
+        ^^^^^
+    )
+    ^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\helpers.py", line 47, in inner
+    return func(*args, **kwargs)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\server.py", line 227, in run_operation
+    _check_command_response(first, conn.max_wire_version, pool_opts=conn.opts)  # type:ignore[has-type]
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\helpers_shared.py", line 284, in _check_command_response
+    raise OperationFailure(errmsg, code, response, max_wire_version)
+pymongo.errors.OperationFailure: Executor error during getMore :: caused by :: operation was interrupted, full error: {'ok': 0.0, 'errmsg': 'Executor error during getMore :: caused by :: operation was interrupted', 'code': 237, 'codeName': 'CursorKilled', '$clusterTime': {'clusterTime': Timestamp(1760385101, 2), 'signature': {'hash': b'`\xd3\xb3\xac\xdeGuBMS\xbcu$\x13 )C\x14\xd5:', 'keyId': 7498364625042276356}}, 'operationTime': Timestamp(1760385101, 2)}
+2025-10-13 21:51:45,917 - kafka.producer.kafka - INFO - <KafkaProducer client_id=kafka-python-producer-1 transactional_id=None>: Closing the Kafka producer with 4294967.0 secs timeout.
+2025-10-13 21:51:45,930 - ClearVuePipeline - INFO - Change stream closed: Payments_flat
+2025-10-13 21:51:45,938 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=1 host=localhost:29092 <connected> [IPv6 ('::1', 29092, 0, 0)]>: Closing connection. 
+2025-10-13 21:51:45,952 - ClearVuePipeline - INFO - Kafka producer closed
+2025-10-13 21:51:46,386 - ClearVuePipeline - INFO - MongoDB connection closed
+2025-10-13 21:51:46,389 - ClearVuePipeline - INFO - Pipeline stopped
+2025-10-13 21:51:46,389 - ClearVuePipeline - INFO - Stopping pipeline...
+2025-10-13 21:51:46,390 - kafka.producer.kafka - INFO - <KafkaProducer client_id=kafka-python-producer-1 transactional_id=None>: Kafka producer closed
+2025-10-13 21:51:46,396 - ClearVuePipeline - INFO - Kafka producer closed
+2025-10-13 21:51:46,397 - ClearVuePipeline - INFO - MongoDB connection closed
+2025-10-13 21:51:53,095 - ClearVuePipeline - INFO - Initializing ClearVue Streaming Pipeline...
+2025-10-13 21:51:57,890 - ClearVuePipeline - INFO - Connected to MongoDB: Nova_Analytix
+2025-10-13 21:51:57,894 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=bootstrap-0 host=localhost:29092 <connecting> [IPv6 ('::1', 29092, 0, 0)]>: connecting to localhost:29092 [('::1', 29092, 0, 0) IPv6]
+2025-10-13 21:51:57,938 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=bootstrap-0 host=localhost:29092 <checking_api_versions_recv> [IPv6 ('::1', 29092, 0, 0)]>: Broker version identified as 2.6
+2025-10-13 21:51:57,938 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=bootstrap-0 host=localhost:29092 <connected> [IPv6 ('::1', 29092, 0, 0)]>: Connection complete.
+2025-10-13 21:51:57,942 - ClearVuePipeline - INFO - Kafka producer initialized
+2025-10-13 21:51:57,942 - ClearVuePipeline - INFO - Pipeline initialized successfully
+2025-10-13 21:51:57,949 - kafka.conn - INFO - <BrokerConnection client_id=clearvue_pipeline_admin, node_id=bootstrap-0 host=localhost:29092 <connecting> [IPv6 ('::1', 29092, 0, 0)]>: connecting to localhost:29092 [('::1', 29092, 0, 0) IPv6]
+2025-10-13 21:51:57,969 - kafka.conn - INFO - <BrokerConnection client_id=clearvue_pipeline_admin, node_id=bootstrap-0 host=localhost:29092 <checking_api_versions_recv> [IPv6 ('::1', 29092, 0, 0)]>: Broker version identified as 2.6
+2025-10-13 21:51:57,970 - kafka.conn - INFO - <BrokerConnection client_id=clearvue_pipeline_admin, node_id=bootstrap-0 host=localhost:29092 <connected> [IPv6 ('::1', 29092, 0, 0)]>: Connection complete.
+2025-10-13 21:51:57,980 - kafka.conn - INFO - <BrokerConnection client_id=clearvue_pipeline_admin, node_id=1 host=localhost:29092 <connecting> [IPv6 ('::1', 29092, 0, 0)]>: connecting to localhost:29092 [('::1', 29092, 0, 0) IPv6]
+2025-10-13 21:51:57,981 - kafka.conn - INFO - <BrokerConnection client_id=clearvue_pipeline_admin, node_id=1 host=localhost:29092 <connected> [IPv6 ('::1', 29092, 0, 0)]>: Connection complete.
+2025-10-13 21:51:57,982 - kafka.conn - INFO - <BrokerConnection client_id=clearvue_pipeline_admin, node_id=bootstrap-0 host=localhost:29092 <connected> [IPv6 ('::1', 29092, 0, 0)]>: Closing connection. 
+2025-10-13 21:51:58,016 - ClearVuePipeline - INFO - All topics exist
+2025-10-13 21:51:58,016 - kafka.conn - INFO - <BrokerConnection client_id=clearvue_pipeline_admin, node_id=1 host=localhost:29092 <connected> [IPv6 ('::1', 29092, 0, 0)]>: Closing connection. 
+2025-10-13 21:51:58,018 - ClearVuePipeline - INFO - Started change stream: Sales_flat
+2025-10-13 21:51:58,022 - ClearVuePipeline - INFO - Started change stream: Payments_flat
+2025-10-13 21:51:58,023 - ClearVuePipeline - INFO - Started change stream: Purchases_flat
+2025-10-13 21:51:58,025 - ClearVuePipeline - INFO - Pipeline started with 3 watchers
+2025-10-13 21:52:15,380 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=1 host=localhost:29092 <connecting> [IPv6 ('::1', 29092, 0, 0)]>: connecting to localhost:29092 [('::1', 29092, 0, 0) IPv6]
+2025-10-13 21:52:15,382 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=1 host=localhost:29092 <connected> [IPv6 ('::1', 29092, 0, 0)]>: Connection complete.
+2025-10-13 21:52:15,383 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=bootstrap-0 host=localhost:29092 <connected> [IPv6 ('::1', 29092, 0, 0)]>: Closing connection. 
+2025-10-13 21:52:15,486 - ClearVuePipeline - ERROR - Error pushing to Power BI: Object of type ObjectId is not JSON serializable
+2025-10-13 21:53:16,085 - ClearVuePipeline - ERROR - Error pushing to Power BI: Object of type ObjectId is not JSON serializable
+2025-10-13 21:54:35,810 - ClearVuePipeline - INFO - Shutdown signal received
+2025-10-13 21:54:35,811 - ClearVuePipeline - INFO - Stopping pipeline...
+2025-10-13 21:54:36,250 - ClearVuePipeline - ERROR - MongoDB error for Sales_flat: Executor error during getMore :: caused by :: operation was interrupted, full error: {'ok': 0.0, 'errmsg': 'Executor error during getMore :: caused by :: operation was interrupted', 'code': 237, 'codeName': 'CursorKilled', '$clusterTime': {'clusterTime': Timestamp(1760385272, 1), 'signature': {'hash': b'\x99X\xbd\x17\x882\x03\\\x85\xdfp\xbb(\x0bsF\x80\xda!\x0c', 'keyId': 7498364625042276356}}, 'operationTime': Timestamp(1760385272, 1)}
+Traceback (most recent call last):
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\mongodb_kafka_streaming.py", line 625, in watch_collection
+    break
+    
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\change_stream.py", line 323, in next
+    doc = self.try_next()
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\change_stream.py", line 381, in try_next
+    change = self._cursor._try_next(True)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\command_cursor.py", line 347, in _try_next
+    self._refresh()
+    ~~~~~~~~~~~~~^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\command_cursor.py", line 307, in _refresh
+    self._send_message(
+    ~~~~~~~~~~~~~~~~~~^
+        self._getmore_class(
+        ^^^^^^^^^^^^^^^^^^^^
+    ...<12 lines>...
+        )
+        ^
+    )
+    ^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\command_cursor.py", line 254, in _send_message
+    response = client._run_operation(
+        operation, self._unpack_response, address=self._address
+    )
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 1938, in _run_operation
+    return self._retryable_read(
+           ~~~~~~~~~~~~~~~~~~~~^
+        _cmd,
+        ^^^^^
+    ...<4 lines>...
+        operation=operation.name,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 2047, in _retryable_read
+    return self._retry_internal(
+           ~~~~~~~~~~~~~~~~~~~~^
+        func,
+        ^^^^^
+    ...<7 lines>...
+        operation_id=operation_id,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 2014, in _retry_internal
+    ).run()
+      ~~~^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 2765, in run
+    return self._read() if self._is_read else self._write()
+           ~~~~~~~~~~^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 2926, in _read
+    return self._func(self._session, self._server, conn, read_pref)  # type: ignore
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 1929, in _cmd
+    return server.run_operation(
+           ~~~~~~~~~~~~~~~~~~~~^
+        conn,
+        ^^^^^
+    ...<4 lines>...
+        self,
+        ^^^^^
+    )
+    ^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\helpers.py", line 47, in inner
+    return func(*args, **kwargs)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\server.py", line 227, in run_operation
+    _check_command_response(first, conn.max_wire_version, pool_opts=conn.opts)  # type:ignore[has-type]
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\helpers_shared.py", line 284, in _check_command_response
+    raise OperationFailure(errmsg, code, response, max_wire_version)
+pymongo.errors.OperationFailure: Executor error during getMore :: caused by :: operation was interrupted, full error: {'ok': 0.0, 'errmsg': 'Executor error during getMore :: caused by :: operation was interrupted', 'code': 237, 'codeName': 'CursorKilled', '$clusterTime': {'clusterTime': Timestamp(1760385272, 1), 'signature': {'hash': b'\x99X\xbd\x17\x882\x03\\\x85\xdfp\xbb(\x0bsF\x80\xda!\x0c', 'keyId': 7498364625042276356}}, 'operationTime': Timestamp(1760385272, 1)}
+2025-10-13 21:54:36,266 - ClearVuePipeline - INFO - Change stream closed: Sales_flat
+2025-10-13 21:54:36,648 - ClearVuePipeline - ERROR - MongoDB error for Payments_flat: Executor error during getMore :: caused by :: operation was interrupted, full error: {'ok': 0.0, 'errmsg': 'Executor error during getMore :: caused by :: operation was interrupted', 'code': 237, 'codeName': 'CursorKilled', '$clusterTime': {'clusterTime': Timestamp(1760385273, 2), 'signature': {'hash': b"\xa4\xc56HH\x0b\x8cc\x1b\xc1\x1a\x8b\x03cr'w\x84j\xe8", 'keyId': 7498364625042276356}}, 'operationTime': Timestamp(1760385273, 2)}
+Traceback (most recent call last):
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\mongodb_kafka_streaming.py", line 625, in watch_collection
+    break
+    
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\change_stream.py", line 323, in next
+    doc = self.try_next()
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\change_stream.py", line 381, in try_next
+    change = self._cursor._try_next(True)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\command_cursor.py", line 347, in _try_next
+    self._refresh()
+    ~~~~~~~~~~~~~^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\command_cursor.py", line 307, in _refresh
+    self._send_message(
+    ~~~~~~~~~~~~~~~~~~^
+        self._getmore_class(
+        ^^^^^^^^^^^^^^^^^^^^
+    ...<12 lines>...
+        )
+        ^
+    )
+    ^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\command_cursor.py", line 254, in _send_message
+    response = client._run_operation(
+        operation, self._unpack_response, address=self._address
+    )
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 1938, in _run_operation
+    return self._retryable_read(
+           ~~~~~~~~~~~~~~~~~~~~^
+        _cmd,
+        ^^^^^
+    ...<4 lines>...
+        operation=operation.name,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 2047, in _retryable_read
+    return self._retry_internal(
+           ~~~~~~~~~~~~~~~~~~~~^
+        func,
+        ^^^^^
+    ...<7 lines>...
+        operation_id=operation_id,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 2014, in _retry_internal
+    ).run()
+      ~~~^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 2765, in run
+    return self._read() if self._is_read else self._write()
+           ~~~~~~~~~~^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 2926, in _read
+    return self._func(self._session, self._server, conn, read_pref)  # type: ignore
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 1929, in _cmd
+    return server.run_operation(
+           ~~~~~~~~~~~~~~~~~~~~^
+        conn,
+        ^^^^^
+    ...<4 lines>...
+        self,
+        ^^^^^
+    )
+    ^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\helpers.py", line 47, in inner
+    return func(*args, **kwargs)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\server.py", line 227, in run_operation
+    _check_command_response(first, conn.max_wire_version, pool_opts=conn.opts)  # type:ignore[has-type]
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\helpers_shared.py", line 284, in _check_command_response
+    raise OperationFailure(errmsg, code, response, max_wire_version)
+pymongo.errors.OperationFailure: Executor error during getMore :: caused by :: operation was interrupted, full error: {'ok': 0.0, 'errmsg': 'Executor error during getMore :: caused by :: operation was interrupted', 'code': 237, 'codeName': 'CursorKilled', '$clusterTime': {'clusterTime': Timestamp(1760385273, 2), 'signature': {'hash': b"\xa4\xc56HH\x0b\x8cc\x1b\xc1\x1a\x8b\x03cr'w\x84j\xe8", 'keyId': 7498364625042276356}}, 'operationTime': Timestamp(1760385273, 2)}
+2025-10-13 21:54:36,655 - ClearVuePipeline - INFO - Change stream closed: Payments_flat
+2025-10-13 21:54:37,034 - ClearVuePipeline - INFO - Change stream closed: Purchases_flat
+2025-10-13 21:54:37,072 - kafka.producer.kafka - INFO - <KafkaProducer client_id=kafka-python-producer-1 transactional_id=None>: Closing the Kafka producer with 4294967.0 secs timeout.
+2025-10-13 21:54:37,076 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=1 host=localhost:29092 <connected> [IPv6 ('::1', 29092, 0, 0)]>: Closing connection. 
+2025-10-13 21:54:37,082 - ClearVuePipeline - INFO - Kafka producer closed
+2025-10-13 21:54:37,500 - ClearVuePipeline - INFO - MongoDB connection closed
+2025-10-13 21:54:37,506 - ClearVuePipeline - INFO - Pipeline stopped
+2025-10-13 21:54:37,507 - ClearVuePipeline - INFO - Stopping pipeline...
+2025-10-13 21:54:37,508 - kafka.producer.kafka - INFO - <KafkaProducer client_id=kafka-python-producer-1 transactional_id=None>: Kafka producer closed
+2025-10-13 21:54:37,511 - ClearVuePipeline - INFO - Kafka producer closed
+2025-10-13 21:54:37,513 - ClearVuePipeline - INFO - MongoDB connection closed
+2025-10-13 21:54:53,288 - ClearVuePipeline - INFO - Initializing ClearVue Streaming Pipeline...
+2025-10-13 21:54:58,129 - ClearVuePipeline - INFO - Connected to MongoDB: Nova_Analytix
+2025-10-13 21:54:58,134 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=bootstrap-0 host=localhost:29092 <connecting> [IPv6 ('::1', 29092, 0, 0)]>: connecting to localhost:29092 [('::1', 29092, 0, 0) IPv6]
+2025-10-13 21:54:58,158 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=bootstrap-0 host=localhost:29092 <checking_api_versions_recv> [IPv6 ('::1', 29092, 0, 0)]>: Broker version identified as 2.6
+2025-10-13 21:54:58,159 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=bootstrap-0 host=localhost:29092 <connected> [IPv6 ('::1', 29092, 0, 0)]>: Connection complete.
+2025-10-13 21:54:58,161 - ClearVuePipeline - INFO - Kafka producer initialized
+2025-10-13 21:54:58,162 - ClearVuePipeline - INFO - Pipeline initialized successfully
+2025-10-13 21:54:58,166 - kafka.conn - INFO - <BrokerConnection client_id=clearvue_pipeline_admin, node_id=bootstrap-0 host=localhost:29092 <connecting> [IPv6 ('::1', 29092, 0, 0)]>: connecting to localhost:29092 [('::1', 29092, 0, 0) IPv6]
+2025-10-13 21:54:58,177 - kafka.conn - INFO - <BrokerConnection client_id=clearvue_pipeline_admin, node_id=bootstrap-0 host=localhost:29092 <checking_api_versions_recv> [IPv6 ('::1', 29092, 0, 0)]>: Broker version identified as 2.6
+2025-10-13 21:54:58,178 - kafka.conn - INFO - <BrokerConnection client_id=clearvue_pipeline_admin, node_id=bootstrap-0 host=localhost:29092 <connected> [IPv6 ('::1', 29092, 0, 0)]>: Connection complete.
+2025-10-13 21:54:58,186 - kafka.conn - INFO - <BrokerConnection client_id=clearvue_pipeline_admin, node_id=1 host=localhost:29092 <connecting> [IPv6 ('::1', 29092, 0, 0)]>: connecting to localhost:29092 [('::1', 29092, 0, 0) IPv6]
+2025-10-13 21:54:58,187 - kafka.conn - INFO - <BrokerConnection client_id=clearvue_pipeline_admin, node_id=1 host=localhost:29092 <connected> [IPv6 ('::1', 29092, 0, 0)]>: Connection complete.
+2025-10-13 21:54:58,187 - kafka.conn - INFO - <BrokerConnection client_id=clearvue_pipeline_admin, node_id=bootstrap-0 host=localhost:29092 <connected> [IPv6 ('::1', 29092, 0, 0)]>: Closing connection. 
+2025-10-13 21:54:58,199 - ClearVuePipeline - INFO - All topics exist
+2025-10-13 21:54:58,199 - kafka.conn - INFO - <BrokerConnection client_id=clearvue_pipeline_admin, node_id=1 host=localhost:29092 <connected> [IPv6 ('::1', 29092, 0, 0)]>: Closing connection. 
+2025-10-13 21:54:58,201 - ClearVuePipeline - INFO - Started change stream: Sales_flat
+2025-10-13 21:54:58,202 - ClearVuePipeline - INFO - Started change stream: Payments_flat
+2025-10-13 21:54:58,203 - ClearVuePipeline - INFO - Started change stream: Purchases_flat
+2025-10-13 21:54:58,204 - ClearVuePipeline - INFO - Pipeline started with 3 watchers
+2025-10-13 21:55:15,373 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=1 host=localhost:29092 <connecting> [IPv6 ('::1', 29092, 0, 0)]>: connecting to localhost:29092 [('::1', 29092, 0, 0) IPv6]
+2025-10-13 21:55:15,374 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=1 host=localhost:29092 <connected> [IPv6 ('::1', 29092, 0, 0)]>: Connection complete.
+2025-10-13 21:55:15,375 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=bootstrap-0 host=localhost:29092 <connected> [IPv6 ('::1', 29092, 0, 0)]>: Closing connection. 
+2025-10-13 21:55:16,952 - ClearVuePipeline - ERROR - Power BI push failed (404): {"error":{"code":"ItemNotFound","message":"Column '<pi>timestamp</pi>' was not found in specified table, dataset 'sobe_wowvirtualserver|7bd18a13-0815-4cbf-bb41-84ab2a2383bc'"}}
+2025-10-13 21:55:28,769 - ClearVuePipeline - INFO - Shutdown signal received
+2025-10-13 21:55:28,769 - ClearVuePipeline - INFO - Stopping pipeline...
+2025-10-13 21:55:29,805 - ClearVuePipeline - INFO - Change stream closed: Sales_flat
+2025-10-13 21:55:31,071 - ClearVuePipeline - INFO - Change stream closed: Payments_flat
+2025-10-13 21:55:31,529 - ClearVuePipeline - INFO - Change stream closed: Purchases_flat
+2025-10-13 21:55:31,797 - kafka.producer.kafka - INFO - <KafkaProducer client_id=kafka-python-producer-1 transactional_id=None>: Closing the Kafka producer with 4294967.0 secs timeout.
+2025-10-13 21:55:31,798 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=1 host=localhost:29092 <connected> [IPv6 ('::1', 29092, 0, 0)]>: Closing connection. 
+2025-10-13 21:55:31,799 - ClearVuePipeline - INFO - Kafka producer closed
+2025-10-13 21:55:32,201 - ClearVuePipeline - INFO - MongoDB connection closed
+2025-10-13 21:55:34,307 - ClearVuePipeline - INFO - Pipeline stopped
+2025-10-13 21:55:34,307 - ClearVuePipeline - INFO - Stopping pipeline...
+2025-10-13 21:55:34,307 - kafka.producer.kafka - INFO - <KafkaProducer client_id=kafka-python-producer-1 transactional_id=None>: Kafka producer closed
+2025-10-13 21:55:34,308 - ClearVuePipeline - INFO - Kafka producer closed
+2025-10-13 21:55:34,308 - ClearVuePipeline - INFO - MongoDB connection closed
+2025-10-13 21:55:40,451 - ClearVuePipeline - INFO - Initializing ClearVue Streaming Pipeline...
+2025-10-13 21:55:45,340 - ClearVuePipeline - INFO - Connected to MongoDB: Nova_Analytix
+2025-10-13 21:55:45,344 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=bootstrap-0 host=localhost:29092 <connecting> [IPv6 ('::1', 29092, 0, 0)]>: connecting to localhost:29092 [('::1', 29092, 0, 0) IPv6]
+2025-10-13 21:55:45,360 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=bootstrap-0 host=localhost:29092 <checking_api_versions_recv> [IPv6 ('::1', 29092, 0, 0)]>: Broker version identified as 2.6
+2025-10-13 21:55:45,360 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=bootstrap-0 host=localhost:29092 <connected> [IPv6 ('::1', 29092, 0, 0)]>: Connection complete.
+2025-10-13 21:55:45,362 - ClearVuePipeline - INFO - Kafka producer initialized
+2025-10-13 21:55:45,363 - ClearVuePipeline - INFO - Pipeline initialized successfully
+2025-10-13 21:55:45,366 - kafka.conn - INFO - <BrokerConnection client_id=clearvue_pipeline_admin, node_id=bootstrap-0 host=localhost:29092 <connecting> [IPv6 ('::1', 29092, 0, 0)]>: connecting to localhost:29092 [('::1', 29092, 0, 0) IPv6]
+2025-10-13 21:55:45,378 - kafka.conn - INFO - <BrokerConnection client_id=clearvue_pipeline_admin, node_id=bootstrap-0 host=localhost:29092 <checking_api_versions_recv> [IPv6 ('::1', 29092, 0, 0)]>: Broker version identified as 2.6
+2025-10-13 21:55:45,378 - kafka.conn - INFO - <BrokerConnection client_id=clearvue_pipeline_admin, node_id=bootstrap-0 host=localhost:29092 <connected> [IPv6 ('::1', 29092, 0, 0)]>: Connection complete.
+2025-10-13 21:55:45,385 - kafka.conn - INFO - <BrokerConnection client_id=clearvue_pipeline_admin, node_id=1 host=localhost:29092 <connecting> [IPv6 ('::1', 29092, 0, 0)]>: connecting to localhost:29092 [('::1', 29092, 0, 0) IPv6]
+2025-10-13 21:55:45,386 - kafka.conn - INFO - <BrokerConnection client_id=clearvue_pipeline_admin, node_id=1 host=localhost:29092 <connected> [IPv6 ('::1', 29092, 0, 0)]>: Connection complete.
+2025-10-13 21:55:45,386 - kafka.conn - INFO - <BrokerConnection client_id=clearvue_pipeline_admin, node_id=bootstrap-0 host=localhost:29092 <connected> [IPv6 ('::1', 29092, 0, 0)]>: Closing connection. 
+2025-10-13 21:55:45,397 - ClearVuePipeline - INFO - All topics exist
+2025-10-13 21:55:45,397 - kafka.conn - INFO - <BrokerConnection client_id=clearvue_pipeline_admin, node_id=1 host=localhost:29092 <connected> [IPv6 ('::1', 29092, 0, 0)]>: Closing connection. 
+2025-10-13 21:55:45,400 - ClearVuePipeline - INFO - Started change stream: Sales_flat
+2025-10-13 21:55:45,401 - ClearVuePipeline - INFO - Started change stream: Payments_flat
+2025-10-13 21:55:45,402 - ClearVuePipeline - INFO - Started change stream: Purchases_flat
+2025-10-13 21:55:45,403 - ClearVuePipeline - INFO - Started change stream: Customer_flat_step2
+2025-10-13 21:55:45,404 - ClearVuePipeline - INFO - Started change stream: Products_flat
+2025-10-13 21:55:45,405 - ClearVuePipeline - INFO - Started change stream: Suppliers
+2025-10-13 21:55:45,406 - ClearVuePipeline - INFO - Pipeline started with 6 watchers
+2025-10-13 21:55:49,112 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=1 host=localhost:29092 <connecting> [IPv6 ('::1', 29092, 0, 0)]>: connecting to localhost:29092 [('::1', 29092, 0, 0) IPv6]
+2025-10-13 21:55:49,113 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=1 host=localhost:29092 <connected> [IPv6 ('::1', 29092, 0, 0)]>: Connection complete.
+2025-10-13 21:55:49,113 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=bootstrap-0 host=localhost:29092 <connected> [IPv6 ('::1', 29092, 0, 0)]>: Closing connection. 
+2025-10-13 21:55:50,055 - ClearVuePipeline - ERROR - Power BI push failed (404): {"error":{"code":"ItemNotFound","message":"Column '<pi>timestamp</pi>' was not found in specified table, dataset 'sobe_wowvirtualserver|7bd18a13-0815-4cbf-bb41-84ab2a2383bc'"}}
+2025-10-13 22:02:31,419 - ClearVuePipeline - INFO - Shutdown signal received
+2025-10-13 22:02:31,430 - ClearVuePipeline - INFO - Stopping pipeline...
+2025-10-13 22:02:31,892 - ClearVuePipeline - ERROR - MongoDB error for Sales_flat: Executor error during getMore :: caused by :: operation was interrupted, full error: {'ok': 0.0, 'errmsg': 'Executor error during getMore :: caused by :: operation was interrupted', 'code': 237, 'codeName': 'CursorKilled', '$clusterTime': {'clusterTime': Timestamp(1760385748, 6), 'signature': {'hash': b'_r4f1\xae9\xd1\xa5\x12\x03\xeax\x9b=X\xc3@\xe3\x13', 'keyId': 7498364625042276356}}, 'operationTime': Timestamp(1760385748, 6)}
+Traceback (most recent call last):
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\mongodb_kafka_streaming.py", line 623, in watch_collection
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\change_stream.py", line 323, in next
+    doc = self.try_next()
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\change_stream.py", line 381, in try_next
+    change = self._cursor._try_next(True)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\command_cursor.py", line 347, in _try_next
+    self._refresh()
+    ~~~~~~~~~~~~~^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\command_cursor.py", line 307, in _refresh
+    self._send_message(
+    ~~~~~~~~~~~~~~~~~~^
+        self._getmore_class(
+        ^^^^^^^^^^^^^^^^^^^^
+    ...<12 lines>...
+        )
+        ^
+    )
+    ^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\command_cursor.py", line 254, in _send_message
+    response = client._run_operation(
+        operation, self._unpack_response, address=self._address
+    )
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 1938, in _run_operation
+    return self._retryable_read(
+           ~~~~~~~~~~~~~~~~~~~~^
+        _cmd,
+        ^^^^^
+    ...<4 lines>...
+        operation=operation.name,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 2047, in _retryable_read
+    return self._retry_internal(
+           ~~~~~~~~~~~~~~~~~~~~^
+        func,
+        ^^^^^
+    ...<7 lines>...
+        operation_id=operation_id,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 2014, in _retry_internal
+    ).run()
+      ~~~^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 2765, in run
+    return self._read() if self._is_read else self._write()
+           ~~~~~~~~~~^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 2926, in _read
+    return self._func(self._session, self._server, conn, read_pref)  # type: ignore
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 1929, in _cmd
+    return server.run_operation(
+           ~~~~~~~~~~~~~~~~~~~~^
+        conn,
+        ^^^^^
+    ...<4 lines>...
+        self,
+        ^^^^^
+    )
+    ^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\helpers.py", line 47, in inner
+    return func(*args, **kwargs)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\server.py", line 227, in run_operation
+    _check_command_response(first, conn.max_wire_version, pool_opts=conn.opts)  # type:ignore[has-type]
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\helpers_shared.py", line 284, in _check_command_response
+    raise OperationFailure(errmsg, code, response, max_wire_version)
+pymongo.errors.OperationFailure: Executor error during getMore :: caused by :: operation was interrupted, full error: {'ok': 0.0, 'errmsg': 'Executor error during getMore :: caused by :: operation was interrupted', 'code': 237, 'codeName': 'CursorKilled', '$clusterTime': {'clusterTime': Timestamp(1760385748, 6), 'signature': {'hash': b'_r4f1\xae9\xd1\xa5\x12\x03\xeax\x9b=X\xc3@\xe3\x13', 'keyId': 7498364625042276356}}, 'operationTime': Timestamp(1760385748, 6)}
+2025-10-13 22:02:31,921 - ClearVuePipeline - INFO - Change stream closed: Sales_flat
+2025-10-13 22:02:31,968 - ClearVuePipeline - INFO - Change stream closed: Payments_flat
+2025-10-13 22:02:32,721 - ClearVuePipeline - ERROR - MongoDB error for Purchases_flat: Executor error during getMore :: caused by :: operation was interrupted, full error: {'ok': 0.0, 'errmsg': 'Executor error during getMore :: caused by :: operation was interrupted', 'code': 237, 'codeName': 'CursorKilled', '$clusterTime': {'clusterTime': Timestamp(1760385749, 4), 'signature': {'hash': b'\xb3Q8\xd8\xb82\xdeX\x92\xaa\xa9\xc3\xe5Rv\x11\xf2m\x12\x08', 'keyId': 7498364625042276356}}, 'operationTime': Timestamp(1760385749, 4)}
+Traceback (most recent call last):
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\mongodb_kafka_streaming.py", line 623, in watch_collection
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\change_stream.py", line 323, in next
+    doc = self.try_next()
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\change_stream.py", line 381, in try_next
+    change = self._cursor._try_next(True)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\command_cursor.py", line 347, in _try_next
+    self._refresh()
+    ~~~~~~~~~~~~~^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\command_cursor.py", line 307, in _refresh
+    self._send_message(
+    ~~~~~~~~~~~~~~~~~~^
+        self._getmore_class(
+        ^^^^^^^^^^^^^^^^^^^^
+    ...<12 lines>...
+        )
+        ^
+    )
+    ^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\command_cursor.py", line 254, in _send_message
+    response = client._run_operation(
+        operation, self._unpack_response, address=self._address
+    )
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 1938, in _run_operation
+    return self._retryable_read(
+           ~~~~~~~~~~~~~~~~~~~~^
+        _cmd,
+        ^^^^^
+    ...<4 lines>...
+        operation=operation.name,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 2047, in _retryable_read
+    return self._retry_internal(
+           ~~~~~~~~~~~~~~~~~~~~^
+        func,
+        ^^^^^
+    ...<7 lines>...
+        operation_id=operation_id,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 2014, in _retry_internal
+    ).run()
+      ~~~^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 2765, in run
+    return self._read() if self._is_read else self._write()
+           ~~~~~~~~~~^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 2926, in _read
+    return self._func(self._session, self._server, conn, read_pref)  # type: ignore
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 1929, in _cmd
+    return server.run_operation(
+           ~~~~~~~~~~~~~~~~~~~~^
+        conn,
+        ^^^^^
+    ...<4 lines>...
+        self,
+        ^^^^^
+    )
+    ^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\helpers.py", line 47, in inner
+    return func(*args, **kwargs)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\server.py", line 227, in run_operation
+    _check_command_response(first, conn.max_wire_version, pool_opts=conn.opts)  # type:ignore[has-type]
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\helpers_shared.py", line 284, in _check_command_response
+    raise OperationFailure(errmsg, code, response, max_wire_version)
+pymongo.errors.OperationFailure: Executor error during getMore :: caused by :: operation was interrupted, full error: {'ok': 0.0, 'errmsg': 'Executor error during getMore :: caused by :: operation was interrupted', 'code': 237, 'codeName': 'CursorKilled', '$clusterTime': {'clusterTime': Timestamp(1760385749, 4), 'signature': {'hash': b'\xb3Q8\xd8\xb82\xdeX\x92\xaa\xa9\xc3\xe5Rv\x11\xf2m\x12\x08', 'keyId': 7498364625042276356}}, 'operationTime': Timestamp(1760385749, 4)}
+2025-10-13 22:02:32,726 - ClearVuePipeline - INFO - Change stream closed: Purchases_flat
+2025-10-13 22:02:33,138 - ClearVuePipeline - ERROR - MongoDB error for Products_flat: Executor error during getMore :: caused by :: operation was interrupted, full error: {'ok': 0.0, 'errmsg': 'Executor error during getMore :: caused by :: operation was interrupted', 'code': 237, 'codeName': 'CursorKilled', '$clusterTime': {'clusterTime': Timestamp(1760385749, 8), 'signature': {'hash': b'\xb3Q8\xd8\xb82\xdeX\x92\xaa\xa9\xc3\xe5Rv\x11\xf2m\x12\x08', 'keyId': 7498364625042276356}}, 'operationTime': Timestamp(1760385749, 8)}
+Traceback (most recent call last):
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\mongodb_kafka_streaming.py", line 623, in watch_collection
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\change_stream.py", line 323, in next
+    doc = self.try_next()
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\change_stream.py", line 381, in try_next
+    change = self._cursor._try_next(True)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\command_cursor.py", line 347, in _try_next
+    self._refresh()
+    ~~~~~~~~~~~~~^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\command_cursor.py", line 307, in _refresh
+    self._send_message(
+    ~~~~~~~~~~~~~~~~~~^
+        self._getmore_class(
+        ^^^^^^^^^^^^^^^^^^^^
+    ...<12 lines>...
+        )
+        ^
+    )
+    ^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\command_cursor.py", line 254, in _send_message
+    response = client._run_operation(
+        operation, self._unpack_response, address=self._address
+    )
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 1938, in _run_operation
+    return self._retryable_read(
+           ~~~~~~~~~~~~~~~~~~~~^
+        _cmd,
+        ^^^^^
+    ...<4 lines>...
+        operation=operation.name,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 2047, in _retryable_read
+    return self._retry_internal(
+           ~~~~~~~~~~~~~~~~~~~~^
+        func,
+        ^^^^^
+    ...<7 lines>...
+        operation_id=operation_id,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 2014, in _retry_internal
+    ).run()
+      ~~~^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 2765, in run
+    return self._read() if self._is_read else self._write()
+           ~~~~~~~~~~^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 2926, in _read
+    return self._func(self._session, self._server, conn, read_pref)  # type: ignore
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 1929, in _cmd
+    return server.run_operation(
+           ~~~~~~~~~~~~~~~~~~~~^
+        conn,
+        ^^^^^
+    ...<4 lines>...
+        self,
+        ^^^^^
+    )
+    ^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\helpers.py", line 47, in inner
+    return func(*args, **kwargs)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\server.py", line 227, in run_operation
+    _check_command_response(first, conn.max_wire_version, pool_opts=conn.opts)  # type:ignore[has-type]
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\helpers_shared.py", line 284, in _check_command_response
+    raise OperationFailure(errmsg, code, response, max_wire_version)
+pymongo.errors.OperationFailure: Executor error during getMore :: caused by :: operation was interrupted, full error: {'ok': 0.0, 'errmsg': 'Executor error during getMore :: caused by :: operation was interrupted', 'code': 237, 'codeName': 'CursorKilled', '$clusterTime': {'clusterTime': Timestamp(1760385749, 8), 'signature': {'hash': b'\xb3Q8\xd8\xb82\xdeX\x92\xaa\xa9\xc3\xe5Rv\x11\xf2m\x12\x08', 'keyId': 7498364625042276356}}, 'operationTime': Timestamp(1760385749, 8)}
+2025-10-13 22:02:33,146 - ClearVuePipeline - INFO - Change stream closed: Products_flat
+2025-10-13 22:02:33,878 - ClearVuePipeline - ERROR - MongoDB error for Customer_flat_step2: Executor error during getMore :: caused by :: operation was interrupted, full error: {'ok': 0.0, 'errmsg': 'Executor error during getMore :: caused by :: operation was interrupted', 'code': 237, 'codeName': 'CursorKilled', '$clusterTime': {'clusterTime': Timestamp(1760385750, 5), 'signature': {'hash': b'\xf1Fk\xb3M\x93\x1e[o\xe0\xba\xa5\xe9\xabn\x94=/f\x8a', 'keyId': 7498364625042276356}}, 'operationTime': Timestamp(1760385750, 5)}
+Traceback (most recent call last):
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\mongodb_kafka_streaming.py", line 623, in watch_collection
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\change_stream.py", line 323, in next
+    doc = self.try_next()
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\change_stream.py", line 381, in try_next
+    change = self._cursor._try_next(True)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\command_cursor.py", line 347, in _try_next
+    self._refresh()
+    ~~~~~~~~~~~~~^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\command_cursor.py", line 307, in _refresh
+    self._send_message(
+    ~~~~~~~~~~~~~~~~~~^
+        self._getmore_class(
+        ^^^^^^^^^^^^^^^^^^^^
+    ...<12 lines>...
+        )
+        ^
+    )
+    ^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\command_cursor.py", line 254, in _send_message
+    response = client._run_operation(
+        operation, self._unpack_response, address=self._address
+    )
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 1938, in _run_operation
+    return self._retryable_read(
+           ~~~~~~~~~~~~~~~~~~~~^
+        _cmd,
+        ^^^^^
+    ...<4 lines>...
+        operation=operation.name,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 2047, in _retryable_read
+    return self._retry_internal(
+           ~~~~~~~~~~~~~~~~~~~~^
+        func,
+        ^^^^^
+    ...<7 lines>...
+        operation_id=operation_id,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 2014, in _retry_internal
+    ).run()
+      ~~~^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 2765, in run
+    return self._read() if self._is_read else self._write()
+           ~~~~~~~~~~^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 2926, in _read
+    return self._func(self._session, self._server, conn, read_pref)  # type: ignore
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 1929, in _cmd
+    return server.run_operation(
+           ~~~~~~~~~~~~~~~~~~~~^
+        conn,
+        ^^^^^
+    ...<4 lines>...
+        self,
+        ^^^^^
+    )
+    ^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\helpers.py", line 47, in inner
+    return func(*args, **kwargs)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\server.py", line 227, in run_operation
+    _check_command_response(first, conn.max_wire_version, pool_opts=conn.opts)  # type:ignore[has-type]
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\helpers_shared.py", line 284, in _check_command_response
+    raise OperationFailure(errmsg, code, response, max_wire_version)
+pymongo.errors.OperationFailure: Executor error during getMore :: caused by :: operation was interrupted, full error: {'ok': 0.0, 'errmsg': 'Executor error during getMore :: caused by :: operation was interrupted', 'code': 237, 'codeName': 'CursorKilled', '$clusterTime': {'clusterTime': Timestamp(1760385750, 5), 'signature': {'hash': b'\xf1Fk\xb3M\x93\x1e[o\xe0\xba\xa5\xe9\xabn\x94=/f\x8a', 'keyId': 7498364625042276356}}, 'operationTime': Timestamp(1760385750, 5)}
+2025-10-13 22:02:33,884 - ClearVuePipeline - INFO - Change stream closed: Customer_flat_step2
+2025-10-13 22:02:34,945 - ClearVuePipeline - INFO - Change stream closed: Suppliers
+2025-10-13 22:02:35,342 - kafka.producer.kafka - INFO - <KafkaProducer client_id=kafka-python-producer-1 transactional_id=None>: Closing the Kafka producer with 4294967.0 secs timeout.
+2025-10-13 22:02:35,343 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=1 host=localhost:29092 <connected> [IPv6 ('::1', 29092, 0, 0)]>: Closing connection. 
+2025-10-13 22:02:35,345 - ClearVuePipeline - INFO - Kafka producer closed
+2025-10-13 22:02:35,846 - ClearVuePipeline - INFO - MongoDB connection closed
+2025-10-13 22:02:35,848 - ClearVuePipeline - INFO - Pipeline stopped
+2025-10-13 22:02:35,849 - ClearVuePipeline - INFO - Stopping pipeline...
+2025-10-13 22:02:35,849 - kafka.producer.kafka - INFO - <KafkaProducer client_id=kafka-python-producer-1 transactional_id=None>: Kafka producer closed
+2025-10-13 22:02:35,851 - ClearVuePipeline - INFO - Kafka producer closed
+2025-10-13 22:02:35,851 - ClearVuePipeline - INFO - MongoDB connection closed
+2025-10-13 22:02:47,366 - ClearVuePipeline - INFO - Initializing ClearVue Streaming Pipeline...
+2025-10-13 22:02:52,263 - ClearVuePipeline - INFO - Connected to MongoDB: Nova_Analytix
+2025-10-13 22:02:52,267 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=bootstrap-0 host=localhost:29092 <connecting> [IPv6 ('::1', 29092, 0, 0)]>: connecting to localhost:29092 [('::1', 29092, 0, 0) IPv6]
+2025-10-13 22:02:52,301 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=bootstrap-0 host=localhost:29092 <checking_api_versions_recv> [IPv6 ('::1', 29092, 0, 0)]>: Broker version identified as 2.6
+2025-10-13 22:02:52,301 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=bootstrap-0 host=localhost:29092 <connected> [IPv6 ('::1', 29092, 0, 0)]>: Connection complete.
+2025-10-13 22:02:52,305 - ClearVuePipeline - INFO - Kafka producer initialized
+2025-10-13 22:02:52,305 - ClearVuePipeline - INFO - Pipeline initialized successfully
+2025-10-13 22:02:52,310 - kafka.conn - INFO - <BrokerConnection client_id=clearvue_pipeline_admin, node_id=bootstrap-0 host=localhost:29092 <connecting> [IPv6 ('::1', 29092, 0, 0)]>: connecting to localhost:29092 [('::1', 29092, 0, 0) IPv6]
+2025-10-13 22:02:52,323 - kafka.conn - INFO - <BrokerConnection client_id=clearvue_pipeline_admin, node_id=bootstrap-0 host=localhost:29092 <checking_api_versions_recv> [IPv6 ('::1', 29092, 0, 0)]>: Broker version identified as 2.6
+2025-10-13 22:02:52,324 - kafka.conn - INFO - <BrokerConnection client_id=clearvue_pipeline_admin, node_id=bootstrap-0 host=localhost:29092 <connected> [IPv6 ('::1', 29092, 0, 0)]>: Connection complete.
+2025-10-13 22:02:52,331 - kafka.conn - INFO - <BrokerConnection client_id=clearvue_pipeline_admin, node_id=1 host=localhost:29092 <connecting> [IPv6 ('::1', 29092, 0, 0)]>: connecting to localhost:29092 [('::1', 29092, 0, 0) IPv6]
+2025-10-13 22:02:52,332 - kafka.conn - INFO - <BrokerConnection client_id=clearvue_pipeline_admin, node_id=1 host=localhost:29092 <connected> [IPv6 ('::1', 29092, 0, 0)]>: Connection complete.
+2025-10-13 22:02:52,333 - kafka.conn - INFO - <BrokerConnection client_id=clearvue_pipeline_admin, node_id=bootstrap-0 host=localhost:29092 <connected> [IPv6 ('::1', 29092, 0, 0)]>: Closing connection. 
+2025-10-13 22:02:52,344 - ClearVuePipeline - INFO - All topics exist
+2025-10-13 22:02:52,345 - kafka.conn - INFO - <BrokerConnection client_id=clearvue_pipeline_admin, node_id=1 host=localhost:29092 <connected> [IPv6 ('::1', 29092, 0, 0)]>: Closing connection. 
+2025-10-13 22:02:52,346 - ClearVuePipeline - INFO - Started change stream: Sales_flat
+2025-10-13 22:02:52,347 - ClearVuePipeline - INFO - Started change stream: Payments_flat
+2025-10-13 22:02:52,347 - ClearVuePipeline - INFO - Started change stream: Purchases_flat
+2025-10-13 22:02:52,348 - ClearVuePipeline - INFO - Pipeline started with 3 watchers
+2025-10-13 22:02:57,481 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=1 host=localhost:29092 <connecting> [IPv6 ('::1', 29092, 0, 0)]>: connecting to localhost:29092 [('::1', 29092, 0, 0) IPv6]
+2025-10-13 22:02:57,487 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=1 host=localhost:29092 <connected> [IPv6 ('::1', 29092, 0, 0)]>: Connection complete.
+2025-10-13 22:02:57,496 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=bootstrap-0 host=localhost:29092 <connected> [IPv6 ('::1', 29092, 0, 0)]>: Closing connection. 
+2025-10-13 22:02:58,496 - ClearVuePipeline - ERROR - Power BI push failed (404): {"error":{"code":"ItemNotFound","message":"Column '<pi>timestamp</pi>' was not found in specified table, dataset 'sobe_wowvirtualserver|7bd18a13-0815-4cbf-bb41-84ab2a2383bc'"}}
+2025-10-13 22:09:19,976 - ClearVuePipeline - INFO - Shutdown signal received
+2025-10-13 22:09:19,978 - ClearVuePipeline - INFO - Stopping pipeline...
+2025-10-13 22:09:20,417 - ClearVuePipeline - ERROR - MongoDB error for Sales_flat: Executor error during getMore :: caused by :: operation was interrupted, full error: {'ok': 0.0, 'errmsg': 'Executor error during getMore :: caused by :: operation was interrupted', 'code': 237, 'codeName': 'CursorKilled', '$clusterTime': {'clusterTime': Timestamp(1760386157, 2), 'signature': {'hash': b'l(\xa3\x92\x10\x9c\xe9]\x06q\xe3\xb2w<\x17#\xd2uu1', 'keyId': 7498364625042276356}}, 'operationTime': Timestamp(1760386157, 2)}
+Traceback (most recent call last):
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\mongodb_kafka_streaming.py", line 620, in watch_collection
+    """Watch a specific collection for changes using MongoDB Change Streams"""
+                          ^^^^^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\change_stream.py", line 323, in next
+    doc = self.try_next()
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\change_stream.py", line 381, in try_next
+    change = self._cursor._try_next(True)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\command_cursor.py", line 347, in _try_next
+    self._refresh()
+    ~~~~~~~~~~~~~^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\command_cursor.py", line 307, in _refresh
+    self._send_message(
+    ~~~~~~~~~~~~~~~~~~^
+        self._getmore_class(
+        ^^^^^^^^^^^^^^^^^^^^
+    ...<12 lines>...
+        )
+        ^
+    )
+    ^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\command_cursor.py", line 254, in _send_message
+    response = client._run_operation(
+        operation, self._unpack_response, address=self._address
+    )
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 1938, in _run_operation
+    return self._retryable_read(
+           ~~~~~~~~~~~~~~~~~~~~^
+        _cmd,
+        ^^^^^
+    ...<4 lines>...
+        operation=operation.name,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 2047, in _retryable_read
+    return self._retry_internal(
+           ~~~~~~~~~~~~~~~~~~~~^
+        func,
+        ^^^^^
+    ...<7 lines>...
+        operation_id=operation_id,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 2014, in _retry_internal
+    ).run()
+      ~~~^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 2765, in run
+    return self._read() if self._is_read else self._write()
+           ~~~~~~~~~~^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 2926, in _read
+    return self._func(self._session, self._server, conn, read_pref)  # type: ignore
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 1929, in _cmd
+    return server.run_operation(
+           ~~~~~~~~~~~~~~~~~~~~^
+        conn,
+        ^^^^^
+    ...<4 lines>...
+        self,
+        ^^^^^
+    )
+    ^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\helpers.py", line 47, in inner
+    return func(*args, **kwargs)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\server.py", line 227, in run_operation
+    _check_command_response(first, conn.max_wire_version, pool_opts=conn.opts)  # type:ignore[has-type]
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\helpers_shared.py", line 284, in _check_command_response
+    raise OperationFailure(errmsg, code, response, max_wire_version)
+pymongo.errors.OperationFailure: Executor error during getMore :: caused by :: operation was interrupted, full error: {'ok': 0.0, 'errmsg': 'Executor error during getMore :: caused by :: operation was interrupted', 'code': 237, 'codeName': 'CursorKilled', '$clusterTime': {'clusterTime': Timestamp(1760386157, 2), 'signature': {'hash': b'l(\xa3\x92\x10\x9c\xe9]\x06q\xe3\xb2w<\x17#\xd2uu1', 'keyId': 7498364625042276356}}, 'operationTime': Timestamp(1760386157, 2)}
+2025-10-13 22:09:20,438 - ClearVuePipeline - INFO - Change stream closed: Sales_flat
+2025-10-13 22:09:20,516 - ClearVuePipeline - INFO - Change stream closed: Purchases_flat
+2025-10-13 22:09:21,231 - ClearVuePipeline - ERROR - MongoDB error for Payments_flat: Executor error during getMore :: caused by :: operation was interrupted, full error: {'ok': 0.0, 'errmsg': 'Executor error during getMore :: caused by :: operation was interrupted', 'code': 237, 'codeName': 'CursorKilled', '$clusterTime': {'clusterTime': Timestamp(1760386157, 8), 'signature': {'hash': b'l(\xa3\x92\x10\x9c\xe9]\x06q\xe3\xb2w<\x17#\xd2uu1', 'keyId': 7498364625042276356}}, 'operationTime': Timestamp(1760386157, 8)}
+Traceback (most recent call last):
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\mongodb_kafka_streaming.py", line 620, in watch_collection
+    """Watch a specific collection for changes using MongoDB Change Streams"""
+                          ^^^^^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\change_stream.py", line 323, in next
+    doc = self.try_next()
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\change_stream.py", line 381, in try_next
+    change = self._cursor._try_next(True)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\command_cursor.py", line 347, in _try_next
+    self._refresh()
+    ~~~~~~~~~~~~~^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\command_cursor.py", line 307, in _refresh
+    self._send_message(
+    ~~~~~~~~~~~~~~~~~~^
+        self._getmore_class(
+        ^^^^^^^^^^^^^^^^^^^^
+    ...<12 lines>...
+        )
+        ^
+    )
+    ^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\command_cursor.py", line 254, in _send_message
+    response = client._run_operation(
+        operation, self._unpack_response, address=self._address
+    )
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 1938, in _run_operation
+    return self._retryable_read(
+           ~~~~~~~~~~~~~~~~~~~~^
+        _cmd,
+        ^^^^^
+    ...<4 lines>...
+        operation=operation.name,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 2047, in _retryable_read
+    return self._retry_internal(
+           ~~~~~~~~~~~~~~~~~~~~^
+        func,
+        ^^^^^
+    ...<7 lines>...
+        operation_id=operation_id,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 2014, in _retry_internal
+    ).run()
+      ~~~^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 2765, in run
+    return self._read() if self._is_read else self._write()
+           ~~~~~~~~~~^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 2926, in _read
+    return self._func(self._session, self._server, conn, read_pref)  # type: ignore
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\mongo_client.py", line 1929, in _cmd
+    return server.run_operation(
+           ~~~~~~~~~~~~~~~~~~~~^
+        conn,
+        ^^^^^
+    ...<4 lines>...
+        self,
+        ^^^^^
+    )
+    ^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\helpers.py", line 47, in inner
+    return func(*args, **kwargs)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\synchronous\server.py", line 227, in run_operation
+    _check_command_response(first, conn.max_wire_version, pool_opts=conn.opts)  # type:ignore[has-type]
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\pymongo\helpers_shared.py", line 284, in _check_command_response
+    raise OperationFailure(errmsg, code, response, max_wire_version)
+pymongo.errors.OperationFailure: Executor error during getMore :: caused by :: operation was interrupted, full error: {'ok': 0.0, 'errmsg': 'Executor error during getMore :: caused by :: operation was interrupted', 'code': 237, 'codeName': 'CursorKilled', '$clusterTime': {'clusterTime': Timestamp(1760386157, 8), 'signature': {'hash': b'l(\xa3\x92\x10\x9c\xe9]\x06q\xe3\xb2w<\x17#\xd2uu1', 'keyId': 7498364625042276356}}, 'operationTime': Timestamp(1760386157, 8)}
+2025-10-13 22:09:21,238 - kafka.producer.kafka - INFO - <KafkaProducer client_id=kafka-python-producer-1 transactional_id=None>: Closing the Kafka producer with 4294967.0 secs timeout.
+2025-10-13 22:09:21,239 - ClearVuePipeline - INFO - Change stream closed: Payments_flat
+2025-10-13 22:09:21,241 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=1 host=localhost:29092 <connected> [IPv6 ('::1', 29092, 0, 0)]>: Closing connection. 
+2025-10-13 22:09:21,242 - ClearVuePipeline - INFO - Kafka producer closed
+2025-10-13 22:09:21,655 - ClearVuePipeline - INFO - MongoDB connection closed
+2025-10-13 22:09:21,658 - ClearVuePipeline - INFO - Pipeline stopped
+2025-10-13 22:09:21,659 - ClearVuePipeline - INFO - Stopping pipeline...
+2025-10-13 22:09:21,659 - kafka.producer.kafka - INFO - <KafkaProducer client_id=kafka-python-producer-1 transactional_id=None>: Kafka producer closed
+2025-10-13 22:09:21,660 - ClearVuePipeline - INFO - Kafka producer closed
+2025-10-13 22:09:21,661 - ClearVuePipeline - INFO - MongoDB connection closed
+2025-10-13 22:09:31,294 - ClearVuePipeline - INFO - Initializing ClearVue Streaming Pipeline...
+2025-10-13 22:09:35,871 - ClearVuePipeline - INFO - Connected to MongoDB: Nova_Analytix
+2025-10-13 22:09:35,875 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=bootstrap-0 host=localhost:29092 <connecting> [IPv6 ('::1', 29092, 0, 0)]>: connecting to localhost:29092 [('::1', 29092, 0, 0) IPv6]
+2025-10-13 22:09:35,913 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=bootstrap-0 host=localhost:29092 <checking_api_versions_recv> [IPv6 ('::1', 29092, 0, 0)]>: Broker version identified as 2.6
+2025-10-13 22:09:35,913 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=bootstrap-0 host=localhost:29092 <connected> [IPv6 ('::1', 29092, 0, 0)]>: Connection complete.
+2025-10-13 22:09:35,916 - ClearVuePipeline - INFO - Kafka producer initialized
+2025-10-13 22:09:35,916 - ClearVuePipeline - INFO - Pipeline initialized successfully
+2025-10-13 22:09:35,918 - ClearVuePipeline - ERROR - Fatal error: 'ClearVueStreamingPipeline' object has no attribute 'start_pipeline'
+Traceback (most recent call last):
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\mongodb_kafka_streaming.py", line 883, in main
+    pipeline.start_pipeline(collections=['Sales_flat', 'Payments_flat', 'Purchases_flat'])
+    ^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'ClearVueStreamingPipeline' object has no attribute 'start_pipeline'
+2025-10-13 22:09:35,924 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=bootstrap-0 host=localhost:29092 <connected> [IPv6 ('::1', 29092, 0, 0)]>: Closing connection. 
+2025-10-13 22:10:14,117 - ClearVuePipeline - INFO - Initializing ClearVue Streaming Pipeline...
+2025-10-13 22:10:18,792 - ClearVuePipeline - INFO - Connected to MongoDB: Nova_Analytix
+2025-10-13 22:10:18,796 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=bootstrap-0 host=localhost:29092 <connecting> [IPv6 ('::1', 29092, 0, 0)]>: connecting to localhost:29092 [('::1', 29092, 0, 0) IPv6]
+2025-10-13 22:10:18,814 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=bootstrap-0 host=localhost:29092 <checking_api_versions_recv> [IPv6 ('::1', 29092, 0, 0)]>: Broker version identified as 2.6
+2025-10-13 22:10:18,815 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=bootstrap-0 host=localhost:29092 <connected> [IPv6 ('::1', 29092, 0, 0)]>: Connection complete.
+2025-10-13 22:10:18,819 - ClearVuePipeline - INFO - Kafka producer initialized
+2025-10-13 22:10:18,819 - ClearVuePipeline - INFO - Pipeline initialized successfully
+2025-10-13 22:10:18,825 - kafka.conn - INFO - <BrokerConnection client_id=clearvue_pipeline_admin, node_id=bootstrap-0 host=localhost:29092 <connecting> [IPv6 ('::1', 29092, 0, 0)]>: connecting to localhost:29092 [('::1', 29092, 0, 0) IPv6]
+2025-10-13 22:10:18,836 - kafka.conn - INFO - <BrokerConnection client_id=clearvue_pipeline_admin, node_id=bootstrap-0 host=localhost:29092 <checking_api_versions_recv> [IPv6 ('::1', 29092, 0, 0)]>: Broker version identified as 2.6
+2025-10-13 22:10:18,837 - kafka.conn - INFO - <BrokerConnection client_id=clearvue_pipeline_admin, node_id=bootstrap-0 host=localhost:29092 <connected> [IPv6 ('::1', 29092, 0, 0)]>: Connection complete.
+2025-10-13 22:10:18,846 - kafka.conn - INFO - <BrokerConnection client_id=clearvue_pipeline_admin, node_id=1 host=localhost:29092 <connecting> [IPv6 ('::1', 29092, 0, 0)]>: connecting to localhost:29092 [('::1', 29092, 0, 0) IPv6]
+2025-10-13 22:10:18,847 - kafka.conn - INFO - <BrokerConnection client_id=clearvue_pipeline_admin, node_id=1 host=localhost:29092 <connected> [IPv6 ('::1', 29092, 0, 0)]>: Connection complete.
+2025-10-13 22:10:18,847 - kafka.conn - INFO - <BrokerConnection client_id=clearvue_pipeline_admin, node_id=bootstrap-0 host=localhost:29092 <connected> [IPv6 ('::1', 29092, 0, 0)]>: Closing connection. 
+2025-10-13 22:10:18,860 - ClearVuePipeline - INFO - All topics exist
+2025-10-13 22:10:18,861 - kafka.conn - INFO - <BrokerConnection client_id=clearvue_pipeline_admin, node_id=1 host=localhost:29092 <connected> [IPv6 ('::1', 29092, 0, 0)]>: Closing connection. 
+2025-10-13 22:10:18,863 - ClearVuePipeline - INFO - Started change stream: Sales_flat
+2025-10-13 22:10:18,864 - ClearVuePipeline - INFO - Started change stream: Payments_flat
+2025-10-13 22:10:18,865 - ClearVuePipeline - INFO - Started change stream: Purchases_flat
+2025-10-13 22:10:18,867 - ClearVuePipeline - INFO - Pipeline started with 3 watchers
+2025-10-13 22:10:42,475 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=1 host=localhost:29092 <connecting> [IPv6 ('::1', 29092, 0, 0)]>: connecting to localhost:29092 [('::1', 29092, 0, 0) IPv6]
+2025-10-13 22:10:42,476 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=1 host=localhost:29092 <connected> [IPv6 ('::1', 29092, 0, 0)]>: Connection complete.
+2025-10-13 22:10:42,477 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=bootstrap-0 host=localhost:29092 <connected> [IPv6 ('::1', 29092, 0, 0)]>: Closing connection. 
+2025-10-13 22:10:43,489 - ClearVuePipeline - ERROR - Power BI push failed (400): {"error":{"code":"InvalidRequest","message":"Error parsing request for dataset sobe_wowvirtualserver|7bd18a13-0815-4cbf-bb41-84ab2a2383bc: Error encountered by JSON parser when reading input data for column '<pi>FIN_PERIOD</pi>': <pi>Unexpected character encountered while parsing value: 2. Path '[0].FIN_PERIOD', line 1, position 196.</pi>"}}
