@@ -182,3 +182,35 @@ AssertionError: Libraries for snappy compression codec not found
 2025-10-11 14:36:24,652 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=1 host=localhost:29092 <connecting> [IPv6 ('::1', 29092, 0, 0)]>: connecting to localhost:29092 [('::1', 29092, 0, 0) IPv6]
 2025-10-11 14:36:24,653 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=1 host=localhost:29092 <connected> [IPv6 ('::1', 29092, 0, 0)]>: Connection complete.
 2025-10-11 14:36:24,653 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=bootstrap-0 host=localhost:29092 <connected> [IPv6 ('::1', 29092, 0, 0)]>: Closing connection. 
+2025-10-13 13:44:02,466 - ClearVuePipeline - INFO - Initializing ClearVue Streaming Pipeline...
+2025-10-13 13:44:07,585 - ClearVuePipeline - INFO - Connected to MongoDB: Nova_Analytix
+2025-10-13 13:44:07,589 - kafka.conn - INFO - <BrokerConnection client_id=kafka-python-producer-1, node_id=bootstrap-0 host=localhost:29092 <connecting> [IPv6 ('::1', 29092, 0, 0)]>: connecting to localhost:29092 [('::1', 29092, 0, 0) IPv6]
+2025-10-13 13:44:09,597 - ClearVuePipeline - ERROR - Kafka setup failed: NoBrokersAvailable
+2025-10-13 13:44:09,598 - ClearVuePipeline - ERROR - Fatal error: NoBrokersAvailable
+Traceback (most recent call last):
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\mongodb_kafka_streaming.py", line 771, in main
+    pipeline = ClearVueStreamingPipeline()
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\mongodb_kafka_streaming.py", line 78, in __init__
+    self._setup_kafka_producer()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\mongodb_kafka_streaming.py", line 155, in _setup_kafka_producer
+    self.kafka_producer = KafkaProducer(
+                          ~~~~~~~~~~~~~^
+        bootstrap_servers=self.kafka_servers,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+        **ClearVueConfig.KAFKA_PRODUCER_CONFIG
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\kafka\producer\kafka.py", line 481, in __init__
+    client = self.config['kafka_client'](
+        metrics=self._metrics, metric_group_prefix='producer',
+        wakeup_timeout_ms=self.config['max_block_ms'],
+        **self.config)
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\kafka\client_async.py", line 262, in __init__
+    self.config['api_version'] = self.check_version()
+                                 ~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\caitl\CMPG321 Project\Streaming Pipeline\.venv\Lib\site-packages\kafka\client_async.py", line 1074, in check_version
+    raise Errors.NoBrokersAvailable()
+kafka.errors.NoBrokersAvailable: NoBrokersAvailable
