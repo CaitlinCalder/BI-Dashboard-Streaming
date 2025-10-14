@@ -333,41 +333,115 @@ async def home():
     <!DOCTYPE html>
     <html>
     <head>
-        <title>ClearVue Platform</title>
+        <title>ClearVue Platform - Real-time Business Intelligence</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <style>
-            * { margin: 0; padding: 0; box-sizing: border-box; }
+            * { 
+                margin: 0; 
+                padding: 0; 
+                box-sizing: border-box; 
+            }
             
             body {
-                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+                background: linear-gradient(135deg, #1a2947 0%, #2d4a7c 50%, #3b82f6 100%);
                 min-height: 100vh;
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 padding: 20px;
+                position: relative;
+                overflow: hidden;
+            }
+            
+            /* Animated background elements */
+            .bg-glow {
+                position: absolute;
+                border-radius: 50%;
+                filter: blur(100px);
+                opacity: 0.3;
+                animation: glow 4s ease-in-out infinite;
+            }
+            
+            .bg-glow-1 {
+                top: -20%;
+                left: -20%;
+                width: 60%;
+                height: 60%;
+                background: #3b82f6;
+            }
+            
+            .bg-glow-2 {
+                bottom: -20%;
+                right: -20%;
+                width: 60%;
+                height: 60%;
+                background: #1e3a8a;
+                animation-delay: 2s;
+            }
+            
+            @keyframes glow {
+                0%, 100% { opacity: 0.3; transform: scale(1); }
+                50% { opacity: 0.15; transform: scale(1.1); }
             }
             
             .container {
-                background: white;
-                padding: 60px;
-                border-radius: 12px;
-                box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+                position: relative;
+                background: rgba(255, 255, 255, 0.95);
+                backdrop-filter: blur(20px);
+                padding: 60px 80px;
+                border-radius: 24px;
+                box-shadow: 0 25px 80px rgba(0, 0, 0, 0.4), 0 0 60px rgba(59, 130, 246, 0.3);
                 text-align: center;
-                max-width: 600px;
+                max-width: 900px;
+                width: 100%;
+                animation: fadeUp 0.8s ease-out;
+            }
+            
+            @keyframes fadeUp {
+                from {
+                    opacity: 0;
+                    transform: translateY(30px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
             }
             
             h1 {
-                font-size: 42px;
-                color: #1e3c72;
-                margin-bottom: 15px;
-                font-weight: 600;
+                font-size: 56px;
+                font-weight: 700;
+                margin-bottom: 20px;
+                background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 50%, #60a5fa 100%);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+                background-size: 200% auto;
+                animation: shimmer 3s linear infinite;
+                letter-spacing: -0.02em;
+            }
+            
+            @keyframes shimmer {
+                0% { background-position: 0% center; }
+                100% { background-position: 200% center; }
             }
             
             p {
-                font-size: 16px;
-                color: #666;
-                margin-bottom: 40px;
+                font-size: 18px;
+                color: #64748b;
+                margin-bottom: 50px;
                 line-height: 1.6;
+                max-width: 600px;
+                margin-left: auto;
+                margin-right: auto;
+                animation: fadeIn 0.6s ease-out 0.2s backwards;
+            }
+            
+            @keyframes fadeIn {
+                from { opacity: 0; }
+                to { opacity: 1; }
             }
             
             .buttons {
@@ -375,54 +449,182 @@ async def home():
                 gap: 20px;
                 justify-content: center;
                 flex-wrap: wrap;
+                animation: fadeIn 0.6s ease-out 0.4s backwards;
             }
             
             .btn {
-                padding: 18px 36px;
+                padding: 18px 40px;
                 font-size: 16px;
                 font-weight: 600;
                 border: none;
-                border-radius: 8px;
+                border-radius: 12px;
                 cursor: pointer;
-                transition: all 0.3s;
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
                 text-decoration: none;
-                display: inline-block;
+                display: inline-flex;
+                align-items: center;
+                gap: 10px;
                 color: white;
-                letter-spacing: 0.5px;
+                letter-spacing: 0.3px;
+                position: relative;
+                overflow: hidden;
+            }
+            
+            .btn::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: -100%;
+                width: 100%;
+                height: 100%;
+                background: rgba(255, 255, 255, 0.2);
+                transition: left 0.5s;
+            }
+            
+            .btn:hover::before {
+                left: 100%;
             }
             
             .btn:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+                transform: translateY(-3px);
+                box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25), 0 0 40px rgba(59, 130, 246, 0.4);
+            }
+            
+            .btn:active {
+                transform: translateY(-1px);
             }
             
             .btn-dashboard {
-                background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+                background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
             }
             
             .btn-simulator {
-                background: linear-gradient(135deg, #0575E6 0%, #021B79 100%);
+                background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
+            }
+            
+            .icon {
+                width: 20px;
+                height: 20px;
+            }
+            
+            .arrow {
+                transition: transform 0.3s;
+            }
+            
+            .btn:hover .arrow {
+                transform: translateX(4px);
+            }
+            
+            .features {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+                gap: 20px;
+                margin-top: 60px;
+                animation: fadeIn 0.6s ease-out 0.6s backwards;
+            }
+            
+            .feature-card {
+                padding: 24px;
+                background: rgba(241, 245, 249, 0.5);
+                border-radius: 16px;
+                transition: all 0.3s;
+                text-align: left;
+            }
+            
+            .feature-card:hover {
+                background: rgba(241, 245, 249, 0.8);
+                transform: translateY(-2px);
+                box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+            }
+            
+            .feature-card h3 {
+                font-size: 16px;
+                color: #1e3a8a;
+                margin-bottom: 8px;
+                font-weight: 600;
+                transition: color 0.3s;
+            }
+            
+            .feature-card:hover h3 {
+                color: #3b82f6;
+            }
+            
+            .feature-card p {
+                font-size: 14px;
+                color: #64748b;
+                margin: 0;
+                line-height: 1.5;
+            }
+            
+            @media (max-width: 768px) {
+                .container {
+                    padding: 40px 30px;
+                }
+                
+                h1 {
+                    font-size: 36px;
+                }
+                
+                p {
+                    font-size: 16px;
+                }
+                
+                .buttons {
+                    flex-direction: column;
+                }
+                
+                .btn {
+                    width: 100%;
+                }
             }
         </style>
     </head>
     <body>
+        <div class="bg-glow bg-glow-1"></div>
+        <div class="bg-glow bg-glow-2"></div>
+        
         <div class="container">
             <h1>ClearVue Platform</h1>
             <p>Real-time Business Intelligence & Data Generation</p>
             
             <div class="buttons">
                 <a href="/dashboard" class="btn btn-dashboard">
+                    <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
                     View Dashboards
+                    <svg class="icon arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
                 </a>
+                
                 <a href="/simulator" class="btn btn-simulator">
+                    <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
                     Generate Data
+                    <svg class="icon arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
                 </a>
+            </div>
+            
+            <div class="features">
+                <div class="feature-card">
+                    <h3>Real-time Analytics</h3>
+                    <p>Monitor your business metrics as they happen</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Smart Generation</h3>
+                    <p>Create realistic data sets for testing our capabilities</p>
+                </div>
             </div>
         </div>
     </body>
     </html>
     """
     return html
+
 
 
 @app.get("/dashboard", response_class=HTMLResponse)
@@ -432,75 +634,275 @@ async def dashboard():
     <!DOCTYPE html>
     <html>
     <head>
-        <title>ClearVue Dashboards</title>
+        <title>ClearVue Dashboards - Business Intelligence</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <style>
-            * {{ margin: 0; padding: 0; box-sizing: border-box; }}
-            
-            body {{
-                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                background: #f5f7fa;
+            * {{ 
+                margin: 0; 
+                padding: 0; 
+                box-sizing: border-box; 
             }}
             
+            body {{
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+                background: linear-gradient(180deg, #f8fafc 0%, #e2e8f0 100%);
+                min-height: 100vh;
+            }}
+            
+            /* Header */
             .header {{
-                background: white;
-                padding: 20px 40px;
-                box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+                background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+                padding: 24px 40px;
+                box-shadow: 0 4px 20px rgba(30, 58, 138, 0.3);
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
-                border-bottom: 3px solid #1e3c72;
+                position: sticky;
+                top: 0;
+                z-index: 100;
+                animation: slideDown 0.5s ease-out;
+            }}
+            
+            @keyframes slideDown {{
+                from {{
+                    opacity: 0;
+                    transform: translateY(-20px);
+                }}
+                to {{
+                    opacity: 1;
+                    transform: translateY(0);
+                }}
+            }}
+            
+            .header-content {{
+                display: flex;
+                align-items: center;
+                gap: 16px;
             }}
             
             .header h1 {{
-                color: #1e3c72;
-                font-size: 26px;
-                font-weight: 600;
+                color: white;
+                font-size: 28px;
+                font-weight: 700;
+                letter-spacing: -0.02em;
+                display: flex;
+                align-items: center;
+                gap: 12px;
             }}
             
-            .header a {{
-                padding: 10px 24px;
-                background: #1e3c72;
+            .header-icon {{
+                width: 32px;
+                height: 32px;
+                stroke: white;
+            }}
+            
+            .back-btn {{
+                padding: 12px 28px;
+                background: rgba(255, 255, 255, 0.15);
+                backdrop-filter: blur(10px);
                 color: white;
                 text-decoration: none;
-                border-radius: 6px;
-                transition: all 0.3s;
-                font-weight: 500;
+                border-radius: 10px;
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                font-weight: 600;
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                font-size: 15px;
             }}
             
-            .header a:hover {{
-                background: #2a5298;
+            .back-btn:hover {{
+                background: rgba(255, 255, 255, 0.25);
+                transform: translateY(-2px);
+                box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
             }}
             
+            .back-btn:active {{
+                transform: translateY(0);
+            }}
+            
+            .back-icon {{
+                width: 18px;
+                height: 18px;
+                transition: transform 0.3s;
+            }}
+            
+            .back-btn:hover .back-icon {{
+                transform: translateX(-4px);
+            }}
+            
+            /* Main Container */
             .dashboard-container {{
-                padding: 20px;
-                max-width: 1400px;
+                padding: 40px 20px;
+                max-width: 1600px;
                 margin: 0 auto;
+                animation: fadeUp 0.6s ease-out 0.2s backwards;
             }}
             
+            @keyframes fadeUp {{
+                from {{
+                    opacity: 0;
+                    transform: translateY(30px);
+                }}
+                to {{
+                    opacity: 1;
+                    transform: translateY(0);
+                }}
+            }}
+            
+            /* Dashboard Card */
             .dashboard-embed {{
                 background: white;
-                border-radius: 8px;
-                padding: 20px;
-                box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-                min-height: 800px;
+                border-radius: 16px;
+                padding: 32px;
+                box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06), 
+                           0 0 1px rgba(0, 0, 0, 0.04);
+                transition: all 0.3s;
+                border: 1px solid rgba(226, 232, 240, 0.8);
+            }}
+            
+            .dashboard-embed:hover {{
+                box-shadow: 0 8px 32px rgba(30, 58, 138, 0.12), 
+                           0 0 1px rgba(0, 0, 0, 0.04);
+            }}
+            
+            .dashboard-header {{
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 24px;
+                padding-bottom: 20px;
+                border-bottom: 2px solid #f1f5f9;
+            }}
+            
+            .dashboard-title {{
+                font-size: 22px;
+                font-weight: 700;
+                background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+            }}
+            
+            .dashboard-status {{
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                padding: 8px 16px;
+                background: rgba(34, 197, 94, 0.1);
+                border-radius: 20px;
+                font-size: 14px;
+                font-weight: 600;
+                color: #16a34a;
+            }}
+            
+            .status-dot {{
+                width: 8px;
+                height: 8px;
+                background: #22c55e;
+                border-radius: 50%;
+                animation: pulse 2s ease-in-out infinite;
+            }}
+            
+            @keyframes pulse {{
+                0%, 100% {{ 
+                    opacity: 1;
+                    transform: scale(1);
+                }}
+                50% {{ 
+                    opacity: 0.5;
+                    transform: scale(1.2);
+                }}
             }}
             
             .dashboard-embed iframe {{
                 width: 100%;
-                height: 800px;
+                height: 850px;
                 border: none;
-                border-radius: 4px;
+                border-radius: 12px;
+                background: #f8fafc;
+            }}
+            
+            /* Loading State */
+            .loading-placeholder {{
+                width: 100%;
+                height: 850px;
+                background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+                background-size: 200% 100%;
+                animation: shimmer 2s infinite;
+                border-radius: 12px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: #64748b;
+                font-size: 16px;
+            }}
+            
+            @keyframes shimmer {{
+                0% {{ background-position: 200% 0; }}
+                100% {{ background-position: -200% 0; }}
+            }}
+            
+            /* Responsive */
+            @media (max-width: 768px) {{
+                .header {{
+                    padding: 20px 24px;
+                    flex-direction: column;
+                    gap: 16px;
+                    text-align: center;
+                }}
+                
+                .header h1 {{
+                    font-size: 22px;
+                }}
+                
+                .dashboard-container {{
+                    padding: 24px 16px;
+                }}
+                
+                .dashboard-embed {{
+                    padding: 20px;
+                }}
+                
+                .dashboard-header {{
+                    flex-direction: column;
+                    align-items: flex-start;
+                    gap: 12px;
+                }}
+                
+                .dashboard-embed iframe {{
+                    height: 600px;
+                }}
             }}
         </style>
     </head>
     <body>
         <div class="header">
-            <h1>ClearVue Dashboards</h1>
-            <a href="/">Back to Home</a>
+            <div class="header-content">
+                <svg class="header-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+                <h1>ClearVue Dashboards</h1>
+            </div>
+            <a href="/" class="back-btn">
+                <svg class="back-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                </svg>
+                Back to Home
+            </a>
         </div>
         
         <div class="dashboard-container">
             <div class="dashboard-embed">
+                <div class="dashboard-header">
+                    <h2 class="dashboard-title">Business Intelligence Dashboard</h2>
+                    <div class="dashboard-status">
+                        <span class="status-dot"></span>
+                        Live Data
+                    </div>
+                </div>
                 {POWERBI_EMBED_CODE}
             </div>
         </div>
@@ -508,6 +910,7 @@ async def dashboard():
     </html>
     """
     return html
+
 @app.get("/api/verify")
 async def verify_data():
     """Verify last inserted documents"""
