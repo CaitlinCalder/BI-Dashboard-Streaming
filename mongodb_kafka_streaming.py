@@ -479,10 +479,7 @@ class ClearVueStreamingPipeline:
     def send_to_powerbi(self, enhanced_event: Dict[str, Any]) -> bool:
         """
         Send Sales events to Power BI streaming dataset
-        Schema-compliant with exact field types:
-        - TEXT fields: _id, DOC_NUMBER, TRANSTYPE_CODE, REP_CODE, CUSTOMER_NUMBER, line_INVENTORY_CODE
-        - DATE fields: TRANS_DATE, FIN_PERIOD
-        - INT fields: line_QUANTITY, line_UNIT_SELL_PRICE, line_TOTAL_LINE_PRICE, line_LAST_COST
+        NOW WORKS WITH FLAT STRUCTURE (one document per line)
         """
         if enhanced_event.get('collection') != 'Sales_flat':
             return False
@@ -493,96 +490,85 @@ class ClearVueStreamingPipeline:
                 logger.warning("Power BI URL not configured")
                 return False
 
-            # Get the original document data
+            # Get the flat document data
             doc = enhanced_event.get('change_data', {})
             if not doc:
                 return False
 
-            # Get all line items
-            lines = doc.get('lines', [])
-            if not lines:
-                logger.debug("No line items in sales document")
-                return False
-
-            # Get transaction date
-            trans_date = doc.get('trans_date', datetime.now())
+            # The document is ALREADY flat - just map fields directly!
+            trans_date = doc.get('TRANS_DATE', datetime.now().isoformat())
+            fin_period = doc.get('FIN_PERIOD', '')
+            
+            # Parse dates if they're strings
             if isinstance(trans_date, str):
                 try:
-                    trans_date = datetime.fromisoformat(trans_date.replace('Z', '+00:00'))
+                    trans_date_obj = datetime.fromisoformat(trans_date.replace('Z', '+00:00'))
+                    trans_date_str = trans_date_obj.strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
                 except:
-                    trans_date = datetime.now()
+                    trans_date_str = datetime.now().strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
+            else:
+                trans_date_str = trans_date.strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
             
-            # Format dates for Power BI (ISO 8601 format)
-            trans_date_str = trans_date.strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
+            # Create FIN_PERIOD as date (first day of the month)
+            try:
+                year_month = str(fin_period).split('-')
+                if len(year_month) == 2:
+                    fin_period_date = datetime(int(year_month[0]), int(year_month[1]), 1)
+                else:
+                    fin_period_date = datetime.now().replace(day=1)
+            except:
+                fin_period_date = datetime.now().replace(day=1)
             
-            # Create FIN_PERIOD as a date (first day of the month)
-            fin_period_date = datetime(trans_date.year, trans_date.month, 1)
             fin_period_str = fin_period_date.strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
 
-            # Push each line item as a separate record
-            success_count = 0
-            for line in lines:
-                # Ensure all numeric fields are integers (Power BI expects INT, not FLOAT)
-                powerbi_payload = {
-                    # TEXT fields
-                    "_id": str(doc.get('_id', '')),
-                    "DOC_NUMBER": str(doc.get('doc_number', doc.get('_id', ''))),
-                    "TRANSTYPE_CODE": str(doc.get('trans_type', '')),
-                    "REP_CODE": str(doc.get('rep_code', doc.get('rep', {}).get('id', ''))),
-                    "CUSTOMER_NUMBER": str(doc.get('customer_id', '')),
-                    
-                    # DATE fields (ISO 8601 format)
-                    "TRANS_DATE": trans_date_str,
-                    "FIN_PERIOD": fin_period_str,
-                    
-                    # Line item TEXT field
-                    "line_INVENTORY_CODE": str(line.get('inventory_code', '')),
-                    
-                    # Line item INT fields (convert floats to integers)
-                    "line_QUANTITY": int(line.get('quantity', 0)),
-                    "line_UNIT_SELL_PRICE": int(round(line.get('unit_price', line.get('unit_sell_price', 0)))),
-                    "line_TOTAL_LINE_PRICE": int(round(line.get('total_line_cost', 0))),
-                    "line_LAST_COST": int(round(line.get('last_cost', 0)))
-                }
+            # Map flat document to Power BI schema
+            powerbi_payload = {
+                # TEXT fields - directly from flat document
+                "_id": str(doc.get('_id', doc.get('DOC_NUMBER', ''))),
+                "DOC_NUMBER": str(doc.get('DOC_NUMBER', '')),
+                "TRANSTYPE_CODE": str(doc.get('TRANSTYPE_CODE', '')),
+                "REP_CODE": str(doc.get('REP_CODE', '')),
+                "CUSTOMER_NUMBER": str(doc.get('CUSTOMER_NUMBER', '')),
+                
+                # DATE fields
+                "TRANS_DATE": trans_date_str,
+                "FIN_PERIOD": fin_period_str,
+                
+                # Line item fields - already flat!
+                " line_INVENTORY_CODE": str(doc.get('line_INVENTORY_CODE', '')),
+                " line_QUANTITY": int(doc.get('line_QUANTITY', 0)),
+                "line_UNIT_SELL_PRICE": int(doc.get('line_UNIT_SELL_PRICE', 0)),
+                " line_TOTAL_LINE_PRICE": int(doc.get('line_TOTAL_LINE_PRICE', 0)),
+                " line_LAST_COST": int(doc.get('line_LAST_COST', 0))
+            }
 
-                # Send to Power BI (expects array)
-                response = requests.post(
-                    powerbi_url,
-                    json=[powerbi_payload],
-                    headers={'Content-Type': 'application/json'},
-                    timeout=5
-                )
+            # Send to Power BI (expects array)
+            response = requests.post(
+                powerbi_url,
+                json=[powerbi_payload],
+                headers={'Content-Type': 'application/json'},
+                timeout=5
+            )
 
-                if response.status_code in (200, 201):
-                    success_count += 1
-                    logger.debug(f"✓ Power BI: Pushed line {line.get('inventory_code')} from doc {doc.get('_id')}")
-                else:
-                    logger.error(f"Power BI push failed ({response.status_code}): {response.text}")
-                    logger.error(f"Payload: {powerbi_payload}")
-                    self.stats['powerbi_errors'] += 1
-
-            # Update stats
-            if success_count > 0:
-                self.stats['powerbi_pushes'] += success_count
-                logger.info(f"✓ Power BI: Successfully pushed {success_count}/{len(lines)} line items for doc {doc.get('_id')}")
+            if response.status_code in (200, 201):
+                self.stats['powerbi_pushes'] += 1
+                logger.info(f"✓ Power BI: Pushed {doc.get('DOC_NUMBER')} | Line: {doc.get('line_INVENTORY_CODE')}")
                 return True
             else:
-                logger.error(f"✗ Power BI: Failed to push any line items for doc {doc.get('_id')}")
+                logger.error(f"Power BI push failed ({response.status_code}): {response.text}")
+                logger.error(f"Payload: {powerbi_payload}")
+                self.stats['powerbi_errors'] += 1
                 return False
 
         except requests.exceptions.Timeout:
             logger.error("Power BI push timeout")
             self.stats['powerbi_errors'] += 1
             return False
-        except requests.exceptions.RequestException as e:
-            logger.error(f"Power BI request error: {str(e)}")
-            self.stats['powerbi_errors'] += 1
-            return False
         except Exception as e:
             logger.error(f"Power BI push error: {str(e)}", exc_info=True)
             self.stats['powerbi_errors'] += 1
             return False
-    
+
     def _transform_sales_for_powerbi(self, enhanced_event: Dict[str, Any]) -> Dict[str, Any]:
         """
         Transform Sales event to Power BI streaming dataset schema

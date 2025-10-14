@@ -98,108 +98,109 @@ async def startup():
     connect_mongodb()
     print("Server ready!")
 
-
 def generate_sale():
-    """Generate a sale transaction"""
     if not sample_customers or not sample_products:
         return None
     
     customer = random.choice(sample_customers)
     trans_date = datetime.now()
     doc_number = f"SALE{int(time.time() * 1000) % 1000000}"
+    rep_id = f"REP{random.randint(1, 10):02d}"
     
-    lines = []
-    total_amount = 0
+    # Generate line items
+    num_lines = random.randint(1, 3)
+    flat_documents = []
     
-    for _ in range(random.randint(1, 3)):
+    for line_num in range(num_lines):
         product = random.choice(sample_products)
         quantity = random.randint(1, 10)
         base_cost = product.get('last_cost', 500)
         unit_price = base_cost * random.uniform(1.3, 2.0)
         line_total = quantity * unit_price
-        total_amount += line_total
         
-        lines.append({
-            'product_id': product['_id'],
-            'quantity': quantity,
-            'unit_sell_price': round(unit_price, 2),
-            'total_line_cost': round(line_total, 2),
-            'last_cost': base_cost
-        })
+        # Create ONE FLAT DOCUMENT per line item
+        flat_doc = {
+            # Header fields (repeated for each line)
+            'DOC_NUMBER': doc_number,
+            'TRANSTYPE_CODE': '2',  # Tax Invoice code
+            'REP_CODE': rep_id,
+            'CUSTOMER_NUMBER': str(customer['_id']),
+            'TRANS_DATE': trans_date.strftime('%Y-%m-%dT%H:%M:%S'),
+            'FIN_PERIOD': trans_date.strftime('%Y-%m'),
+            
+            # Line item fields (prefixed with "line_")
+            'line_INVENTORY_CODE': str(product.get('_id', '')),
+            'line_QUANTITY': quantity,
+            'line_UNIT_SELL_PRICE': int(round(unit_price)),
+            'line_TOTAL_LINE_PRICE': int(round(line_total)),
+            'line_LAST_COST': int(base_cost),
+            
+            # Metadata
+            '_source': 'web_simulator',
+            '_created_at': datetime.now()
+        }
+        
+        flat_documents.append(flat_doc)
     
-    sale_doc = {
-        '_id': doc_number,
-        'customer_id': customer['_id'],
-        'rep': {
-            'id': f"REP{random.randint(1, 10):02d}",
-            'desc': fake.name(),
-            'commission': random.choice([5, 10, 15])
-        },
-        'trans_type': 'Tax Invoice',
-        'trans_date': trans_date,
-        'fin_period': int(f"{trans_date.year}{trans_date.month:02d}"),
-        'lines': lines,
-        '_source': 'web_simulator',
-        '_created_at': datetime.now()
-    }
+    # Insert ALL flattened documents
+    if flat_documents:
+        db.Sales_flat.insert_many(flat_documents)
+        stats['total_transactions'] += len(flat_documents)
+        stats['sales_count'] += len(flat_documents)
     
-    db.Sales_flat.insert_one(sale_doc)
-    stats['total_transactions'] += 1
-    stats['sales_count'] += 1
+    # Return summary
+    total_amount = sum(doc['line_TOTAL_LINE_PRICE'] for doc in flat_documents)
     
     return {
         'type': 'sale',
         'doc_id': doc_number,
-        'customer_id': customer['_id'],
+        'customer_id': str(customer['_id']),
         'amount': round(total_amount, 2),
-        'items': len(lines)
+        'items': len(flat_documents)
     }
 
 
 def generate_payment():
-    """Generate a payment transaction"""
+    """Generate a payment transaction - FLATTENED"""
     if not sample_customers:
         return None
     
     customer = random.choice(sample_customers)
     deposit_date = datetime.now()
     deposit_ref = f"DEP{int(time.time() * 1000) % 1000000}"
-    payment_id = f"PAYM{int(time.time() * 1000) % 1000000}"
     
     bank_amt = round(random.uniform(5000, 50000), 2)
     discount = round(bank_amt * customer.get('discount', 0) / 100, 2)
     tot_payment = bank_amt - discount
     
-    payment_doc = {
-        '_id': payment_id,
-        'customer_id': customer['_id'],
-        'deposit_ref': deposit_ref,
-        'lines': [{
-            'fin_period': int(f"{deposit_date.year}{deposit_date.month:02d}"),
-            'deposit_date': deposit_date,
-            'bank_amt': bank_amt,
-            'discount': discount,
-            'tot_payment': tot_payment
-        }],
+    # Create ONE FLAT DOCUMENT (Payments typically have one line)
+    flat_doc = {
+        'CUSTOMER_NUMBER': str(customer['_id']),
+        'DEPOSIT_REF': deposit_ref,
+        'DEPOSIT_DATE': deposit_date.strftime('%Y-%m-%dT%H:%M:%S'),
+        'FIN_PERIOD': deposit_date.strftime('%Y-%m'),
+        'BANK_AMT': int(round(bank_amt)),
+        'DISCOUNT': int(round(discount)),
+        'TOT_PAYMENT': int(round(tot_payment)),
         '_source': 'web_simulator',
         '_created_at': datetime.now()
     }
     
-    db.Payments_flat.insert_one(payment_doc)
+    db.Payments_flat.insert_one(flat_doc)
     stats['total_transactions'] += 1
     stats['payments_count'] += 1
     
     return {
         'type': 'payment',
         'doc_id': deposit_ref,
-        'customer_id': customer['_id'],
+        'customer_id': str(customer['_id']),
         'amount': round(tot_payment, 2),
         'discount': round(discount, 2)
     }
 
 
 def generate_purchase():
-    """Generate a purchase transaction"""
+    """Generate a purchase transaction - FLATTENED"""
     if not sample_suppliers or not sample_products:
         return None
     
@@ -207,44 +208,48 @@ def generate_purchase():
     purch_date = datetime.now()
     purch_doc_no = f"PO{int(time.time() * 1000) % 1000000}"
     
-    lines = []
-    total_cost = 0
+    # Generate line items
+    num_lines = random.randint(1, 3)
+    flat_documents = []
     
-    for _ in range(random.randint(1, 3)):
+    for line_num in range(num_lines):
         product = random.choice(sample_products)
         quantity = random.randint(10, 100)
         unit_cost = product.get('last_cost', 500) * random.uniform(0.95, 1.05)
         line_cost = quantity * unit_cost
-        total_cost += line_cost
         
-        lines.append({
-            'product_id': product['_id'],
-            'quantity': quantity,
-            'unit_cost_price': round(unit_cost, 2),
-            'total_line_cost': round(line_cost, 2)
-        })
+        # Create ONE FLAT DOCUMENT per line item
+        flat_doc = {
+            'PURCH_DOC_NO': purch_doc_no,
+            'SUPPLIER_ID': str(supplier['_id']),
+            'PURCH_DATE': purch_date.strftime('%Y-%m-%dT%H:%M:%S'),
+            'FIN_PERIOD': purch_date.strftime('%Y-%m'),
+            'line_INVENTORY_CODE': str(product.get('_id', '')),
+            'line_QUANTITY': quantity,
+            'line_UNIT_COST_PRICE': int(round(unit_cost)),
+            'line_TOTAL_LINE_COST': int(round(line_cost)),
+            '_source': 'web_simulator',
+            '_created_at': datetime.now()
+        }
+        
+        flat_documents.append(flat_doc)
     
-    purchase_doc = {
-        '_id': purch_doc_no,
-        'supplier_id': supplier['_id'],
-        'purch_date': purch_date,
-        'lines': lines,
-        '_source': 'web_simulator',
-        '_created_at': datetime.now()
-    }
+    # Insert ALL flattened documents
+    if flat_documents:
+        db.Purchases_flat.insert_many(flat_documents)
+        stats['total_transactions'] += len(flat_documents)
+        stats['purchases_count'] += len(flat_documents)
     
-    db.Purchases_flat.insert_one(purchase_doc)
-    stats['total_transactions'] += 1
-    stats['purchases_count'] += 1
+    # Return summary
+    total_cost = sum(doc['line_TOTAL_LINE_COST'] for doc in flat_documents)
     
     return {
         'type': 'purchase',
         'doc_id': purch_doc_no,
-        'supplier_id': supplier['_id'],
+        'supplier_id': str(supplier['_id']),
         'amount': round(total_cost, 2),
-        'items': len(lines)
+        'items': len(flat_documents)
     }
-
 
 # ============================================================================
 # API ENDPOINTS
@@ -503,8 +508,21 @@ async def dashboard():
     </html>
     """
     return html
-
-
+@app.get("/api/verify")
+async def verify_data():
+    """Verify last inserted documents"""
+    try:
+        last_sales = list(db.Sales_flat.find({'_source': 'web_simulator'})
+                         .sort('_created_at', -1).limit(5))
+        
+        return {
+            'total_sales': db.Sales_flat.count_documents({'_source': 'web_simulator'}),
+            'last_5': [str(doc['_id']) for doc in last_sales],
+            'timestamps': [doc.get('_created_at') for doc in last_sales]
+        }
+    except Exception as e:
+        return {'error': str(e)}
+    
 @app.get("/simulator", response_class=HTMLResponse)
 async def simulator():
     """Transaction Generator page"""

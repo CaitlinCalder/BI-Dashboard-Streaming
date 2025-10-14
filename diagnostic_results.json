@@ -1,0 +1,36 @@
+{
+  "mongodb": {
+    "status": "PASS",
+    "details": {},
+    "connection": true,
+    "collections": true,
+    "simulator_data_count": 3,
+    "structure": "flat",
+    "recent_count": 3
+  },
+  "kafka": {
+    "status": "PASS",
+    "details": {},
+    "connection": true,
+    "topics": true,
+    "messages_flowing": false
+  },
+  "fastapi": {
+    "status": "FAIL",
+    "details": {},
+    "error": "Server not running"
+  },
+  "powerbi": {
+    "status": "PASS",
+    "details": {},
+    "configured": true,
+    "url_valid": true,
+    "push_successful": true
+  },
+  "end_to_end": {
+    "status": "PARTIAL",
+    "details": {},
+    "mongodb": false,
+    "powerbi": true
+  }
+}
