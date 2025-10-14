@@ -4,8 +4,9 @@ import signal
 import sys
 import time
 import threading
+from threading import Thread, Lock
 from datetime import datetime, timedelta
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List, Optional, Any
 from collections import defaultdict
 
 from pymongo import MongoClient
@@ -15,7 +16,9 @@ from kafka.admin import KafkaAdminClient, NewTopic
 from kafka.errors import KafkaError
 import bson
 import requests  # 🆕 Added for Power BI
+import time
 
+logger = logging.getLogger('PowerBIRefreshTrigger')
 
 # Import configuration
 try:
@@ -35,8 +38,231 @@ logging.basicConfig(
 )
 logger = logging.getLogger('ClearVuePipeline')
 
-
+class PowerBIRefreshTrigger:
+    """
+    Smart refresh trigger for Power BI datasets
+    Batches multiple data changes into single refresh requests
+    """
+    
+    def __init__(self, 
+                 workspace_id: str,
+                 dataset_id: str,
+                 access_token: str,
+                 min_refresh_interval: int = 60,  # Minimum seconds between refreshes
+                 batch_window: int = 30):          # Wait N seconds to batch changes
+        """
+        Initialize refresh trigger
+        
+        Args:
+            workspace_id: Power BI workspace/group ID
+            dataset_id: Power BI dataset ID (your import dataset)
+            access_token: Azure AD access token for Power BI API
+            min_refresh_interval: Minimum seconds between refresh calls
+            batch_window: Seconds to wait and batch multiple changes
+        """
+        self.workspace_id = workspace_id
+        self.dataset_id = dataset_id
+        self.access_token = access_token
+        self.min_refresh_interval = min_refresh_interval
+        self.batch_window = batch_window
+        
+        # State management
+        self.pending_refresh = False
+        self.last_refresh_time = None
+        self.pending_changes_count = 0
+        self.lock = Lock()
+        
+        # Statistics
+        self.stats = {
+            'total_changes_detected': 0,
+            'refresh_requests_sent': 0,
+            'refresh_requests_succeeded': 0,
+            'refresh_requests_failed': 0,
+            'last_refresh_status': None,
+            'last_refresh_time': None
+        }
+        
+        # Background thread
+        self.refresh_thread = None
+        self.is_running = False
+        
+        # Power BI API endpoint
+        self.api_base = "https://api.powerbi.com/v1.0/myorg"
+        self.refresh_url = f"{self.api_base}/groups/{workspace_id}/datasets/{dataset_id}/refreshes"
+        
+        logger.info(f"Initialized PowerBI Refresh Trigger for dataset {dataset_id}")
+    
+    def on_data_change(self, collection: str, operation: str, doc_id: str = None):
+        """
+        Called when new data is detected
+        
+        Args:
+            collection: MongoDB collection name
+            operation: insert/update/delete
+            doc_id: Document ID (optional)
+        """
+        with self.lock:
+            self.pending_refresh = True
+            self.pending_changes_count += 1
+            self.stats['total_changes_detected'] += 1
+        
+        logger.debug(f"Change detected: {collection}.{operation} (ID: {doc_id})")
+        
+        # Start batch window thread if not already running
+        if not self.is_running:
+            self.start_batch_window()
+    
+    def start_batch_window(self):
+        """Start the batching window thread"""
+        if self.refresh_thread and self.refresh_thread.is_alive():
+            return
+        
+        self.is_running = True
+        self.refresh_thread = Thread(target=self._batch_window_worker, daemon=True)
+        self.refresh_thread.start()
+    
+    def _batch_window_worker(self):
+        """Background worker that batches changes and triggers refresh"""
+        logger.info(f"Batch window started: waiting {self.batch_window}s for more changes...")
+        
+        time.sleep(self.batch_window)
+        
+        with self.lock:
+            if not self.pending_refresh:
+                self.is_running = False
+                return
+            
+            # Check minimum refresh interval
+            if self.last_refresh_time:
+                elapsed = (datetime.now() - self.last_refresh_time).total_seconds()
+                if elapsed < self.min_refresh_interval:
+                    wait_time = self.min_refresh_interval - elapsed
+                    logger.info(f"Too soon to refresh, waiting {wait_time:.0f}s more...")
+                    time.sleep(wait_time)
+            
+            # Trigger refresh
+            changes_count = self.pending_changes_count
+            self.pending_changes_count = 0
+            self.pending_refresh = False
+        
+        logger.info(f"Triggering Power BI refresh for {changes_count} batched changes...")
+        success = self.trigger_refresh()
+        
+        if success:
+            logger.info(f"✅ Power BI refresh triggered successfully")
+        else:
+            logger.error(f"❌ Power BI refresh failed")
+        
+        self.is_running = False
+    
+    def trigger_refresh(self) -> bool:
+        """
+        Trigger Power BI dataset refresh via REST API
+        
+        Returns:
+            bool: True if successful
+        """
+        try:
+            headers = {
+                'Authorization': f'Bearer {self.access_token}',
+                'Content-Type': 'application/json'
+            }
+            
+            # Optional: Use enhanced refresh with specific tables
+            # payload = {
+            #     "type": "Full",
+            #     "commitMode": "transactional",
+            #     "objects": [
+            #         {"table": "Sales_flat"},
+            #         {"table": "Payments_flat"}
+            #     ]
+            # }
+            
+            # For now, simple full refresh
+            payload = {"notifyOption": "NoNotification"}
+            
+            response = requests.post(
+                self.refresh_url,
+                json=payload,
+                headers=headers,
+                timeout=30
+            )
+            
+            self.stats['refresh_requests_sent'] += 1
+            
+            if response.status_code == 202:  # Accepted
+                self.stats['refresh_requests_succeeded'] += 1
+                self.stats['last_refresh_status'] = 'success'
+                self.stats['last_refresh_time'] = datetime.now().isoformat()
+                self.last_refresh_time = datetime.now()
+                return True
+            else:
+                self.stats['refresh_requests_failed'] += 1
+                self.stats['last_refresh_status'] = f'failed_{response.status_code}'
+                logger.error(f"Power BI API error: {response.status_code} - {response.text}")
+                return False
+        
+        except requests.exceptions.Timeout:
+            self.stats['refresh_requests_failed'] += 1
+            self.stats['last_refresh_status'] = 'timeout'
+            logger.error("Power BI refresh request timeout")
+            return False
+        
+        except Exception as e:
+            self.stats['refresh_requests_failed'] += 1
+            self.stats['last_refresh_status'] = f'error: {str(e)}'
+            logger.error(f"Power BI refresh error: {e}", exc_info=True)
+            return False
+    
+    def get_refresh_history(self, top: int = 5) -> list:
+        """
+        Get recent refresh history from Power BI
+        
+        Args:
+            top: Number of recent refreshes to retrieve
+            
+        Returns:
+            List of refresh history records
+        """
+        try:
+            headers = {
+                'Authorization': f'Bearer {self.access_token}'
+            }
+            
+            url = f"{self.refresh_url}?$top={top}"
+            response = requests.get(url, headers=headers, timeout=10)
+            
+            if response.status_code == 200:
+                data = response.json()
+                return data.get('value', [])
+            else:
+                logger.error(f"Failed to get refresh history: {response.status_code}")
+                return []
+        
+        except Exception as e:
+            logger.error(f"Error getting refresh history: {e}")
+            return []
+    
+    def get_stats(self) -> Dict[str, Any]:
+        """Get current statistics"""
+        with self.lock:
+            return {
+                **self.stats,
+                'pending_changes': self.pending_changes_count,
+                'refresh_pending': self.pending_refresh,
+                'batch_window_active': self.is_running
+            }
+    
+    def force_refresh_now(self) -> bool:
+        """Force immediate refresh (bypass batching)"""
+        logger.info("Forcing immediate Power BI refresh...")
+        with self.lock:
+            self.pending_refresh = False
+            self.pending_changes_count = 0
+        return self.trigger_refresh()
+    
 class ClearVueStreamingPipeline:
+
     """
     Production-ready streaming pipeline for ClearVue BI
     Monitors MongoDB collections and streams enriched changes to Kafka AND Power BI
@@ -82,12 +308,41 @@ class ClearVueStreamingPipeline:
             'powerbi_pushes': 0,  # 🆕
             'powerbi_errors': 0   # 🆕
         }
+# ============================================================================
+# INTEGRATION WITH STREAMING PIPELINE
+# ============================================================================
+
+    def _setup_powerbi_refresh_trigger(self):
+        """Setup Power BI refresh trigger instead of streaming"""
         
-        # Health monitoring
-        self.last_health_check = datetime.now()
-        self.is_healthy = True
+        # Get credentials from config
+        workspace_id = ClearVueConfig.get_powerbi_workspace_id()
+        dataset_id = ClearVueConfig.get_powerbi_dataset_id()
+        access_token = ClearVueConfig.get_powerbi_access_token()
         
-        logger.info("Pipeline initialized successfully")
+        if not all([workspace_id, dataset_id, access_token]):
+            logger.warning("Power BI refresh trigger not configured - skipping")
+            print("⚠️  Power BI refresh trigger not configured")
+            return None
+        
+        self.powerbi_trigger = PowerBIRefreshTrigger(
+            workspace_id=workspace_id,
+            dataset_id=dataset_id,
+            access_token=access_token,
+            min_refresh_interval=60,   # Min 1 minute between refreshes
+            batch_window=30             # Wait 30 seconds to batch changes
+        )
+    
+        print("✅ Power BI refresh trigger initialized")
+        logger.info("Power BI refresh trigger ready")
+        
+        return self.powerbi_trigger
+
+    # Health monitoring
+
+    self.last_health_check = datetime.now()
+    self.is_healthy = True   
+    logger.info("Pipeline initialized successfully")
     
     def _connect_mongodb(self):
         """Establish connection to MongoDB Atlas"""
@@ -476,98 +731,22 @@ class ClearVueStreamingPipeline:
     # 🆕 POWER BI METHODS START HERE
     # Replace the existing send_to_powerbi method with this one:
 
-    def send_to_powerbi(self, enhanced_event: Dict[str, Any]) -> bool:
+    def notify_powerbi_of_change(self, enhanced_event: Dict[str, Any]) -> bool:
         """
-        Send Sales events to Power BI streaming dataset
-        NOW WORKS WITH FLAT STRUCTURE (one document per line)
+        Notify Power BI refresh trigger of new data
+        Instead of streaming individual records, trigger dataset refresh
         """
-        if enhanced_event.get('collection') != 'Sales_flat':
+        if not hasattr(self, 'powerbi_trigger') or not self.powerbi_trigger:
             return False
         
-        try:
-            powerbi_url = ClearVueConfig.get_powerbi_push_url()
-            if not powerbi_url:
-                logger.warning("Power BI URL not configured")
-                return False
-
-            # Get the flat document data
-            doc = enhanced_event.get('change_data', {})
-            if not doc:
-                return False
-
-            # The document is ALREADY flat - just map fields directly!
-            trans_date = doc.get('TRANS_DATE', datetime.now().isoformat())
-            fin_period = doc.get('FIN_PERIOD', '')
-            
-            # Parse dates if they're strings
-            if isinstance(trans_date, str):
-                try:
-                    trans_date_obj = datetime.fromisoformat(trans_date.replace('Z', '+00:00'))
-                    trans_date_str = trans_date_obj.strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
-                except:
-                    trans_date_str = datetime.now().strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
-            else:
-                trans_date_str = trans_date.strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
-            
-            # Create FIN_PERIOD as date (first day of the month)
-            try:
-                year_month = str(fin_period).split('-')
-                if len(year_month) == 2:
-                    fin_period_date = datetime(int(year_month[0]), int(year_month[1]), 1)
-                else:
-                    fin_period_date = datetime.now().replace(day=1)
-            except:
-                fin_period_date = datetime.now().replace(day=1)
-            
-            fin_period_str = fin_period_date.strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
-
-            # Map flat document to Power BI schema
-            powerbi_payload = {
-                # TEXT fields - directly from flat document
-                "_id": str(doc.get('_id', doc.get('DOC_NUMBER', ''))),
-                "DOC_NUMBER": str(doc.get('DOC_NUMBER', '')),
-                "TRANSTYPE_CODE": str(doc.get('TRANSTYPE_CODE', '')),
-                "REP_CODE": str(doc.get('REP_CODE', '')),
-                "CUSTOMER_NUMBER": str(doc.get('CUSTOMER_NUMBER', '')),
-                
-                # DATE fields
-                "TRANS_DATE": trans_date_str,
-                "FIN_PERIOD": fin_period_str,
-                
-                # Line item fields - already flat!
-                " line_INVENTORY_CODE": str(doc.get('line_INVENTORY_CODE', '')),
-                " line_QUANTITY": int(doc.get('line_QUANTITY', 0)),
-                "line_UNIT_SELL_PRICE": int(doc.get('line_UNIT_SELL_PRICE', 0)),
-                " line_TOTAL_LINE_PRICE": int(doc.get('line_TOTAL_LINE_PRICE', 0)),
-                " line_LAST_COST": int(doc.get('line_LAST_COST', 0))
-            }
-
-            # Send to Power BI (expects array)
-            response = requests.post(
-                powerbi_url,
-                json=[powerbi_payload],
-                headers={'Content-Type': 'application/json'},
-                timeout=5
-            )
-
-            if response.status_code in (200, 201):
-                self.stats['powerbi_pushes'] += 1
-                logger.info(f"✓ Power BI: Pushed {doc.get('DOC_NUMBER')} | Line: {doc.get('line_INVENTORY_CODE')}")
-                return True
-            else:
-                logger.error(f"Power BI push failed ({response.status_code}): {response.text}")
-                logger.error(f"Payload: {powerbi_payload}")
-                self.stats['powerbi_errors'] += 1
-                return False
-
-        except requests.exceptions.Timeout:
-            logger.error("Power BI push timeout")
-            self.stats['powerbi_errors'] += 1
-            return False
-        except Exception as e:
-            logger.error(f"Power BI push error: {str(e)}", exc_info=True)
-            self.stats['powerbi_errors'] += 1
-            return False
+        collection = enhanced_event.get('collection')
+        operation = enhanced_event.get('operation')
+        doc_id = enhanced_event.get('document_key')
+        
+        # Notify the trigger (it will batch and refresh intelligently)
+        self.powerbi_trigger.on_data_change(collection, operation, doc_id)
+        
+        return True
 
     def _transform_sales_for_powerbi(self, enhanced_event: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -605,7 +784,6 @@ class ClearVueStreamingPipeline:
     # 🆕 POWER BI METHODS END HERE
     
     def process_change_event(self, change_doc: Dict[str, Any], collection_name: str):
-        """Process a detected change event from MongoDB"""
         try:
             # Enrich the change event
             enhanced_event = self.enhance_change_event(change_doc, collection_name)
@@ -616,13 +794,12 @@ class ClearVueStreamingPipeline:
             # Create message key for partitioning
             message_key = enhanced_event['document_key']
             
-            # Send to Kafka (existing)
+            # Send to Kafka (for other consumers)
             kafka_success = self.send_to_kafka(topic, message_key, enhanced_event)
             
-            # 🆕 ALSO send to Power BI (only for Sales in prototype)
-            powerbi_success = False
+            # Notify Power BI trigger (smart batching)
             if collection_name == 'Sales_flat':
-                powerbi_success = self.send_to_powerbi(enhanced_event)
+                self.notify_powerbi_of_change(enhanced_event)
             
             if kafka_success:
                 # Update statistics
@@ -637,18 +814,12 @@ class ClearVueStreamingPipeline:
                 
                 self.stats['last_processed'] = datetime.now().isoformat()
                 
-                # 🆕 Track Power BI pushes
-                if powerbi_success:
-                    self.stats['powerbi_pushes'] += 1
-                
                 # Log high priority events
                 if enhanced_event['priority'] == 'HIGH':
-                    status = "→ Kafka ✓ PowerBI ✓" if powerbi_success else "→ Kafka ✓"
-                    logger.info(f"⚡ HIGH: {operation.upper()} on {collection_name} {status} | Total: {self.stats['total_changes']}")
-                    print(f"⚡ {collection_name}: {operation.upper()} {status}")
+                    logger.info(f"⚡ HIGH: {operation.upper()} on {collection_name} → Kafka ✓ PowerBI notified | Total: {self.stats['total_changes']}")
+                    print(f"⚡ {collection_name}: {operation.upper()} → PowerBI refresh queued")
                 else:
                     logger.debug(f"Processed {operation} on {collection_name}")
-        
         except Exception as e:
             logger.error(f"Error processing change event: {e}", exc_info=True)
             self.stats['errors'] += 1

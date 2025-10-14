@@ -11,7 +11,26 @@ import logging
 
 class ClearVueConfig:
     """Configuration for MongoDB Atlas and Kafka connections"""
-    
+    POWERBI_WORKSPACE_ID = 'your-workspace-id-here'
+    POWERBI_DATASET_ID = '7bd18a13-0815-4cbf-bb41-84ab2a2383bc'
+    POWERBI_ACCESS_TOKEN = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6IkhTMjNiN0RvN1RjYVUxUm9MSHdwSXEyNFZZZyIsImtpZCI6IkhTMjNiN0RvN1RjYVUxUm9MSHdwSXEyNFZZZyJ9.eyJhdWQiOiJodHRwczovL2FuYWx5c2lzLndpbmRvd3MubmV0L3Bvd2VyYmkvYXBpIiwiaXNzIjoiaHR0cHM6Ly9zdHMud2luZG93cy5uZXQvYjE0ZDg2ZjEtODNiYS00YjEzLWE3MDItYjVjMDIzMWI5MzM3LyIsImlhdCI6MTc2MDQ3MjEzNywibmJmIjoxNzYwNDcyMTM3LCJleHAiOjE3NjA0NzcyODksImFjY3QiOjAsImFjciI6IjEiLCJhaW8iOiJBVVFBdS84YUFBQUEzZkNER2dlNkVwNWFGdXFIQ29MOW44OFFhODVNOE5GZnY5eFBnTzJONWhkM3NNTkZ3TFBqbVZZRkFxejRNeFRrY3o0RUFheS80Q0QyMXlzUllsSDhaZz09IiwiYW1yIjpbInB3ZCJdLCJhcHBpZCI6IjA0YjA3Nzk1LThkZGItNDYxYS1iYmVlLTAyZjllMWJmN2I0NiIsImFwcGlkYWNyIjoiMCIsImZhbWlseV9uYW1lIjoiQ2FsZGVyIiwiZ2l2ZW5fbmFtZSI6IkMiLCJpZHR5cCI6InVzZXIiLCJpbl9jb3JwIjoidHJ1ZSIsImlwYWRkciI6IjE5Ny4xODUuMTc5LjEyMiIsIm5hbWUiOiJDIENhbGRlciIsIm9pZCI6Ijc2MThhNjNjLTZhMjktNDNiNC05N2RkLTk3YmYxZDkyOTZjZiIsIm9ucHJlbV9zaWQiOiJTLTEtNS0yMS0xMjk5MTc1MzAzLTE3NjcxNDUyODItMzUwMzMwNTAyMy03MzE1NCIsInB1aWQiOiIxMDAzMjAwMjZFRjUxMDBGIiwicmgiOiIxLkFZRUE4WVpOc2JxREUwdW5BclhBSXh1VE53a0FBQUFBQUFBQXdBQUFBQUFBQUFDQkFPNkJBQS4iLCJzY3AiOiJ1c2VyX2ltcGVyc29uYXRpb24iLCJzaWQiOiIwMDlhYzE0OS1jNWE1LTgyMDQtNzEzZi0wNDZmYjNkZGUzZWUiLCJzdWIiOiJtNkpiZUo2TklUYkhzTEhja09KVl91N25QdHJaVXg2Zko5MHJ1MmNZSmswIiwidGlkIjoiYjE0ZDg2ZjEtODNiYS00YjEzLWE3MDItYjVjMDIzMWI5MzM3IiwidW5pcXVlX25hbWUiOiI0NjE4NDAwN0BteW53dS5hYy56YSIsInVwbiI6IjQ2MTg0MDA3QG15bnd1LmFjLnphIiwidXRpIjoiNDcwTy16blNZa3UyZk5BMURKdlhBQSIsInZlciI6IjEuMCIsIndpZHMiOlsiYjc5ZmJmNGQtM2VmOS00Njg5LTgxNDMtNzZiMTk0ZTg1NTA5Il0sInhtc19jYyI6WyJDUDEiXSwieG1zX2Z0ZCI6Ik52LVRKVURxZ0xvY1N3d0pIRF9zZ2NicER3anpHZktubC1YX2k2ek04dThCWlhWeWIzQmxkMlZ6ZEMxa2MyMXoiLCJ4bXNfaWRyZWwiOiIxIDE0In0.hgevJ0q0WGEyeG0raYvPYu-TI3Ye13x8TtVbaZnaJSEEh_IEB78rThv1R152MvWFAxn0ptqeqkmkch4vjbFBTv9B5Xm9P8bxNM0hqFoPfmNEkf3C3SI_yN3bQK95Uq14gGFuy8iMh8srKy9zflx16FiVOXZnegAeDdpxSdyePEa9L5iZgJ9cA_cfkohavuqkAqIhLEdHEOwVtCNpsE6Ea_FA693KtmTb6PGDV_uJauFh6mcJVA0xGovBloWNUl9OmPGYsUSQMAPMoR6vMsr3iYN2Y4BnVFBobdA6qChlzEssWXPD7ug7tMsZHSvZENIU9et__VBbRyK-T_5g5UqRmg'
+
+
+    # Refresh behavior
+    POWERBI_MIN_REFRESH_INTERVAL = 60   # Min 60 seconds between refreshes
+    POWERBI_BATCH_WINDOW = 30            # Wait 30 seconds to batch changes
+
+    @classmethod
+    def get_powerbi_workspace_id(cls):
+        return cls.POWERBI_WORKSPACE_ID
+
+    @classmethod
+    def get_powerbi_dataset_id(cls):
+        return cls.POWERBI_DATASET_ID
+
+    @classmethod
+    def get_powerbi_access_token(cls):
+        return cls.POWERBI_ACCESS_TOKEN
     # =====================================================================
     # MONGODB ATLAS CONFIGURATION
     # =====================================================================
