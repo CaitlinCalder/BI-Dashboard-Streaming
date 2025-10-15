@@ -7,11 +7,16 @@ Date: October 2025
 """
 
 import os
-
+import logging
 
 class ClearVueConfig:
     """Configuration for MongoDB Atlas and Kafka connections"""
-    
+    POWERBI_WORKSPACE_ID = 'ee71b5e8-e84c-4b9c-9289-c738651a2c05'
+    @staticmethod
+    def get_powerbi_push_url():
+        """Get Power BI streaming dataset push URL"""
+        return ClearVueConfig.POWERBI_PUSH_URL
+
     # =====================================================================
     # MONGODB ATLAS CONFIGURATION
     # =====================================================================
@@ -84,7 +89,9 @@ class ClearVueConfig:
         'full_document': 'updateLookup',
         'max_await_time_ms': 1000
     }
+    POWERBI_PUSH_URL = 'https://api.powerbi.com/beta/b14d86f1-83ba-4b13-a702-b5c0231b9337/datasets/43221b12-c281-4646-9207-e2a902003e68/rows?experience=power-bi&key=gdsAPpOda%2FDjI7NqvJadfh5Np0Z8jDpy6ocHPTEERiaDRlt4uaEz59gLLRnSEmisnWZbAh%2F8r0XwTCw6KwzmIg%3D%3D'
     
+
     # =====================================================================
     # MONITORING CONFIGURATION
     # =====================================================================
@@ -94,12 +101,32 @@ class ClearVueConfig:
     # =====================================================================
     # CLASS METHODS
     # =====================================================================
-    
+    @classmethod
+    def validate_powerbi_config(cls) -> bool:
+        """Validate Power BI configuration"""
+        url = cls.get_powerbi_push_url()
+        
+        if not url:
+            return False
+        
+        if not url.startswith('https://api.powerbi.com/'):
+            return False
+        
+        if '/datasets/' not in url or '/rows?' not in url:
+            return False
+        
+        if 'key=' not in url:
+            return False
+        
+        return True
+
     @classmethod
     def get_mongo_uri(cls):
         """Get MongoDB Atlas URI"""
         return cls.MONGODB_ATLAS_URI
     
+
+
     @classmethod
     def get_database_name(cls):
         """Get database name"""
@@ -206,7 +233,8 @@ def get_connection_details():
         'collections': ClearVueConfig.get_all_collections(),
         'kafka_servers': ClearVueConfig.get_kafka_servers()
     }
-
+# Power BI Configuration
+# Add this line
 
 def print_startup_banner():
     """Print startup banner"""

@@ -1,18 +1,3 @@
-"""
-ClearVue Streaming Pipeline - Production Version 2.0
-Real-time Change Data Capture (CDC) from MongoDB Atlas to Kafka
-
-This pipeline monitors 6 MongoDB collections and streams changes to Kafka
-for Power BI real-time dashboards.
-
-Flow:
-MongoDB Atlas → Change Streams → Enrich → Kafka → Power BI
-
-Author: ClearVue Streaming Team
-Database: Nova_Analytix (MongoDB Atlas)
-Date: October 2025
-"""
-
 import json
 import logging
 import signal
@@ -29,6 +14,7 @@ from kafka import KafkaProducer
 from kafka.admin import KafkaAdminClient, NewTopic
 from kafka.errors import KafkaError
 import bson
+import requests  # 🆕 Added for Power BI
 
 
 # Import configuration
@@ -53,7 +39,7 @@ logger = logging.getLogger('ClearVuePipeline')
 class ClearVueStreamingPipeline:
     """
     Production-ready streaming pipeline for ClearVue BI
-    Monitors MongoDB collections and streams enriched changes to Kafka
+    Monitors MongoDB collections and streams enriched changes to Kafka AND Power BI
     """
     
     def __init__(self):
@@ -92,7 +78,9 @@ class ClearVueStreamingPipeline:
             'start_time': None,
             'errors': 0,
             'kafka_send_errors': 0,
-            'mongodb_errors': 0
+            'mongodb_errors': 0,
+            'powerbi_pushes': 0,  # 🆕
+            'powerbi_errors': 0   # 🆕
         }
         
         # Health monitoring
@@ -125,7 +113,7 @@ class ClearVueStreamingPipeline:
             existing_collections = self.db.list_collection_names()
             monitored_collections = ClearVueConfig.get_all_collections()
             
-            print(f" MongoDB Atlas connected!")
+            print(f" MongoDB Atlas connected")
             print(f"   Database: {self.db_name}")
             print(f"   Collections found: {len(existing_collections)}")
             
@@ -133,7 +121,7 @@ class ClearVueStreamingPipeline:
             missing = [c for c in monitored_collections if c not in existing_collections]
             if missing:
                 logger.warning(f"Collections not found: {missing}")
-                print(f"  Warning: Missing collections: {', '.join(missing)}")
+                print(f"⚠️  Warning: Missing collections: {', '.join(missing)}")
             
             logger.info(f"Connected to MongoDB: {self.db_name}")
             
@@ -261,7 +249,7 @@ class ClearVueStreamingPipeline:
             collection_name: Name of the collection
         
         Returns:
-            Enriched event ready for Kafka
+            Enriched event ready for Kafka and Power BI
         """
         
         # Base event structure
@@ -464,7 +452,7 @@ class ClearVueStreamingPipeline:
                 future = self.kafka_producer.send(topic, key=key, value=message)
                 record_metadata = future.get(timeout=10)
                 
-                logger.debug(f"✓ Kafka: {topic} | Partition: {record_metadata.partition} | Offset: {record_metadata.offset}")
+                logger.debug(f" Kafka: {topic} | Partition: {record_metadata.partition} | Offset: {record_metadata.offset}")
                 return True
                 
             except KafkaError as e:
@@ -485,6 +473,146 @@ class ClearVueStreamingPipeline:
         
         return False
     
+    # 🆕 POWER BI METHODS START HERE
+    # Replace the existing send_to_powerbi method with this one:
+
+    def send_to_powerbi(self, enhanced_event: Dict[str, Any]) -> bool:
+        """
+        Send Sales events to Power BI streaming dataset
+        FIXED VERSION: Handles FLAT document structure (no nested lines)
+        
+        Each MongoDB document IS a line item, not a header with nested lines.
+        """
+        if enhanced_event.get('collection') != 'Sales_flat':
+            return False
+        
+        try:
+            powerbi_url = ClearVueConfig.get_powerbi_push_url()
+            if not powerbi_url:
+                logger.warning("Power BI URL not configured")
+                return False
+
+            # Get the flattened document data
+            doc = enhanced_event.get('change_data', {})
+            
+            # For flat structure, the document itself IS the line item
+            # Check if this is a flat document (has line_ prefixed fields)
+            if 'line_INVENTORY_CODE' in doc or 'DOC_NUMBER' in doc:
+                #  FLAT STRUCTURE - Document already has all fields
+                trans_date_raw = doc.get('TRANS_DATE', doc.get('trans_date', datetime.now()))
+            else:
+                #  NESTED STRUCTURE - Old format, skip for now
+                logger.debug("Skipping nested document structure")
+                return False
+            
+            # Parse transaction date
+            if isinstance(trans_date_raw, str):
+                try:
+                    trans_date = datetime.fromisoformat(trans_date_raw.replace('Z', '+00:00'))
+                except:
+                    trans_date = datetime.now()
+            else:
+                trans_date = trans_date_raw if isinstance(trans_date_raw, datetime) else datetime.now()
+            
+            # Format dates for Power BI (ISO 8601)
+            trans_date_str = trans_date.strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
+            
+            # Create FIN_PERIOD as first day of the month
+            fin_period_date = datetime(trans_date.year, trans_date.month, 1)
+            fin_period_str = fin_period_date.strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
+
+            # Build Power BI payload from FLAT document
+            # Handle both uppercase (new) and lowercase (old) field names
+            powerbi_payload = {
+                # TEXT fields - handle both naming conventions
+                "_id": str(doc.get('_id', doc.get('DOC_NUMBER', ''))),
+                "DOC_NUMBER": str(doc.get('DOC_NUMBER', doc.get('doc_number', doc.get('_id', '')))),
+                "TRANSTYPE_CODE": str(doc.get('TRANSTYPE_CODE', doc.get('trans_type', ''))),
+                "REP_CODE": str(doc.get('REP_CODE', doc.get('rep_code', ''))),
+                "CUSTOMER_NUMBER": str(doc.get('CUSTOMER_NUMBER', doc.get('customer_id', ''))),
+                
+                # DATE fields
+                "TRANS_DATE": trans_date_str,
+                "FIN_PERIOD": fin_period_str,
+                
+                # Line item fields - these should already be prefixed with "line_"
+                "line_INVENTORY_CODE": str(doc.get('line_INVENTORY_CODE', '')),
+                "line_QUANTITY": int(doc.get('line_QUANTITY', 0)),
+                "line_UNIT_SELL_PRICE": int(doc.get('line_UNIT_SELL_PRICE', 0)),
+                "line_TOTAL_LINE_PRICE": int(doc.get('line_TOTAL_LINE_PRICE', 0)),
+                "line_LAST_COST": int(doc.get('line_LAST_COST', 0))
+            }
+
+            # Validate payload has actual data
+            if not powerbi_payload['line_INVENTORY_CODE']:
+                logger.debug("Skipping document with no inventory code")
+                return False
+
+            # Send to Power BI (expects array)
+            response = requests.post(
+                powerbi_url,
+                json=[powerbi_payload],
+                headers={'Content-Type': 'application/json'},
+                timeout=5
+            )
+
+            if response.status_code in (200, 201):
+                self.stats['powerbi_pushes'] += 1
+                logger.info(f" Power BI: Pushed line {powerbi_payload['line_INVENTORY_CODE']} from doc {powerbi_payload['DOC_NUMBER']}")
+                return True
+            else:
+                logger.error(f"Power BI push failed ({response.status_code}): {response.text}")
+                logger.error(f"Payload: {powerbi_payload}")
+                self.stats['powerbi_errors'] += 1
+                return False
+
+        except requests.exceptions.Timeout:
+            logger.error("Power BI push timeout")
+            self.stats['powerbi_errors'] += 1
+            return False
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Power BI request error: {str(e)}")
+            self.stats['powerbi_errors'] += 1
+            return False
+        except Exception as e:
+            logger.error(f"Power BI push error: {str(e)}", exc_info=True)
+            self.stats['powerbi_errors'] += 1
+            return False
+    
+    def _transform_sales_for_powerbi(self, enhanced_event: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Transform Sales event to Power BI streaming dataset schema
+        
+        Args:
+            enhanced_event: The enriched event from pipeline
+        
+        Returns:
+            Dictionary matching Power BI schema (16 fields)
+        """
+        business_context = enhanced_event.get('business_context', {})
+        
+        # Map to the 16 fields defined in Power BI
+        powerbi_record = {
+            'timestamp': enhanced_event['timestamp'],
+            'event_id': enhanced_event['event_id'],
+            'collection': enhanced_event['collection'],
+            'operation': enhanced_event['operation'],
+            'priority': enhanced_event['priority'],
+            'transaction_type': business_context.get('transaction_type', 'sales'),
+            'customer_id': business_context.get('customer_id', ''),
+            'trans_date': business_context.get('trans_date', ''),
+            'fin_period': business_context.get('fin_period', 0),
+            'financial_year': business_context.get('financial_year', 0),
+            'financial_quarter': business_context.get('financial_quarter', ''),
+            'total_amount': business_context.get('total_amount', 0.0),
+            'total_cost': business_context.get('total_cost', 0.0),
+            'total_profit': business_context.get('total_profit', 0.0),
+            'profit_margin_pct': business_context.get('profit_margin_pct', 0.0),
+            'line_count': business_context.get('line_count', 0),
+        }
+        
+        return powerbi_record
+    
     def process_change_event(self, change_doc: Dict[str, Any], collection_name: str):
         """Process a detected change event from MongoDB"""
         try:
@@ -497,10 +625,15 @@ class ClearVueStreamingPipeline:
             # Create message key for partitioning
             message_key = enhanced_event['document_key']
             
-            # Send to Kafka
-            success = self.send_to_kafka(topic, message_key, enhanced_event)
+            # Send to Kafka (existing)
+            kafka_success = self.send_to_kafka(topic, message_key, enhanced_event)
             
-            if success:
+            # ALSO send to Power BI (only for Sales in prototype)
+            powerbi_success = False
+            if collection_name == 'Sales_flat':
+                powerbi_success = self.send_to_powerbi(enhanced_event)
+            
+            if kafka_success:
                 # Update statistics
                 self.stats['total_changes'] += 1
                 self.stats['changes_by_collection'][collection_name] += 1
@@ -513,10 +646,14 @@ class ClearVueStreamingPipeline:
                 
                 self.stats['last_processed'] = datetime.now().isoformat()
                 
+                if powerbi_success:
+                    self.stats['powerbi_pushes'] += 1
+                
                 # Log high priority events
                 if enhanced_event['priority'] == 'HIGH':
-                    logger.info(f"⚡ HIGH: {operation.upper()} on {collection_name} | Total: {self.stats['total_changes']}")
-                    print(f"⚡ {collection_name}: {operation.upper()} → Kafka")
+                    status = "→ Kafka  PowerBI " if powerbi_success else "→ Kafka "
+                    logger.info(f" HIGH: {operation.upper()} on {collection_name} {status} | Total: {self.stats['total_changes']}")
+                    print(f" {collection_name}: {operation.upper()} {status}")
                 else:
                     logger.debug(f"Processed {operation} on {collection_name}")
         
@@ -538,7 +675,7 @@ class ClearVueStreamingPipeline:
         ]
         
         logger.info(f"Started change stream: {collection_name}")
-        print(f"  ✓ Watching: {collection_name}")
+        print(f"   Watching: {collection_name}")
         
         try:
             with collection.watch(pipeline, **ClearVueConfig.CHANGE_STREAM_CONFIG) as stream:
@@ -589,15 +726,17 @@ class ClearVueStreamingPipeline:
             uptime = str(datetime.now() - start).split('.')[0]
         
         print("\n" + "="*70)
-        print(f"{'FINAL STATISTICS' if final else '📊 PIPELINE STATISTICS'}")
+        print(f"{' FINAL STATISTICS' if final else '📊 PIPELINE STATISTICS'}")
         print("="*70)
         print(f"  Uptime: {uptime}")
         print(f" Total changes: {self.stats['total_changes']:,}")
         print(f" High priority: {self.stats['high_priority_events']:,}")
+        print(f" PowerBI pushes: {self.stats['powerbi_pushes']:,}")  # 🆕
         print(f" Errors: {self.stats['errors']}")
-        print(f" Kafka errors: {self.stats['kafka_send_errors']}")
-        print(f" MongoDB errors: {self.stats['mongodb_errors']}")
-        print(f" Health: {'HEALTHY ✓' if self.is_healthy else 'UNHEALTHY ✗'}")
+        print(f"  Kafka errors: {self.stats['kafka_send_errors']}")
+        print(f"  PowerBI errors: {self.stats['powerbi_errors']}")  # 🆕
+        print(f"  MongoDB errors: {self.stats['mongodb_errors']}")
+        print(f" Health: {'HEALTHY ' if self.is_healthy else 'UNHEALTHY ✗'}")
         print(f" Last processed: {self.stats['last_processed'] or 'N/A'}")
         
         if self.stats['changes_by_collection']:
@@ -635,10 +774,18 @@ class ClearVueStreamingPipeline:
         print("\n" + "="*70)
         print(" STARTING CLEARVUE STREAMING PIPELINE")
         print("="*70)
-        print(f"  Database: {self.db_name}")
-        print(f"Collections: {', '.join(collections)}")
+        print(f" Database: {self.db_name}")
+        print(f" Collections: {', '.join(collections)}")
         print(f" Kafka Topics: {len(collections)}")
-        print(f"  Mode: MongoDB ATLAS (Production)")
+        
+        # 🆕 Check Power BI configuration
+        powerbi_url = ClearVueConfig.get_powerbi_push_url()
+        if powerbi_url:
+            print(f" Power BI: ENABLED (Sales only)")
+        else:
+            print(f" Power BI: DISABLED (URL not configured)")
+        
+        print(f" Mode: MongoDB ATLAS (Production)")
         print("="*70 + "\n")
         
         # Create Kafka topics
@@ -678,7 +825,7 @@ class ClearVueStreamingPipeline:
         
         print(" PIPELINE IS RUNNING!")
         print(" Waiting for database changes...")
-        print("  Press Ctrl+C to stop\n")
+        print(" Press Ctrl+C to stop\n")
         
         # Keep main thread alive and print stats periodically
         try:
@@ -723,16 +870,16 @@ class ClearVueStreamingPipeline:
         for collection_name in list(self.change_streams.keys()):
             try:
                 self.change_streams[collection_name].close()
-                print(f"   ✓ Closed stream: {collection_name}")
+                print(f"    Closed stream: {collection_name}")
             except Exception as e:
                 logger.error(f"Error closing stream {collection_name}: {e}")
         
         # Flush and close Kafka producer
         try:
-            print("   ⏳ Flushing Kafka producer...")
+            print("    Flushing Kafka producer...")
             self.kafka_producer.flush(timeout=10)
             self.kafka_producer.close()
-            print("   ✓ Closed Kafka producer")
+            print("    Closed Kafka producer")
             logger.info("Kafka producer closed")
         except Exception as e:
             logger.error(f"Error closing Kafka producer: {e}")
@@ -740,7 +887,7 @@ class ClearVueStreamingPipeline:
         # Close MongoDB connection
         try:
             self.mongo_client.close()
-            print("   ✓ Closed MongoDB connection")
+            print("    Closed MongoDB connection")
             logger.info("MongoDB connection closed")
         except Exception as e:
             logger.error(f"Error closing MongoDB: {e}")
@@ -763,7 +910,7 @@ def main():
     print("5. CUSTOM selection")
     print("="*70)
     
-    choice = input("\n Select option (1-5) [default: 1]: ").strip() or "1"
+    choice = input("\n👉 Select option (1-5) [default: 1]: ").strip() or "1"
     
     pipeline = None
     try:
@@ -792,7 +939,7 @@ def main():
         
         elif choice == "5":
             # Custom selection
-            print("\n  Available collections:")
+            print("\n Available collections:")
             all_collections = ClearVueConfig.get_all_collections()
             for i, coll in enumerate(all_collections, 1):
                 priority = ClearVueConfig.get_collection_priority(coll)
