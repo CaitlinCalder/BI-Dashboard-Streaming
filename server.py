@@ -43,7 +43,7 @@ POWERBI_EMBED_CODE = '''
 <iframe title="CMPG321_PowerBI_Import" 
         width="1140" 
         height="541.25" 
-        src="https://app.powerbi.com/reportEmbed?reportId=1d010b2c-bb11-442c-8a32-4d613bdd24ea&autoAuth=true&ctid=b14d86f1-83ba-4b13-a702-b5c0231b9337" 
+        src="https://app.powerbi.com/reportEmbed?reportId=aa1c4ff1-fc0d-4db2-9199-6992d84f014a&autoAuth=true&ctid=b14d86f1-83ba-4b13-a702-b5c0231b9337" 
         frameborder="0" 
         allowFullScreen="true">
 </iframe>
