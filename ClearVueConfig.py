@@ -12,25 +12,11 @@ import logging
 class ClearVueConfig:
     """Configuration for MongoDB Atlas and Kafka connections"""
     POWERBI_WORKSPACE_ID = 'ee71b5e8-e84c-4b9c-9289-c738651a2c05'
-    POWERBI_DATASET_ID = 'f15b2b99-8dc2-4367-980a-6d0a365874e4'
-    POWERBI_ACCESS_TOKEN = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6IkhTMjNiN0RvN1RjYVUxUm9MSHdwSXEyNFZZZyIsImtpZCI6IkhTMjNiN0RvN1RjYVUxUm9MSHdwSXEyNFZZZyJ9.eyJhdWQiOiJodHRwczovL2FuYWx5c2lzLndpbmRvd3MubmV0L3Bvd2VyYmkvYXBpIiwiaXNzIjoiaHR0cHM6Ly9zdHMud2luZG93cy5uZXQvYjE0ZDg2ZjEtODNiYS00YjEzLWE3MDItYjVjMDIzMWI5MzM3LyIsImlhdCI6MTc2MDUxNzY0MCwibmJmIjoxNzYwNTE3NjQwLCJleHAiOjE3NjA1MjIzNTQsImFjY3QiOjAsImFjciI6IjEiLCJhaW8iOiJBVVFBdS84YUFBQUFaU3FKUFFaWVhxYXM4Nm5rVnFmVTBFZHp1ZXFNODQ0OUdub0FoR2syQ3F2WU5sTlFTRVozRUZ4bUUrVUxXTFNQcllyZmRNQU96c3dKRHVRRlpyaytpUT09IiwiYW1yIjpbInB3ZCJdLCJhcHBpZCI6IjA0YjA3Nzk1LThkZGItNDYxYS1iYmVlLTAyZjllMWJmN2I0NiIsImFwcGlkYWNyIjoiMCIsImZhbWlseV9uYW1lIjoiQ2FsZGVyIiwiZ2l2ZW5fbmFtZSI6IkMiLCJpZHR5cCI6InVzZXIiLCJpbl9jb3JwIjoidHJ1ZSIsImlwYWRkciI6IjE5Ny4xODUuMTc5LjEyMiIsIm5hbWUiOiJDIENhbGRlciIsIm9pZCI6Ijc2MThhNjNjLTZhMjktNDNiNC05N2RkLTk3YmYxZDkyOTZjZiIsIm9ucHJlbV9zaWQiOiJTLTEtNS0yMS0xMjk5MTc1MzAzLTE3NjcxNDUyODItMzUwMzMwNTAyMy03MzE1NCIsInB1aWQiOiIxMDAzMjAwMjZFRjUxMDBGIiwicmgiOiIxLkFZRUE4WVpOc2JxREUwdW5BclhBSXh1VE53a0FBQUFBQUFBQXdBQUFBQUFBQUFDQkFPNkJBQS4iLCJzY3AiOiJ1c2VyX2ltcGVyc29uYXRpb24iLCJzaWQiOiIwMDlhYzE0OS1jNWE1LTgyMDQtNzEzZi0wNDZmYjNkZGUzZWUiLCJzdWIiOiJtNkpiZUo2TklUYkhzTEhja09KVl91N25QdHJaVXg2Zko5MHJ1MmNZSmswIiwidGlkIjoiYjE0ZDg2ZjEtODNiYS00YjEzLWE3MDItYjVjMDIzMWI5MzM3IiwidW5pcXVlX25hbWUiOiI0NjE4NDAwN0BteW53dS5hYy56YSIsInVwbiI6IjQ2MTg0MDA3QG15bnd1LmFjLnphIiwidXRpIjoiOGFmNm5oVFV4azJFZ1ZnamNOc0JBQSIsInZlciI6IjEuMCIsIndpZHMiOlsiYjc5ZmJmNGQtM2VmOS00Njg5LTgxNDMtNzZiMTk0ZTg1NTA5Il0sInhtc19jYyI6WyJDUDEiXSwieG1zX2Z0ZCI6IkgyOWQ1MnViYWM5TUZlSlNzXzV5U1l3SUd1Z0pXVV8tdG42QzNXLTZCNDhCWlhWeWIzQmxibTl5ZEdndFpITnRjdyIsInhtc19pZHJlbCI6IjEgNiJ9.XimKvf3xLU_bCoVHRjB47fRUFoeOhp_ZIxf-eNDLPyuSXOOFLzNR_mgV50gVFkl_Ds3XcjYRwLjaPglZYFDSaAx8jlSd1_5xw7-UdjxiN9yqid4ogaT46lh89XaGYnOg9TEr-K6prXbLs8yLThUnVSUXRK9cHlPucN-zT9lonreQ5sQ4Ow302l42aJzgLSIbgSGm76C1zs2aS2ayklhdvojJgDVGvY7tJ5TJbTlvMV3Bz-E-tjeUfg9sqXXP_weCNJRPPK9fbHcaBV-aNHT4jjiUa2BeaVR0h2g5awoyRzEl-NE1OBmni6won1x_wXe0g7BaQJ6pug5IVRIG6Vl8Cw'
+    @staticmethod
+    def get_powerbi_push_url():
+        """Get Power BI streaming dataset push URL"""
+        return ClearVueConfig.POWERBI_PUSH_URL
 
-
-    # Refresh behavior
-    POWERBI_MIN_REFRESH_INTERVAL = 60   # Min 60 seconds between refreshes
-    POWERBI_BATCH_WINDOW = 30            # Wait 30 seconds to batch changes
-
-    @classmethod
-    def get_powerbi_workspace_id(cls):
-        return cls.POWERBI_WORKSPACE_ID
-
-    @classmethod
-    def get_powerbi_dataset_id(cls):
-        return cls.POWERBI_DATASET_ID
-
-    @classmethod
-    def get_powerbi_access_token(cls):
-        return cls.POWERBI_ACCESS_TOKEN
     # =====================================================================
     # MONGODB ATLAS CONFIGURATION
     # =====================================================================
@@ -103,7 +89,7 @@ class ClearVueConfig:
         'full_document': 'updateLookup',
         'max_await_time_ms': 1000
     }
-    POWERBI_PUSH_URL = 'https://api.powerbi.com/beta/b14d86f1-83ba-4b13-a702-b5c0231b9337/datasets/7bd18a13-0815-4cbf-bb41-84ab2a2383bc/rows?experience=power-bi&key=dUOGa9OQ%2B%2BgifLK%2F0%2BEzT9xJuvJ18UZrrz5Wfrf6WWamfa%2Fy20uYZB2buv6TCK9T9PWaWAVc3t%2FX%2B5TC6QtyLg%3D%3D'
+    POWERBI_PUSH_URL = 'https://api.powerbi.com/beta/b14d86f1-83ba-4b13-a702-b5c0231b9337/datasets/43221b12-c281-4646-9207-e2a902003e68/rows?experience=power-bi&key=gdsAPpOda%2FDjI7NqvJadfh5Np0Z8jDpy6ocHPTEERiaDRlt4uaEz59gLLRnSEmisnWZbAh%2F8r0XwTCw6KwzmIg%3D%3D'
     
 
     # =====================================================================
@@ -139,10 +125,7 @@ class ClearVueConfig:
         """Get MongoDB Atlas URI"""
         return cls.MONGODB_ATLAS_URI
     
-    @staticmethod
-    def get_powerbi_push_url():
-        """Get Power BI streaming dataset push URL"""
-        return ClearVueConfig.POWERBI_PUSH_URL
+
 
     @classmethod
     def get_database_name(cls):
